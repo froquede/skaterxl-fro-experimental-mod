@@ -1,0 +1,12 @@
+{
+  "Id": "fro-mod",
+  "DisplayName": "Fro's Experimental Mod",
+  "Author": "froquede",
+  "Version": "1.8.0",
+  "ManagerVersion": "0.22.5.0",
+  "Requirements": [],
+  "LoadAfter": [ "XXLMod3" ],
+  "HomePage": "https://github.com/roquef/skaterxl-fro-mod",
+  "AssemblyName": "fro-mod.dll",
+  "EntryMethod": "fro_mod.Main.Load"
+}
