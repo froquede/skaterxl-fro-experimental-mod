@@ -927,8 +927,7 @@ namespace fro_mod
                         PlayerController.Instance.ikController._finalIk.solver.leftFootEffector.position = left_foot.position;
 
                         Transform left_pos = (Transform)Traverse.Create(PlayerController.Instance.ikController).Field("ikAnimLeftFootTarget").GetValue();
-                        Vector3 pos_target = new Vector3(left_pos.position.x + random_offset, left_foot.position.y, left_pos.position.z + random_offset);
-                        left_pos.position = Vector3.Lerp(left_pos.position, pos_target, Time.unscaledTime * 2f);
+                        left_pos.position = new Vector3(left_pos.position.x + random_offset, left_foot.position.y, left_pos.position.z + random_offset);
                     }
                 }
             }
@@ -974,8 +973,7 @@ namespace fro_mod
                         PlayerController.Instance.ikController._finalIk.solver.rightFootEffector.position = right_foot.position;
 
                         Transform right_pos = (Transform)Traverse.Create(PlayerController.Instance.ikController).Field("ikAnimRightFootTarget").GetValue();
-                        Vector3 pos_target = new Vector3(right_pos.position.x + random_offset, right_foot.position.y, right_pos.position.z + random_offset);
-                        right_pos.position = Vector3.Lerp(right_pos.position, pos_target, Time.unscaledTime * 2f);
+                        right_pos.position = new Vector3(right_pos.position.x + random_offset, right_foot.position.y, right_pos.position.z + random_offset);
                     }
                 }
             }
