@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using RapidGUI;
+using ReplayEditor;
 using UnityEngine;
 using UnityModManagerNet;
 
@@ -82,7 +83,7 @@ namespace fro_mod
         {
             if (showMainMenu)
             {
-                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.8.0</b>");
+                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.9.0</b>");
             }
         }
 
@@ -122,7 +123,7 @@ namespace fro_mod
             if (!about_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b>fro's experimental mod v1.8.0 (21/07/2022)</b>");
+                GUILayout.Label("<b>fro's experimental mod v1.9.0 (28/07/2022)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This software is distributed 'as is', with no warranty expressed or implied, and no guarantee for accuracy or applicability to any purpose.");
                 GUILayout.Label("This mod is not intended to harm the game or its respective developer in any purposeful way, its online functionality, or the game economy.");
@@ -275,16 +276,10 @@ namespace fro_mod
                 GUILayout.Label("<b>Automatically wave on:</b>");
                 Main.settings.wave_on = RGUI.SelectionPopup(Main.settings.wave_on, States);
                 GUILayout.EndHorizontal();
-
-                if (RGUI.Button(Main.settings.wobble, "Wobble on high speed"))
-                {
-                    Main.settings.wobble = !Main.settings.wobble;
-                }
-
-                if (Main.settings.wobble)
-                {
-                    Main.settings.wobble_offset = RGUI.SliderFloat(Main.settings.wobble_offset, 0f, 16f, 4f, "Minimum velocity for wobbling");
-                }
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("<b>Automatically celebrate on:</b>");
+                Main.settings.celebrate_on = RGUI.SelectionPopup(Main.settings.celebrate_on, States);
+                GUILayout.EndHorizontal();
 
                 if (RGUI.Button(Main.settings.bails, "Alternative bails"))
                 {
@@ -296,6 +291,7 @@ namespace fro_mod
         }
 
         FoldObj filmer_fold = new FoldObj(true, "Multiplayer filmer");
+        FoldObj instructions_fold = new FoldObj(true, "Instructions");
         void FilmerSection()
         {
             Fold(filmer_fold);
@@ -316,7 +312,12 @@ namespace fro_mod
                     Main.settings.follow_mode_right = !Main.settings.follow_mode_right;
                 }
 
-                if (Main.settings.follow_mode_left || Main.settings.follow_mode_right)
+                if (RGUI.Button(Main.settings.follow_mode_head, "Follow player with head"))
+                {
+                    Main.settings.follow_mode_head = !Main.settings.follow_mode_head;
+                }
+
+                if (Main.settings.follow_mode_left || Main.settings.follow_mode_right || Main.settings.follow_mode_head)
                 {
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("<b>Player username</b>");
@@ -325,6 +326,7 @@ namespace fro_mod
 
                     Main.settings.follow_target_offset = RGUI.SliderFloat(Main.settings.follow_target_offset, -1f, 1f, -.4f, "Camera target angle");
                     Main.settings.filmer_arm_angle = RGUI.SliderFloat(Main.settings.filmer_arm_angle, 0f, 90f, 37.5f, "Camera arm angle");
+                    //Main.settings.lookat_speed = RGUI.SliderFloat(Main.settings.lookat_speed, 0f, 1f, 1f, "Speed");
 
                     if (RGUI.Button(Main.settings.camera_feet, "Put feet on the ground when pumping"))
                     {
@@ -344,6 +346,36 @@ namespace fro_mod
                         Main.settings.filmer_light_spotangle = RGUI.SliderFloat(Main.settings.filmer_light_spotangle, 0f, 360f, 120f, "Light angle");
                         Main.settings.filmer_light_range = RGUI.SliderFloat(Main.settings.filmer_light_range, 0f, 20f, 5f, "Light range");
                     }
+
+                    GUILayout.Label("");
+                    GUILayout.Label("<b>Keyframe creation</b>");
+                    Fold(instructions_fold);
+                    if(!instructions_fold.reference)
+                    {
+                        GUILayout.BeginHorizontal("Box");
+                        GUILayout.Label("When this button is pressed this feature will delete all actual keyframes and create new ones based on the selected left / right camera hand / head, you can run it as many times as you want; I recommend you to cut the clip before creating the keyframes, you can watch the result in realtime enabling the keyframes.");
+                        GUILayout.Label("Less keyframes will result in a smoother but less precise output");
+                        GUILayout.EndHorizontal();
+                    }
+
+                    Main.settings.keyframe_sample = (int)RGUI.SliderFloat(Main.settings.keyframe_sample, 2f, 1000f, 50f, "Number of keyframes to create");
+                    Main.settings.keyframe_fov = (int)RGUI.SliderFloat(Main.settings.keyframe_fov, 1f, 180f, 120f, "Keyframe field of view");
+                    if (Main.controller.keyframe_state == true)
+                    {
+                        if (GUILayout.Button("Cancel creation", GUILayout.Height(32)))
+                        {
+                            Main.controller.keyframe_state = false;
+                        }
+                    }
+                    else
+                    {
+                        if (GUILayout.Button("Create keyframes", GUILayout.Height(32)))
+                        {
+                            ReplayEditorController.Instance.cameraController.DeleteAllKeyFrames();
+                            Main.controller.keyframe_state = true;
+                        }
+                    }
+
                 }
                 GUILayout.EndVertical();
             }
@@ -439,6 +471,11 @@ namespace fro_mod
                 Main.settings.custom_scale.x = RGUI.SliderFloat(Main.settings.custom_scale.x, 0f, 2f, 1f, "Scale body x");
                 Main.settings.custom_scale.y = RGUI.SliderFloat(Main.settings.custom_scale.y, 0f, 2f, 1f, "Scale body y");
                 Main.settings.custom_scale.z = RGUI.SliderFloat(Main.settings.custom_scale.z, 0f, 2f, 1f, "Scale body z");
+                Main.settings.custom_scale_head = RGUI.SliderFloat(Main.settings.custom_scale_head, 0f, 4f, 1f, "Head scale");
+                Main.settings.custom_scale_hand_l = RGUI.SliderFloat(Main.settings.custom_scale_hand_l, 0f, 4f, 1f, "Left hand scale");
+                Main.settings.custom_scale_hand_r = RGUI.SliderFloat(Main.settings.custom_scale_hand_r, 0f, 4f, 1f, "Right hand scale");
+                Main.settings.custom_scale_foot_l = RGUI.SliderFloat(Main.settings.custom_scale_foot_l, 0f, 4f, 1f, "Left foot scale");
+                Main.settings.custom_scale_foot_r = RGUI.SliderFloat(Main.settings.custom_scale_foot_r, 0f, 4f, 1f, "Right foot scale");
                 GUILayout.EndVertical();
 
                 GUILayout.BeginVertical("Box");
@@ -458,11 +495,28 @@ namespace fro_mod
             {
                 GUILayout.BeginVertical("Box");
 
-                Main.settings.nose_tail_collider = RGUI.SliderFloat(Main.settings.nose_tail_collider, 0f, 2f, 1f, "Nose and tail collider height");
+                if (RGUI.Button(Main.settings.wobble, "Wobble on high speed"))
+                {
+                    Main.settings.wobble = !Main.settings.wobble;
+                }
+
+                if (Main.settings.wobble)
+                {
+                    Main.settings.wobble_offset = RGUI.SliderFloat(Main.settings.wobble_offset, 0f, 16f, 4f, "Minimum velocity for wobbling");
+                }
+
+                GUILayout.Label("");
+
                 if (RGUI.Button(Main.settings.BetterDecay, "Better friction / decay"))
                 {
                     Main.settings.BetterDecay = !Main.settings.BetterDecay;
                 }
+
+                Main.settings.decay = RGUI.SliderFloat(Main.settings.decay, 0f, 10f, 3.25f, "Friction force");
+
+                GUILayout.Label("");
+
+                Main.settings.nose_tail_collider = RGUI.SliderFloat(Main.settings.nose_tail_collider, 0f, 2f, 1f, "Nose and tail collider height");
 
                 GUILayout.EndVertical();
             }

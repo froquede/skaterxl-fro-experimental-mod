@@ -12,7 +12,7 @@ namespace fro_mod
     {
         static bool Prefix()
         {
-            return false;
+            return true;
         }
     }
 }

@@ -49,6 +49,9 @@ namespace fro_mod
             UnityEngine.Object.DontDestroyOnLoad(cbt);
             UnityEngine.Object.DontDestroyOnLoad(multi);
 
+            /*modEntry.OnGUI = OnGUI;
+            modEntry.OnSaveGUI = new Action<UnityModManager.ModEntry>(OnSaveGUI);
+            modEntry.OnToggle = new Func<UnityModManager.ModEntry, bool, bool>(OnToggle);*/
             modEntry.OnUnload = Unload;
             Main.modEntry = modEntry;
             checkLists(modEntry);
@@ -76,6 +79,7 @@ namespace fro_mod
                 settings.dynamic_feet_states[9] = true;
                 settings.dynamic_feet_states[10] = true;
                 settings.dynamic_feet_states[11] = true;
+                settings.dynamic_feet_states[12] = true;
                 settings.Save(modEntry);
             }
         }

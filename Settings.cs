@@ -29,6 +29,7 @@ namespace fro_mod
 
         public bool follow_mode_left = false;
         public bool follow_mode_right = false;
+        public bool follow_mode_head = false;
         public bool push_by_velocity = true;
 
         public float follow_target_offset = -.3f;
@@ -49,6 +50,7 @@ namespace fro_mod
         public bool feet_offset = false;
 
         public string wave_on = "Disabled";
+        public string celebrate_on = "Disabled";
 
         public bool camera_avoidance = true;
 
@@ -77,7 +79,19 @@ namespace fro_mod
         public float input_threshold = 20f;
 
         public bool BetterDecay = true;
+        public float decay = 3.25f;
         public List<bool> dynamic_feet_states = new List<Boolean>();
+
+        public float custom_scale_head = 1f;
+        public float custom_scale_hand_l = 1f;
+        public float custom_scale_hand_r = 1f;
+        public float custom_scale_foot_l = 1f;
+        public float custom_scale_foot_r = 1f;
+
+        public int keyframe_sample = 50;
+
+        public int keyframe_fov = 120;
+        public float lookat_speed = 1;
 
 #if DEBUG
         public bool debug = true;

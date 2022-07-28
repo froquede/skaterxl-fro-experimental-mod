@@ -10,8 +10,15 @@ namespace fro_mod
 	{
         static bool Prefix(ushort id)
 		{
-			// UnityModManager.Logger.Log("Sending Message: " + id);
-			return Main.cbt.checkLastMessage();
+			if(Main.settings.debug) UnityModManager.Logger.Log("Sending Message: " + id);
+
+			bool can_send = Main.cbt.checkLastMessage();
+			if(can_send)
+            {
+				if ((int)id == 4) Main.controller.PlayLetsGoAnim();
+            }
+
+			return can_send;
 		}
 	}
 }
