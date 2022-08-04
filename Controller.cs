@@ -127,6 +127,8 @@ namespace fro_mod
         public bool IsGrabbing() { return (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Grabs) || EventManager.Instance.IsGrabbing; }
 
         LayerMask layerMask = ~(1 << LayerMask.NameToLayer("Skateboard"));
+        float head_frame = 0, delay_head = 0;
+        Quaternion last_head = Quaternion.identity;
         public void Update()
         {
             if (center_collider == null) getDeck();
@@ -140,7 +142,13 @@ namespace fro_mod
                 if (Main.settings.feet_rotation || Main.settings.feet_offset) DynamicFeet();
             }
 
+            LookForward();
             LetsGoAnimHead();
+
+            if (keyframe_state == true)
+            {
+                FilmerKeyframes();
+            }
         }
 
         private void setMotionType(Muscle muscle, ConfigurableJointMotion joint)
@@ -154,6 +162,9 @@ namespace fro_mod
         }
 
         int delay = 0;
+        bool freeze_pos = false;
+        StickInput left_stick_freezed = new StickInput();
+        StickInput right_stick_freezed = new StickInput();
         public void FixedUpdate()
         {
             if (!Main.settings.enabled) return;
@@ -183,7 +194,7 @@ namespace fro_mod
                 WaveAnim();
             }
 
-            if (Main.settings.celebrate_on != "Disabled")
+            if (Main.settings.celebrate_on != "Disabled" && PlayerController.Instance.currentStateEnum != PlayerController.CurrentState.Bailed)
             {
                 CheckLetsgoAnim();
             }
@@ -191,6 +202,7 @@ namespace fro_mod
             if (Main.settings.bails && PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Bailed && PlayerController.Instance.respawn.bail.bailed)
             {
                 if (!bailed_puppet) SetBailedPuppet();
+                letsgo_anim_time = Time.unscaledTime - 3f;
             }
             else if (bailed_puppet)
             {
@@ -199,7 +211,6 @@ namespace fro_mod
 
             if (PlayerController.Instance.currentStateEnum != PlayerController.CurrentState.Bailed)
             {
-                //PlayerController.Instance.SetHandIKWeight(Main.settings.left_hand_weight / 100f, Main.settings.right_hand_weight / 100f);
                 PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].rigidbody.mass = Main.settings.left_hand_weight;
                 PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].rigidbody.mass = Main.settings.right_hand_weight;
             }
@@ -249,12 +260,10 @@ namespace fro_mod
 
             EA.LookAtAreaAround(PlayerController.Instance.boardController.transform.position);
 
-            if (keyframe_state == true && delay > 2)
+            if (Input.GetKeyDown(KeyCode.Space))
             {
-                FilmerKeyframes();
-                delay = 0;
+                freeze_pos = !freeze_pos;
             }
-            delay++;
         }
 
         public void PlayLetsGoAnim()
@@ -263,6 +272,8 @@ namespace fro_mod
         }
 
         float letsgo_anim_time = 1;
+        float letsgoanim_frame = 0;
+        float letsgoanim_length = 30;
         void LetsGoAnim()
         {
             if (letsgo_anim_time == 0) letsgo_anim_time = Time.unscaledTime;
@@ -286,24 +297,87 @@ namespace fro_mod
                 center_right.transform.rotation = PlayerController.Instance.skaterController.skaterTransform.rotation;
                 center_right.transform.Translate(new Vector3(.2f * multiplier, .75f + sin, -.25f * multiplier), Space.Self);
 
-                PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].transform.position = center_left.transform.position;
-                PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].transform.position = center_right.transform.position;
+                PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].transform.position = Vector3.Lerp(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].transform.position, center_left.transform.position, map01(letsgoanim_frame, 0, letsgoanim_length));
+                PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].transform.position = Vector3.Lerp(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].transform.position, center_right.transform.position, map01(letsgoanim_frame, 0, letsgoanim_length));
+                letsgoanim_frame++;
 
                 Destroy(center_left);
                 Destroy(center_right);
             }
+            else
+            {
+                letsgoanim_frame = 0;
+            }
         }
 
+        void LookForward()
+        {
+            if (!Main.settings.look_forward) return;
+
+            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup)
+            {
+                if (PlayerController.Instance.IsSwitch)
+                {
+                    Vector3 target = nose_collider.transform.position;
+                    if (PlayerController.Instance.GetBoardBackwards()) target = tail_collider.transform.position;
+                    GameObject head_copy = new GameObject();
+                    head_copy.transform.rotation = head.rotation;
+                    head_copy.transform.position = head.position;
+                    head_copy.transform.LookAt(target);
+                    if (PlayerController.Instance.animationController.skaterAnim.GetFloat("Nollie") == 0f)
+                    {
+                        Vector3 t = new Vector3(-175, -150, spine.transform.rotation.z);
+                        head_copy.transform.Rotate(t);
+                    }
+                    else
+                    {
+                        Vector3 t = new Vector3(-205, -120, spine.transform.rotation.z - 25);
+                        head_copy.transform.Rotate(t);
+                    }
+                    head.rotation = Quaternion.Lerp(head.rotation, head_copy.transform.rotation, Mathf.SmoothStep(0, 1, map01(head_frame, 0, 20)));
+
+                    Destroy(head_copy);
+                    if (delay_head >= Main.settings.look_forward_delay)
+                    {
+                        if (last_head == Quaternion.identity) last_head = head.rotation;
+                        head_frame++;
+                    }
+                    delay_head++;
+                }
+            }
+            else
+            {
+                if (head_frame > 0)
+                {
+                    head_frame = head_frame > 20 ? 20 : head_frame;
+                    head.rotation = Quaternion.Lerp(head.rotation, last_head, Mathf.SmoothStep(0, 1, map01(20 - head_frame, 0, 20)));
+                    head_frame--;
+                }
+                else
+                {
+                    last_head = Quaternion.identity;
+                }
+                delay_head = 0;
+            }
+        }
         void LetsGoAnimHead()
         {
             if (letsgo_anim_time == 0) letsgo_anim_time = Time.unscaledTime;
 
             if (Time.unscaledTime - letsgo_anim_time <= 3f)
             {
+                float multiplier = 0;
+                multiplier = SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular ? multiplier : 1;
                 float sin = (float)Math.Sin(Time.unscaledTime * 12f) / 7f;
-                head.transform.rotation = PlayerController.Instance.skaterController.transform.rotation;
-                head.transform.Rotate(sin * 10, sin * 15, -90 + (sin * 33.3f));
+                head.transform.rotation = Quaternion.Lerp(head.transform.rotation, spine.transform.rotation, map01(letsgoanim_frame, 0, letsgoanim_length));
+                Vector3 target = Vector3.Lerp(Vector3.zero, new Vector3(sin * 10, sin * 15, (sin * 33.3f)), map01(letsgoanim_frame, 0, letsgoanim_length) / 2);
+                head.transform.Rotate(target);
             }
+        }
+
+        public static float map01(float value, float min, float max)
+        {
+            return (value - min) * 1f / (max - min);
         }
 
         public static bool IsInside(Collider c, Vector3 point)
@@ -604,15 +678,14 @@ namespace fro_mod
             {
                 if (Main.settings.debug) UnityModManager.Logger.Log(i + " " + PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[i].name + " " + PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[i].joint.xMotion);
                 PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[i].rigidbody.solverIterations = i >= 10 ? 7 : 5;
-                PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[i].rigidbody.mass = 6f;
-                PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[i].rigidbody.maxAngularVelocity = 20;
+                PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[i].rigidbody.mass = 5f;
             }
 
             PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[3].rigidbody.mass = 5f;
             PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[12].rigidbody.mass = 6.5f;
             PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[15].rigidbody.mass = 6.5f;
 
-            PlayerController.Instance.animationController.CrossFadeAnimation("Falling", .166f);
+            PlayerController.Instance.animationController.CrossFadeAnimation("Falling", .5f);
             bailed_puppet = true;
         }
 
@@ -656,8 +729,12 @@ namespace fro_mod
         int keyframe_count = 0;
         public void FilmerKeyframes()
         {
-            ReplayEditorController.Instance.playbackController.CurrentTime = ReplayEditorController.Instance.playbackController.ClipStartTime;
-            float time = ReplayEditorController.Instance.playbackController.ClipEndTime - ReplayEditorController.Instance.playbackController.ClipStartTime;
+            float time = ReplayEditorController.Instance.playbackController.ClipEndTime - ReplayEditorController.Instance.playbackController.CurrentTime;
+            if (Main.settings.keyframe_start_of_clip)
+            {
+                ReplayEditorController.Instance.playbackController.CurrentTime = ReplayEditorController.Instance.playbackController.ClipStartTime;
+                time = ReplayEditorController.Instance.playbackController.ClipEndTime - ReplayEditorController.Instance.playbackController.ClipStartTime;
+            }
             float pace = time / Main.settings.keyframe_sample;
 
             if (keyframe_count < Main.settings.keyframe_sample)
@@ -688,6 +765,7 @@ namespace fro_mod
 
         void AddKeyFrame(float time, Transform target)
         {
+            time = time + Main.settings.time_offset;
             int index = FindKeyFrameInsertIndex(time);
             KeyFrame keyFrame;
             GameObject copy = new GameObject();
@@ -701,7 +779,7 @@ namespace fro_mod
             else if (Main.settings.follow_mode_head)
             {
                 copy.transform.Rotate(-90, 0, 90);
-                copy.transform.Translate(new Vector3(0, 0, .5f), Space.Self);
+                copy.transform.Translate(new Vector3(0, 0.125f, 0.125f), Space.Self);
             }
             keyFrame = new FreeCameraKeyFrame(copy.transform, Main.settings.keyframe_fov, time);
             keyFrame.AddKeyframes(ReplayEditorController.Instance.cameraController.cameraCurve);
@@ -783,6 +861,12 @@ namespace fro_mod
                 right_hand_replay.localScale = new Vector3(Main.settings.custom_scale_hand_r, Main.settings.custom_scale_hand_r, Main.settings.custom_scale_hand_r);
                 left_foot_replay.localScale = new Vector3(Main.settings.custom_scale_foot_l, Main.settings.custom_scale_foot_l, Main.settings.custom_scale_foot_l);
                 right_foot_replay.localScale = new Vector3(Main.settings.custom_scale_foot_r, Main.settings.custom_scale_foot_r, Main.settings.custom_scale_foot_r);
+            }
+
+            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup)
+            {
+                Traverse.Create(PlayerController.Instance.headIk).Field("currentDirTarget").SetValue(head.rotation);
+                Traverse.Create(PlayerController.Instance.headIk).Field("currentTargetRot").SetValue(head.rotation);
             }
 
             LogState();

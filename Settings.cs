@@ -92,6 +92,10 @@ namespace fro_mod
 
         public int keyframe_fov = 120;
         public float lookat_speed = 1;
+        public float time_offset = 0f;
+        public bool keyframe_start_of_clip = false;
+        public bool look_forward = true;
+        public int look_forward_delay = 20;
 
 #if DEBUG
         public bool debug = true;

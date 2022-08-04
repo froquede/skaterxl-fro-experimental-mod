@@ -83,7 +83,7 @@ namespace fro_mod
         {
             if (showMainMenu)
             {
-                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.9.0</b>");
+                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.9.2</b>");
             }
         }
 
@@ -123,7 +123,7 @@ namespace fro_mod
             if (!about_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b>fro's experimental mod v1.9.0 (28/07/2022)</b>");
+                GUILayout.Label("<b>fro's experimental mod v1.9.2 (29/07/2022)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This software is distributed 'as is', with no warranty expressed or implied, and no guarantee for accuracy or applicability to any purpose.");
                 GUILayout.Label("This mod is not intended to harm the game or its respective developer in any purposeful way, its online functionality, or the game economy.");
@@ -286,6 +286,18 @@ namespace fro_mod
                     Main.settings.bails = !Main.settings.bails;
                 }
 
+                GUILayout.Label("");
+                GUILayout.Label("<b>Look forward on setup (switch and fakie) - WIP</b>");
+                if (RGUI.Button(Main.settings.look_forward, "Enable"))
+                {
+                    Main.settings.look_forward = !Main.settings.look_forward;
+                }
+
+                if (Main.settings.look_forward)
+                {
+                    Main.settings.look_forward_delay = (int)RGUI.SliderFloat(Main.settings.look_forward_delay, 0f, 60f, 20f, "Delay (frames)");
+                }
+
                 GUILayout.EndVertical();
             }
         }
@@ -349,17 +361,24 @@ namespace fro_mod
 
                     GUILayout.Label("");
                     GUILayout.Label("<b>Keyframe creation</b>");
-                    Fold(instructions_fold);
+                    /*Fold(instructions_fold);
                     if(!instructions_fold.reference)
                     {
                         GUILayout.BeginHorizontal("Box");
                         GUILayout.Label("When this button is pressed this feature will delete all actual keyframes and create new ones based on the selected left / right camera hand / head, you can run it as many times as you want; I recommend you to cut the clip before creating the keyframes, you can watch the result in realtime enabling the keyframes.");
                         GUILayout.Label("Less keyframes will result in a smoother but less precise output");
                         GUILayout.EndHorizontal();
-                    }
+                    }*/
 
                     Main.settings.keyframe_sample = (int)RGUI.SliderFloat(Main.settings.keyframe_sample, 2f, 1000f, 50f, "Number of keyframes to create");
                     Main.settings.keyframe_fov = (int)RGUI.SliderFloat(Main.settings.keyframe_fov, 1f, 180f, 120f, "Keyframe field of view");
+                    Main.settings.time_offset = RGUI.SliderFloat(Main.settings.time_offset, -20f, 20f, 0f, "Time offset");
+                    if (RGUI.Button(Main.settings.keyframe_start_of_clip, "Generate from beginning"))
+                    {
+                        Main.settings.keyframe_start_of_clip = !Main.settings.keyframe_start_of_clip;
+                    }
+
+
                     if (Main.controller.keyframe_state == true)
                     {
                         if (GUILayout.Button("Cancel creation", GUILayout.Height(32)))
