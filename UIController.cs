@@ -48,7 +48,7 @@ namespace fro_mod
 
         public void Update()
         {
-            if (Input.GetKeyDown(Main.settings.Hotkey.keyCode))
+            if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(Main.settings.Hotkey.keyCode))
             {
                 if (showMainMenu)
                 {
@@ -83,7 +83,7 @@ namespace fro_mod
         {
             if (showMainMenu)
             {
-                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.9.2</b>");
+                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.10.0</b>");
             }
         }
 
@@ -123,7 +123,7 @@ namespace fro_mod
             if (!about_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b>fro's experimental mod v1.9.2 (29/07/2022)</b>");
+                GUILayout.Label("<b>fro's experimental mod v1.10.0 (05/08/2022)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This software is distributed 'as is', with no warranty expressed or implied, and no guarantee for accuracy or applicability to any purpose.");
                 GUILayout.Label("This mod is not intended to harm the game or its respective developer in any purposeful way, its online functionality, or the game economy.");
@@ -189,37 +189,40 @@ namespace fro_mod
                     Main.settings.right_foot_offset = RGUI.SliderFloat(Main.settings.right_foot_offset, 0f, 2f, 1f, "Right shoe height offset");
                 }
 
-                Fold(feet_activation);
-
-                if (!feet_activation.reference)
+                if (Main.settings.feet_rotation || Main.settings.feet_offset)
                 {
-                    int count = 0;
-                    GUILayout.BeginHorizontal();
-                    GUILayout.FlexibleSpace();
-                    foreach (var state in Enum.GetValues(typeof(PlayerController.CurrentState)))
-                    {
-                        if (count % 4 == 0)
-                        {
-                            GUILayout.EndHorizontal();
-                            GUILayout.BeginHorizontal();
-                            GUILayout.FlexibleSpace();
-                        }
+                    Fold(feet_activation);
 
-                        if (RGUI.Button(Main.settings.dynamic_feet_states[count], "     " + state.ToString(), GUILayout.Width(144)))
-                        {
-                            Main.settings.dynamic_feet_states[count] = !Main.settings.dynamic_feet_states[count];
-                        }
-                        count++;
-                    }
-                    GUILayout.EndHorizontal();
-
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label("     ");
-                    if (GUILayout.Button("<b>Reset all</b>", "Button", GUILayout.Width(120f))) 
+                    if (!feet_activation.reference)
                     {
-                        Main.checkLists(Main.modEntry, true);
+                        int count = 0;
+                        GUILayout.BeginHorizontal();
+                        GUILayout.FlexibleSpace();
+                        foreach (var state in Enum.GetValues(typeof(PlayerController.CurrentState)))
+                        {
+                            if (count % 4 == 0)
+                            {
+                                GUILayout.EndHorizontal();
+                                GUILayout.BeginHorizontal();
+                                GUILayout.FlexibleSpace();
+                            }
+
+                            if (RGUI.Button(Main.settings.dynamic_feet_states[count], "     " + state.ToString(), GUILayout.Width(144)))
+                            {
+                                Main.settings.dynamic_feet_states[count] = !Main.settings.dynamic_feet_states[count];
+                            }
+                            count++;
+                        }
+                        GUILayout.EndHorizontal();
+
+                        GUILayout.BeginHorizontal();
+                        GUILayout.Label("     ");
+                        if (GUILayout.Button("<b>Reset all</b>", "Button", GUILayout.Width(120f)))
+                        {
+                            Main.checkLists(Main.modEntry, true);
+                        }
+                        GUILayout.EndHorizontal();
                     }
-                    GUILayout.EndHorizontal();
                 }
 
                 GUILayout.EndVertical();
@@ -302,7 +305,7 @@ namespace fro_mod
             }
         }
 
-        FoldObj filmer_fold = new FoldObj(true, "Multiplayer filmer");
+        FoldObj filmer_fold = new FoldObj(true, "Filmer mode");
         FoldObj instructions_fold = new FoldObj(true, "Instructions");
         void FilmerSection()
         {
@@ -358,49 +361,12 @@ namespace fro_mod
                         Main.settings.filmer_light_spotangle = RGUI.SliderFloat(Main.settings.filmer_light_spotangle, 0f, 360f, 120f, "Light angle");
                         Main.settings.filmer_light_range = RGUI.SliderFloat(Main.settings.filmer_light_range, 0f, 20f, 5f, "Light range");
                     }
-
-                    GUILayout.Label("");
-                    GUILayout.Label("<b>Keyframe creation</b>");
-                    /*Fold(instructions_fold);
-                    if(!instructions_fold.reference)
-                    {
-                        GUILayout.BeginHorizontal("Box");
-                        GUILayout.Label("When this button is pressed this feature will delete all actual keyframes and create new ones based on the selected left / right camera hand / head, you can run it as many times as you want; I recommend you to cut the clip before creating the keyframes, you can watch the result in realtime enabling the keyframes.");
-                        GUILayout.Label("Less keyframes will result in a smoother but less precise output");
-                        GUILayout.EndHorizontal();
-                    }*/
-
-                    Main.settings.keyframe_sample = (int)RGUI.SliderFloat(Main.settings.keyframe_sample, 2f, 1000f, 50f, "Number of keyframes to create");
-                    Main.settings.keyframe_fov = (int)RGUI.SliderFloat(Main.settings.keyframe_fov, 1f, 180f, 120f, "Keyframe field of view");
-                    Main.settings.time_offset = RGUI.SliderFloat(Main.settings.time_offset, -20f, 20f, 0f, "Time offset");
-                    if (RGUI.Button(Main.settings.keyframe_start_of_clip, "Generate from beginning"))
-                    {
-                        Main.settings.keyframe_start_of_clip = !Main.settings.keyframe_start_of_clip;
-                    }
-
-
-                    if (Main.controller.keyframe_state == true)
-                    {
-                        if (GUILayout.Button("Cancel creation", GUILayout.Height(32)))
-                        {
-                            Main.controller.keyframe_state = false;
-                        }
-                    }
-                    else
-                    {
-                        if (GUILayout.Button("Create keyframes", GUILayout.Height(32)))
-                        {
-                            ReplayEditorController.Instance.cameraController.DeleteAllKeyFrames();
-                            Main.controller.keyframe_state = true;
-                        }
-                    }
-
                 }
                 GUILayout.EndVertical();
             }
         }
 
-        FoldObj multi_fold = new FoldObj(true, "Multiplayer options");
+        FoldObj multi_fold = new FoldObj(true, "Settings");
         void MultiSection()
         {
             Fold(multi_fold);
@@ -424,7 +390,7 @@ namespace fro_mod
             }
         }
 
-        FoldObj multichat_fold = new FoldObj(true, "Multiplayer chat messages");
+        FoldObj multichat_fold = new FoldObj(true, "Chat");
         void ChatSection()
         {
             Fold(multichat_fold);
@@ -449,7 +415,7 @@ namespace fro_mod
             }
         }
 
-        FoldObj camera_fold = new FoldObj(true, "Camera options");
+        FoldObj camera_fold = new FoldObj(true, "Camera");
         void CameraSection()
         {
             Fold(camera_fold);
@@ -462,11 +428,38 @@ namespace fro_mod
                     Main.settings.camera_avoidance = !Main.settings.camera_avoidance;
                     Main.controller.DisableCameraCollider();
                 }
+
+                GUILayout.Label("");
+                GUILayout.Label("<b>Keyframe creation</b>");
+                if (RGUI.Button(Main.settings.keyframe_start_of_clip, "Generate from beginning"))
+                {
+                    Main.settings.keyframe_start_of_clip = !Main.settings.keyframe_start_of_clip;
+                }
+                Main.settings.keyframe_sample = (int)RGUI.SliderFloat(Main.settings.keyframe_sample, 2f, 1000f, 50f, "Number of keyframes to create");
+                Main.settings.keyframe_fov = (int)RGUI.SliderFloat(Main.settings.keyframe_fov, 1f, 180f, 120f, "Keyframe field of view");
+                Main.settings.time_offset = RGUI.SliderFloat(Main.settings.time_offset, -20f, 20f, 0f, "Time offset");
+
+                if (Main.controller.keyframe_state == true)
+                {
+                    if (GUILayout.Button("Cancel creation", GUILayout.Height(32)))
+                    {
+                        Main.controller.keyframe_state = false;
+                    }
+                }
+                else
+                {
+                    if (GUILayout.Button("Create keyframes", GUILayout.Height(32)))
+                    {
+                        ReplayEditorController.Instance.cameraController.DeleteAllKeyFrames();
+                        Main.controller.keyframe_state = true;
+                    }
+                }
+
                 GUILayout.EndVertical();
             }
         }
 
-        FoldObj grinds_fold = new FoldObj(true, "Grinds options");
+        FoldObj grinds_fold = new FoldObj(true, "Grinds");
         void GrindsSection()
         {
             Fold(grinds_fold);
@@ -479,7 +472,8 @@ namespace fro_mod
             }
         }
 
-        FoldObj body_fold = new FoldObj(true, "Player body");
+        FoldObj body_fold = new FoldObj(true, "Body customization");
+        FoldObj muscle_fold = new FoldObj(true, "Body parts scale");
         void BodySection()
         {
             Fold(body_fold);
@@ -487,14 +481,43 @@ namespace fro_mod
             if (!body_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
+
                 Main.settings.custom_scale.x = RGUI.SliderFloat(Main.settings.custom_scale.x, 0f, 2f, 1f, "Scale body x");
                 Main.settings.custom_scale.y = RGUI.SliderFloat(Main.settings.custom_scale.y, 0f, 2f, 1f, "Scale body y");
                 Main.settings.custom_scale.z = RGUI.SliderFloat(Main.settings.custom_scale.z, 0f, 2f, 1f, "Scale body z");
-                Main.settings.custom_scale_head = RGUI.SliderFloat(Main.settings.custom_scale_head, 0f, 4f, 1f, "Head scale");
-                Main.settings.custom_scale_hand_l = RGUI.SliderFloat(Main.settings.custom_scale_hand_l, 0f, 4f, 1f, "Left hand scale");
-                Main.settings.custom_scale_hand_r = RGUI.SliderFloat(Main.settings.custom_scale_hand_r, 0f, 4f, 1f, "Right hand scale");
-                Main.settings.custom_scale_foot_l = RGUI.SliderFloat(Main.settings.custom_scale_foot_l, 0f, 4f, 1f, "Left foot scale");
-                Main.settings.custom_scale_foot_r = RGUI.SliderFloat(Main.settings.custom_scale_foot_r, 0f, 4f, 1f, "Right foot scale");
+                GUILayout.Label("");
+
+                Fold(muscle_fold);
+                if (!muscle_fold.reference)
+                {
+                    Main.settings.custom_scale_pelvis = RGUI.SliderFloat(Main.settings.custom_scale_pelvis, 0f, 4f, 1f, "Pelvis scale");
+                    Main.settings.custom_scale_spine = RGUI.SliderFloat(Main.settings.custom_scale_spine, 0f, 4f, 1f, "Spine scale");
+                    Main.settings.custom_scale_spine2 = RGUI.SliderFloat(Main.settings.custom_scale_spine2, 0f, 4f, 1f, "Spine2 scale");
+
+                    Main.settings.custom_scale_head = RGUI.SliderFloat(Main.settings.custom_scale_head, 0f, 4f, 1f, "Head scale");
+                    Main.settings.custom_scale_neck = RGUI.SliderFloat(Main.settings.custom_scale_neck, 0f, 4f, 1f, "Neck scale");
+
+                    Main.settings.custom_scale_arm_l = RGUI.SliderFloat(Main.settings.custom_scale_arm_l, 0f, 4f, 1f, "Left arm scale");
+                    Main.settings.custom_scale_forearm_l = RGUI.SliderFloat(Main.settings.custom_scale_forearm_l, 0f, 4f, 1f, "Left forearm scale");
+
+                    Main.settings.custom_scale_hand_l = RGUI.SliderFloat(Main.settings.custom_scale_hand_l, 0f, 4f, 1f, "Left hand scale");
+
+                    Main.settings.custom_scale_arm_r = RGUI.SliderFloat(Main.settings.custom_scale_arm_r, 0f, 4f, 1f, "Right arm scale");
+                    Main.settings.custom_scale_forearm_r = RGUI.SliderFloat(Main.settings.custom_scale_forearm_r, 0f, 4f, 1f, "Right forearm scale");
+
+                    Main.settings.custom_scale_hand_r = RGUI.SliderFloat(Main.settings.custom_scale_hand_r, 0f, 4f, 1f, "Right hand scale");
+
+                    Main.settings.custom_scale_upleg_l = RGUI.SliderFloat(Main.settings.custom_scale_upleg_l, 0f, 4f, 1f, "Left upleg scale");
+                    Main.settings.custom_scale_leg_l = RGUI.SliderFloat(Main.settings.custom_scale_leg_l, 0f, 4f, 1f, "Left leg scale");
+
+                    Main.settings.custom_scale_foot_l = RGUI.SliderFloat(Main.settings.custom_scale_foot_l, 0f, 4f, 1f, "Left foot scale");
+
+                    Main.settings.custom_scale_upleg_r = RGUI.SliderFloat(Main.settings.custom_scale_upleg_r, 0f, 4f, 1f, "Right upleg scale");
+                    Main.settings.custom_scale_leg_r = RGUI.SliderFloat(Main.settings.custom_scale_leg_r, 0f, 4f, 1f, "Right leg scale");
+
+                    Main.settings.custom_scale_foot_r = RGUI.SliderFloat(Main.settings.custom_scale_foot_r, 0f, 4f, 1f, "Right foot scale");
+                }
+
                 GUILayout.EndVertical();
 
                 GUILayout.BeginVertical("Box");
@@ -505,7 +528,7 @@ namespace fro_mod
 
         }
 
-        FoldObj skate_fold = new FoldObj(true, "Skate options");
+        FoldObj skate_fold = new FoldObj(true, "Skate");
         void SkateSection()
         {
             Fold(skate_fold);
@@ -537,10 +560,19 @@ namespace fro_mod
 
                 Main.settings.nose_tail_collider = RGUI.SliderFloat(Main.settings.nose_tail_collider, 0f, 2f, 1f, "Nose and tail collider height");
 
+                GUILayout.Label("");
+
+                if (RGUI.Button(Main.settings.powerslide_force, "Add force to powerslides"))
+                {
+                    Main.settings.powerslide_force = !Main.settings.powerslide_force;
+                }
+
                 GUILayout.EndVertical();
             }
         }
 
+        FoldObj gameplay_fold = new FoldObj(true, "Gameplay");
+        FoldObj multi_all_fold = new FoldObj(true, "Multiplayer");
         private void MainMenu(int windowID)
         {
             GUI.backgroundColor = Color.red;
@@ -550,17 +582,35 @@ namespace fro_mod
             if (!Main.settings.enabled) return;
 
             AboutSection();
-            LeanWallrideSection();
-            FeetSection();
-            HippieSection();
+
             AnimationAndPushingSection();
-            MultiSection();
-            ChatSection();
-            FilmerSection();
-            CameraSection();
-            GrindsSection();
+
             BodySection();
-            SkateSection();
+
+            CameraSection();
+
+            Fold(gameplay_fold);
+            if (!gameplay_fold.reference)
+            {
+                GUILayout.BeginVertical("Box");
+                FeetSection();
+                LeanWallrideSection();
+                HippieSection();
+                GrindsSection();
+                SkateSection();
+                GUILayout.EndVertical();
+            }
+
+
+            Fold(multi_all_fold);
+            if (!multi_all_fold.reference)
+            {
+                GUILayout.BeginVertical("Box");
+                MultiSection();
+                ChatSection();
+                FilmerSection();
+                GUILayout.EndVertical();
+            }
         }
     }
 }
