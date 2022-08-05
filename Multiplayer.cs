@@ -47,7 +47,7 @@ namespace fro_mod
 
                     foreach (GearObject gearObject in cache.Values)
                     {
-                        UnityModManager.Logger.Log(gearObject.gearInfo.name);
+                        //UnityModManager.Logger.Log(gearObject.gearInfo.name);
                     }
 
                     //ShowName(Skater);

@@ -87,11 +87,31 @@ namespace fro_mod
         public float custom_scale_hand_r = 1f;
         public float custom_scale_foot_l = 1f;
         public float custom_scale_foot_r = 1f;
+        public float custom_scale_pelvis = 1f;
+        public float custom_scale_spine = 1f;
+        public float custom_scale_spine2 = 1f;
+        public float custom_scale_arm_l = 1f;
+        public float custom_scale_forearm_l = 1f;
+        public float custom_scale_arm_r = 1f;
+        public float custom_scale_forearm_r = 1f;
+        public float custom_scale_upleg_l = 1f;
+        public float custom_scale_leg_l = 1f;
+        public float custom_scale_upleg_r = 1f;
+        public float custom_scale_leg_r = 1f;
+        public float custom_scale_neck = 1f;
 
         public int keyframe_sample = 50;
 
         public int keyframe_fov = 120;
         public float lookat_speed = 1;
+        public float time_offset = 0f;
+        public bool keyframe_start_of_clip = false;
+        public bool look_forward = true;
+        public int look_forward_delay = 16;
+
+        public bool powerslide_force = true;
+
+        public string keyframe_target = "Head";
 
 #if DEBUG
         public bool debug = true;
