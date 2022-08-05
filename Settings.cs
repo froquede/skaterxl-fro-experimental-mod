@@ -111,6 +111,8 @@ namespace fro_mod
 
         public bool powerslide_force = true;
 
+        public string keyframe_target = "Head";
+
 #if DEBUG
         public bool debug = true;
 #else

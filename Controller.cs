@@ -756,31 +756,53 @@ namespace fro_mod
 
         public bool keyframe_state = false;
         int keyframe_count = 0;
+        float saved_time = 0;
         public void FilmerKeyframes()
         {
-            float time = ReplayEditorController.Instance.playbackController.ClipEndTime - ReplayEditorController.Instance.playbackController.CurrentTime;
+            if (saved_time == 0) saved_time = ReplayEditorController.Instance.playbackController.CurrentTime;
+            float time = ReplayEditorController.Instance.playbackController.ClipEndTime - saved_time;
+
             if (Main.settings.keyframe_start_of_clip)
             {
                 ReplayEditorController.Instance.playbackController.CurrentTime = ReplayEditorController.Instance.playbackController.ClipStartTime;
                 time = ReplayEditorController.Instance.playbackController.ClipEndTime - ReplayEditorController.Instance.playbackController.ClipStartTime;
             }
+
             float pace = time / Main.settings.keyframe_sample;
 
             if (keyframe_count < Main.settings.keyframe_sample)
             {
-                ReplayEditorController.Instance.playbackController.UpdateTimeAndScale(ReplayEditorController.Instance.playbackController.ClipStartTime + (keyframe_count * pace), 1);
+                if(Main.settings.keyframe_start_of_clip)
+                {
+                    ReplayEditorController.Instance.playbackController.UpdateTimeAndScale(ReplayEditorController.Instance.playbackController.ClipStartTime + (keyframe_count * pace), 1);
+                }
+                else
+                {
+                    ReplayEditorController.Instance.playbackController.UpdateTimeAndScale(saved_time + (keyframe_count * pace), 1);
+                }
+
                 Transform target = head_replay;
-                if (Main.settings.follow_mode_right == true) target = right_hand_replay;
-                if (Main.settings.follow_mode_left == true) target = left_hand_replay;
-                AddKeyFrame(ReplayEditorController.Instance.playbackController.ClipStartTime + (keyframe_count * pace), target);
+                if (Main.settings.keyframe_target == "Left Hand") target = left_hand_replay;
+                if (Main.settings.keyframe_target == "Right Hand") target = right_hand_replay;
+
+                if (Main.settings.keyframe_start_of_clip)
+                {
+                    AddKeyFrame(ReplayEditorController.Instance.playbackController.ClipStartTime + (keyframe_count * pace), target);
+                }
+                else
+                {
+                    AddKeyFrame(saved_time + (keyframe_count * pace), target);
+                }
+
                 keyframes.UpdateKeyframes(ReplayEditorController.Instance.cameraController.keyFrames);
+                keyframe_count++;
             }
             else
             {
                 keyframe_count = 0;
+                saved_time = 0;
                 keyframe_state = false;
             }
-            keyframe_count++;
         }
 
         Transform replay_transform;
@@ -800,12 +822,12 @@ namespace fro_mod
             GameObject copy = new GameObject();
             copy.transform.position = target.transform.position;
             copy.transform.rotation = target.transform.rotation;
-            if (Main.settings.follow_mode_left || Main.settings.follow_mode_right)
+            if (Main.settings.keyframe_target != "Head")
             {
                 copy.transform.Rotate(90, 0, -90);
                 copy.transform.Translate(new Vector3(0, -.175f, .25f), Space.Self);
             }
-            else if (Main.settings.follow_mode_head)
+            else
             {
                 copy.transform.Rotate(-90, 0, 90);
                 copy.transform.Translate(new Vector3(0, 0.125f, 0.125f), Space.Self);

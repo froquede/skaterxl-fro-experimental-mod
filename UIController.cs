@@ -415,6 +415,13 @@ namespace fro_mod
             }
         }
 
+
+        public string[] Keyframe_States = new string[] {
+            "Head",
+            "Left Hand",
+            "Right Hand"
+        };
+
         FoldObj camera_fold = new FoldObj(true, "Camera");
         void CameraSection()
         {
@@ -431,13 +438,19 @@ namespace fro_mod
 
                 GUILayout.Label("");
                 GUILayout.Label("<b>Keyframe creation</b>");
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("<b>Target:</b>");
+                Main.settings.keyframe_target = RGUI.SelectionPopup(Main.settings.keyframe_target, Keyframe_States);
+                GUILayout.EndHorizontal();
+
                 if (RGUI.Button(Main.settings.keyframe_start_of_clip, "Generate from beginning"))
                 {
                     Main.settings.keyframe_start_of_clip = !Main.settings.keyframe_start_of_clip;
                 }
-                Main.settings.keyframe_sample = (int)RGUI.SliderFloat(Main.settings.keyframe_sample, 2f, 1000f, 50f, "Number of keyframes to create");
+                Main.settings.keyframe_sample = (int)RGUI.SliderFloat(Main.settings.keyframe_sample, 2f, 200f, 40f, "Number of keyframes to create");
                 Main.settings.keyframe_fov = (int)RGUI.SliderFloat(Main.settings.keyframe_fov, 1f, 180f, 120f, "Keyframe field of view");
-                Main.settings.time_offset = RGUI.SliderFloat(Main.settings.time_offset, -20f, 20f, 0f, "Time offset");
+                Main.settings.time_offset = RGUI.SliderFloat(Main.settings.time_offset, -1f, 1f, 0f, "Time offset");
 
                 if (Main.controller.keyframe_state == true)
                 {
