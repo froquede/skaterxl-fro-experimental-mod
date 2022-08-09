@@ -121,6 +121,7 @@ namespace fro_mod
             if (PlayerController.Instance.currentStateEnum.ToString() != last_state)
             {
                 last_state = PlayerController.Instance.currentStateEnum.ToString();
+                if (Main.settings.debug) UnityModManager.Logger.Log(last_state);
             }
         }
 
@@ -149,6 +150,19 @@ namespace fro_mod
             {
                 FilmerKeyframes();
             }
+
+            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.BeginPop || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pop || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Impact)
+            {
+                if (Main.settings.disable_arm_physics)
+                {
+                    PlayerController.Instance.DisableArmPhysics();
+                }
+            }
+        }
+
+        void PreventBail()
+        {
+            PlayerController.Instance.CancelInvoke("DoBail");
         }
 
         private void setMotionType(Muscle muscle, ConfigurableJointMotion joint)
@@ -165,6 +179,8 @@ namespace fro_mod
         bool freeze_pos = false;
         StickInput left_stick_freezed = new StickInput();
         StickInput right_stick_freezed = new StickInput();
+        float last_time_bailed = 0;
+
         public void FixedUpdate()
         {
             if (!Main.settings.enabled) return;
@@ -199,7 +215,14 @@ namespace fro_mod
                 int multiplier = PlayerController.Instance.GetBoardBackwards() ? -1 : 1;
                 multiplier *= PlayerController.Instance.IsSwitch ? -1 : 1;
 
-                PlayerController.Instance.boardController.boardRigidbody.AddRelativeForce(new Vector3(0, 0, .16f * multiplier), ForceMode.Impulse);
+                if (Main.settings.powerslide_velocitybased)
+                {
+                    PlayerController.Instance.boardController.boardRigidbody.AddRelativeForce(new Vector3(0, 0, (PlayerController.Instance.skaterController.skaterRigidbody.velocity.magnitude / 40) * multiplier), ForceMode.Impulse);
+                }
+                else
+                {
+                    PlayerController.Instance.boardController.boardRigidbody.AddRelativeForce(new Vector3(0, 0, .16f * multiplier), ForceMode.Impulse);
+                }
             }
 
             if (Main.settings.celebrate_on != "Disabled" && PlayerController.Instance.currentStateEnum != PlayerController.CurrentState.Bailed)
@@ -211,6 +234,10 @@ namespace fro_mod
             {
                 if (!bailed_puppet) SetBailedPuppet();
                 letsgo_anim_time = Time.unscaledTime - 10f;
+
+                /*PreventBail();
+                MonoBehaviourSingleton<PlayerController>.Instance.SetKneeIKTargetWeight(0f);
+                MonoBehaviourSingleton<PlayerController>.Instance.animationController.SetValue("FallBlend", 0);*/
             }
             else if (bailed_puppet)
             {
@@ -322,11 +349,14 @@ namespace fro_mod
         {
             if (!Main.settings.look_forward) return;
 
-            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup)
+            bool inState = PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup;
+
+            if (inState || head_frame > 0)
             {
                 if (PlayerController.Instance.IsSwitch)
                 {
                     float windup_side = PlayerController.Instance.animationController.skaterAnim.GetFloat("WindUp");
+                    if (Main.settings.debug) UnityModManager.Logger.Log(windup_side.ToString());
 
                     Vector3 target = nose_collider.transform.position;
                     if (PlayerController.Instance.GetBoardBackwards()) target = tail_collider.transform.position;
@@ -347,9 +377,9 @@ namespace fro_mod
                         Vector3 t = new Vector3(-205, -120, spine.transform.rotation.z);
                         if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Goofy) t = new Vector3(-75, -120, spine.transform.rotation.z);
 
-                        if(windup_side < 0)
+                        if (windup_side < 0)
                         {
-                            if(SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular)
+                            if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular)
                             {
                                 t.z -= 20f * windup_side;
                                 t.y -= 60f * windup_side;
@@ -357,45 +387,64 @@ namespace fro_mod
                             }
                             else
                             {
-                                t.z += 20f * windup_side;
-                                t.y -= 60f * windup_side;
-                                t.x += 100f * windup_side; 
+                                t.z += 50f * windup_side;
+                                t.y -= 65f * windup_side;
+                                t.x += 110f * windup_side;
+                            }
+                        }
+                        else
+                        {
+                            if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular)
+                            {
+                                t.x += 45f * windup_side;
+                            }
+                            else
+                            {
+                                t.x -= 15f * windup_side;
                             }
                         }
 
-                        head_copy.transform.Rotate(t);
+                        head_copy.transform.Rotate(t, Space.Self);
                     }
                     else
                     {
                         Vector3 t = new Vector3(-205, -120, spine.transform.rotation.z - 25);
                         if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Goofy) t = new Vector3(-75, -120, spine.transform.rotation.z - 15);
-                        head_copy.transform.Rotate(t);
+                        int multiplier = SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular ? 1 : -1;
+
+                        if (windup_side < 0)
+                        {
+                            if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular)
+                            {
+                                t.y -= 32f * windup_side * multiplier;
+                            }
+                        }
+                        else
+                        {
+                            t.x += 15f * windup_side * multiplier;
+                        }
+
+                        head_copy.transform.Rotate(t, Space.Self);
                     }
-                    head.rotation = Quaternion.Lerp(head.rotation, head_copy.transform.rotation, Mathf.SmoothStep(0, 1, map01(head_frame, 0, 20)));
+                    head.rotation = Quaternion.Lerp(head.rotation, head_copy.transform.rotation, Mathf.SmoothStep(0, 1, map01(head_frame, 0, Main.settings.look_forward_length)));
 
                     Destroy(head_copy);
-                    if (delay_head >= Main.settings.look_forward_delay)
+
+                    if (inState)
                     {
-                        if (last_head == Quaternion.identity) last_head = head.rotation;
-                        head_frame++;
+                        if (delay_head >= Main.settings.look_forward_delay)
+                        {
+                            if (last_head == Quaternion.identity) last_head = head.rotation;
+                            head_frame++;
+                        }
+                        delay_head++;
                     }
-                    delay_head++;
                 }
             }
-            else
+            if (!inState && head_frame > 0)
             {
-                /*if (head_frame > 0)
-                {
-                    head_frame = head_frame > 20 ? 20 : head_frame;
-                    head.rotation = Quaternion.Lerp(head.rotation, last_head, Mathf.SmoothStep(0, 1, map01(20 - head_frame, 0, 20)));
-                    head_frame--;
-                }
-                else
-                {
-                    last_head = Quaternion.identity;
-                }*/
-                head_frame = 0;
-                delay_head = 0;
+                head_frame = head_frame > Main.settings.look_forward_length ? Main.settings.look_forward_length : head_frame;
+                head_frame -= 2;
             }
         }
         void LetsGoAnimHead()
@@ -772,7 +821,7 @@ namespace fro_mod
 
             if (keyframe_count < Main.settings.keyframe_sample)
             {
-                if(Main.settings.keyframe_start_of_clip)
+                if (Main.settings.keyframe_start_of_clip)
                 {
                     ReplayEditorController.Instance.playbackController.UpdateTimeAndScale(ReplayEditorController.Instance.playbackController.ClipStartTime + (keyframe_count * pace), 1);
                 }
@@ -906,6 +955,8 @@ namespace fro_mod
                 Traverse.Create(PlayerController.Instance.headIk).Field("currentDirTarget").SetValue(head.rotation);
                 Traverse.Create(PlayerController.Instance.headIk).Field("currentTargetRot").SetValue(head.rotation);
             }
+
+            // MultiplayerManager.RoomIDLength = Main.settings.RoomIDLength;
 
             LogState();
         }

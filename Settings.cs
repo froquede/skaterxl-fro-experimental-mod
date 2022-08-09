@@ -106,12 +106,18 @@ namespace fro_mod
         public float lookat_speed = 1;
         public float time_offset = 0f;
         public bool keyframe_start_of_clip = false;
-        public bool look_forward = true;
+        public bool look_forward = false;
         public int look_forward_delay = 16;
+        public int look_forward_length = 20;
+
+        public int RoomIDLength = 5;
 
         public bool powerslide_force = true;
+        public bool powerslide_velocitybased = true;
 
         public string keyframe_target = "Head";
+
+        public bool disable_arm_physics = false;
 
 #if DEBUG
         public bool debug = true;

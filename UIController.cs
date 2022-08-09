@@ -83,7 +83,7 @@ namespace fro_mod
         {
             if (showMainMenu)
             {
-                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.10.0</b>");
+                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.10.1</b>");
             }
         }
 
@@ -123,7 +123,7 @@ namespace fro_mod
             if (!about_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b>fro's experimental mod v1.10.0 (05/08/2022)</b>");
+                GUILayout.Label("<b>fro's experimental mod v1.10.1 (08/08/2022)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This software is distributed 'as is', with no warranty expressed or implied, and no guarantee for accuracy or applicability to any purpose.");
                 GUILayout.Label("This mod is not intended to harm the game or its respective developer in any purposeful way, its online functionality, or the game economy.");
@@ -299,6 +299,7 @@ namespace fro_mod
                 if (Main.settings.look_forward)
                 {
                     Main.settings.look_forward_delay = (int)RGUI.SliderFloat(Main.settings.look_forward_delay, 0f, 60f, 20f, "Delay (frames)");
+                    Main.settings.look_forward_length = (int)RGUI.SliderFloat(Main.settings.look_forward_length, 0f, 60f, 20f, "Animation length (frames)");
                 }
 
                 GUILayout.EndVertical();
@@ -386,6 +387,16 @@ namespace fro_mod
                 Main.settings.multiplayer_lobby_size = (int)RGUI.SliderFloat(Main.settings.multiplayer_lobby_size, 1f, 35f, 20f, "Multiplayer lobby size");
                 if (Main.settings.multiplayer_lobby_size > 35) Main.settings.multiplayer_lobby_size = 35;
                 if (Main.settings.multiplayer_lobby_size < 1) Main.settings.multiplayer_lobby_size = 1;
+
+                // Main.settings.RoomIDLength = (int)RGUI.SliderFloat(Main.settings.RoomIDLength, 1f, 5f, 5f, "Multiplayer code size");
+
+#if DEBUG
+                if(GUILayout.Button("Create multi room"))
+                {
+                    Main.multi.CreateRoom();
+                }
+#endif
+
                 GUILayout.EndVertical();
             }
         }
@@ -537,6 +548,13 @@ namespace fro_mod
                 Main.settings.left_hand_weight = RGUI.SliderFloat(Main.settings.left_hand_weight, 0f, 5f, 1f, "Left hand weight");
                 Main.settings.right_hand_weight = RGUI.SliderFloat(Main.settings.right_hand_weight, 0f, 5f, 1f, "Right hand weight");
                 GUILayout.EndVertical();
+
+                GUILayout.BeginVertical("Box");
+                if (RGUI.Button(Main.settings.disable_arm_physics, "Disable arm physics on pop, setup and impact"))
+                {
+                    Main.settings.disable_arm_physics = !Main.settings.disable_arm_physics;
+                }
+                GUILayout.EndVertical();
             }
 
         }
@@ -578,6 +596,14 @@ namespace fro_mod
                 if (RGUI.Button(Main.settings.powerslide_force, "Add force to powerslides"))
                 {
                     Main.settings.powerslide_force = !Main.settings.powerslide_force;
+                }
+
+                if(Main.settings.powerslide_force)
+                {
+                    if (RGUI.Button(Main.settings.powerslide_velocitybased, "Velocity based"))
+                    {
+                        Main.settings.powerslide_velocitybased = !Main.settings.powerslide_velocitybased;
+                    }
                 }
 
                 GUILayout.EndVertical();
