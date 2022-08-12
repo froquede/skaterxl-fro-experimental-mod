@@ -83,7 +83,7 @@ namespace fro_mod
         {
             if (showMainMenu)
             {
-                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.10.1</b>");
+                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.10.2</b>");
             }
         }
 
@@ -123,7 +123,7 @@ namespace fro_mod
             if (!about_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b>fro's experimental mod v1.10.1 (08/08/2022)</b>");
+                GUILayout.Label("<b>fro's experimental mod v1.10.2 (12/08/2022)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This software is distributed 'as is', with no warranty expressed or implied, and no guarantee for accuracy or applicability to any purpose.");
                 GUILayout.Label("This mod is not intended to harm the game or its respective developer in any purposeful way, its online functionality, or the game economy.");
@@ -162,7 +162,7 @@ namespace fro_mod
             }
         }
 
-        FoldObj feet_fold = new FoldObj(true, "Dynamic feet - WIP");
+        FoldObj feet_fold = new FoldObj(true, "Dynamic feet");
         FoldObj feet_activation = new FoldObj(true, "Activation states");
         void FeetSection()
         {
@@ -173,6 +173,7 @@ namespace fro_mod
                 GUILayout.BeginVertical("Box");
                 RGUI.WarningLabel("This feature tries to place your feet on board dynamically so no stances are needed for floaty feet");
                 RGUI.WarningLabel("If you already use a stance you can try combining it with rotation / position separately");
+                GUILayout.Label("v1.0.0");
                 if (RGUI.Button(Main.settings.feet_rotation, "Follow board rotation"))
                 {
                     Main.settings.feet_rotation = !Main.settings.feet_rotation;
@@ -251,6 +252,7 @@ namespace fro_mod
         }
 
         FoldObj animpush_fold = new FoldObj(true, "Animations");
+        FoldObj lookforwars_fold = new FoldObj(true, "Activation states");
         void AnimationAndPushingSection()
         {
             Fold(animpush_fold);
@@ -290,7 +292,7 @@ namespace fro_mod
                 }
 
                 GUILayout.Label("");
-                GUILayout.Label("<b>Look forward on setup (switch and fakie) - WIP</b>");
+                GUILayout.Label("<b>Look forward (switch and fakie) - WIP</b>");
                 if (RGUI.Button(Main.settings.look_forward, "Enable"))
                 {
                     Main.settings.look_forward = !Main.settings.look_forward;
@@ -298,8 +300,31 @@ namespace fro_mod
 
                 if (Main.settings.look_forward)
                 {
-                    Main.settings.look_forward_delay = (int)RGUI.SliderFloat(Main.settings.look_forward_delay, 0f, 60f, 20f, "Delay (frames)");
-                    Main.settings.look_forward_length = (int)RGUI.SliderFloat(Main.settings.look_forward_length, 0f, 60f, 20f, "Animation length (frames)");
+                    Main.settings.look_forward_delay = (int)RGUI.SliderFloat(Main.settings.look_forward_delay, 0f, 60f, 0f, "Delay (frames)");
+                    Main.settings.look_forward_length = (int)RGUI.SliderFloat(Main.settings.look_forward_length, 0f, 60f, 18f, "Animation length (frames)");
+                    Fold(lookforwars_fold);
+                    if (!lookforwars_fold.reference)
+                    {
+                        int count = 0;
+                        GUILayout.BeginHorizontal();
+                        GUILayout.FlexibleSpace();
+                        foreach (var state in Enum.GetValues(typeof(PlayerController.CurrentState)))
+                        {
+                            if (count % 4 == 0)
+                            {
+                                GUILayout.EndHorizontal();
+                                GUILayout.BeginHorizontal();
+                                GUILayout.FlexibleSpace();
+                            }
+
+                            if (RGUI.Button(Main.settings.look_forward_states[count], "     " + state.ToString(), GUILayout.Width(144)))
+                            {
+                                Main.settings.look_forward_states[count] = !Main.settings.look_forward_states[count];
+                            }
+                            count++;
+                        }
+                        GUILayout.EndHorizontal();
+                    }
                 }
 
                 GUILayout.EndVertical();
@@ -391,7 +416,7 @@ namespace fro_mod
                 // Main.settings.RoomIDLength = (int)RGUI.SliderFloat(Main.settings.RoomIDLength, 1f, 5f, 5f, "Multiplayer code size");
 
 #if DEBUG
-                if(GUILayout.Button("Create multi room"))
+                if (GUILayout.Button("Create multi room"))
                 {
                     Main.multi.CreateRoom();
                 }
@@ -545,14 +570,21 @@ namespace fro_mod
                 GUILayout.EndVertical();
 
                 GUILayout.BeginVertical("Box");
-                Main.settings.left_hand_weight = RGUI.SliderFloat(Main.settings.left_hand_weight, 0f, 5f, 1f, "Left hand weight");
-                Main.settings.right_hand_weight = RGUI.SliderFloat(Main.settings.right_hand_weight, 0f, 5f, 1f, "Right hand weight");
+                Main.settings.left_hand_weight = RGUI.SliderFloat(Main.settings.left_hand_weight, 0.01f, 5f, 1f, "Left hand weight");
+                Main.settings.right_hand_weight = RGUI.SliderFloat(Main.settings.right_hand_weight, 0.01f, 5f, 1f, "Right hand weight");
                 GUILayout.EndVertical();
 
                 GUILayout.BeginVertical("Box");
-                if (RGUI.Button(Main.settings.disable_arm_physics, "Disable arm physics on pop, setup and impact"))
+                if (RGUI.Button(Main.settings.alternative_arms, "Alternative setup arms"))
                 {
-                    Main.settings.disable_arm_physics = !Main.settings.disable_arm_physics;
+                    Main.settings.alternative_arms = !Main.settings.alternative_arms;
+                }
+                if(Main.settings.alternative_arms)
+                {
+                    if (RGUI.Button(Main.settings.alternative_arms_damping, "Change setup arms damping"))
+                    {
+                        Main.settings.alternative_arms_damping = !Main.settings.alternative_arms_damping;
+                    }
                 }
                 GUILayout.EndVertical();
             }
@@ -598,7 +630,7 @@ namespace fro_mod
                     Main.settings.powerslide_force = !Main.settings.powerslide_force;
                 }
 
-                if(Main.settings.powerslide_force)
+                if (Main.settings.powerslide_force)
                 {
                     if (RGUI.Button(Main.settings.powerslide_velocitybased, "Velocity based"))
                     {

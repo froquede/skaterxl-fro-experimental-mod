@@ -137,12 +137,6 @@ namespace fro_mod
 
             MultiplayerFilmer();
 
-            if (!PlayerController.Instance.respawn.puppetMaster.isBlending)
-            {
-                if (Main.settings.camera_feet) CameraFeet();
-                if (Main.settings.feet_rotation || Main.settings.feet_offset) DynamicFeet();
-            }
-
             LookForward();
             LetsGoAnimHead();
 
@@ -151,12 +145,10 @@ namespace fro_mod
                 FilmerKeyframes();
             }
 
-            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.BeginPop || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pop || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Impact)
+            if (!PlayerController.Instance.respawn.puppetMaster.isBlending)
             {
-                if (Main.settings.disable_arm_physics)
-                {
-                    PlayerController.Instance.DisableArmPhysics();
-                }
+                if (Main.settings.camera_feet) CameraFeet();
+                if (Main.settings.feet_rotation || Main.settings.feet_offset) DynamicFeet();
             }
         }
 
@@ -180,6 +172,7 @@ namespace fro_mod
         StickInput left_stick_freezed = new StickInput();
         StickInput right_stick_freezed = new StickInput();
         float last_time_bailed = 0;
+        int slow_count = 0;
 
         public void FixedUpdate()
         {
@@ -250,7 +243,28 @@ namespace fro_mod
                 PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].rigidbody.mass = Main.settings.right_hand_weight;
             }
 
-            if (Main.settings.displacement_curve) PlayerController.Instance.ScaleDisplacementCurve(Vector3.ProjectOnPlane(PlayerController.Instance.skaterController.skaterTransform.position - PlayerController.Instance.boardController.boardTransform.position, PlayerController.Instance.skaterController.skaterTransform.forward).magnitude * 1.25f);
+            if (Main.settings.alternative_arms)
+            {
+                if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup)
+                {
+                    if (Main.settings.alternative_arms_damping) PlayerController.Instance.SetArmWeights(.25f, .46f, .25f);
+                }
+
+                if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.BeginPop)
+                {
+                    LerpDisableArmPhysics();
+                }
+
+                if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pop)
+                {
+                    LerpEnableArmPhysics();
+                }
+            }
+
+            if (Main.settings.displacement_curve)
+            {
+                PlayerController.Instance.ScaleDisplacementCurve(Vector3.ProjectOnPlane(PlayerController.Instance.skaterController.skaterTransform.position - PlayerController.Instance.boardController.boardTransform.position, PlayerController.Instance.skaterController.skaterTransform.forward).magnitude * 1.25f);
+            }
 
             if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pushing)
             {
@@ -279,6 +293,17 @@ namespace fro_mod
                 if (Main.settings.feet_rotation || Main.settings.feet_offset) DynamicFeet();
             }
 
+            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Riding && last_state == PlayerController.CurrentState.Pushing.ToString())
+            {
+                PlayerController.Instance.animationController.ScaleAnimSpeed(0f);
+            }
+
+            /*if (!PlayerController.Instance.IsCurrentAnimationPlaying("Manual") && PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Impact)
+            {
+                PlayerController.Instance.CrossFadeAnimation("Manual", 0.2f);
+                PlayerController.Instance.animationController.ScaleAnimSpeed(2f);
+            }*/
+
             if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Grinding || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.ExitCoping)
             {
                 GrindVerticalFlip();
@@ -299,6 +324,37 @@ namespace fro_mod
             {
                 freeze_pos = !freeze_pos;
             }
+        }
+
+        void LerpDisableArmPhysics()
+        {
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.minMappingWeight = Mathf.Lerp(PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.minMappingWeight, 0, Time.deltaTime / 10);
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.maxMappingWeight = PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.minMappingWeight;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[1].props.minMappingWeight = PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.minMappingWeight;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[1].props.maxMappingWeight = PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.minMappingWeight;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[2].props.minMappingWeight = PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.minMappingWeight;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[2].props.maxMappingWeight = PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.minMappingWeight;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[3].props.minMappingWeight = PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.minMappingWeight;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[3].props.maxMappingWeight = PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.minMappingWeight;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[4].props.minMappingWeight = PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.minMappingWeight;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[4].props.maxMappingWeight = PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.minMappingWeight;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[5].props.minMappingWeight = PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.minMappingWeight;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[5].props.maxMappingWeight = PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.minMappingWeight;
+        }
+        void LerpEnableArmPhysics()
+        {
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.minMappingWeight = 0f;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.maxMappingWeight = Mathf.Lerp(PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.maxMappingWeight, 1, Time.deltaTime / 10);
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[1].props.minMappingWeight = PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.maxMappingWeight;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[1].props.maxMappingWeight = PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.maxMappingWeight;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[2].props.minMappingWeight = 0f;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[2].props.maxMappingWeight = PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.maxMappingWeight;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[3].props.minMappingWeight = 0f;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[3].props.maxMappingWeight = PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.maxMappingWeight;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[4].props.minMappingWeight = 0f;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[4].props.maxMappingWeight = 0f;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[5].props.minMappingWeight = PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.maxMappingWeight;
+            PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[5].props.maxMappingWeight = PlayerController.Instance.respawn.behaviourPuppet.groupOverrides[0].props.maxMappingWeight;
         }
 
         public void PlayLetsGoAnim()
@@ -349,7 +405,20 @@ namespace fro_mod
         {
             if (!Main.settings.look_forward) return;
 
-            bool inState = PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup;
+            bool inState = false;
+
+            int count = 0;
+            foreach (var state in Enum.GetValues(typeof(PlayerController.CurrentState)))
+            {
+                if (state.ToString() == PlayerController.Instance.currentStateEnum.ToString())
+                {
+                    if (Main.settings.look_forward_states[count] == true)
+                    {
+                        inState = true;
+                    }
+                }
+                count++;
+            }
 
             if (inState || head_frame > 0)
             {
@@ -445,6 +514,7 @@ namespace fro_mod
             {
                 head_frame = head_frame > Main.settings.look_forward_length ? Main.settings.look_forward_length : head_frame;
                 head_frame -= 2;
+                delay_head = 0;
             }
         }
         void LetsGoAnimHead()
@@ -958,6 +1028,18 @@ namespace fro_mod
 
             // MultiplayerManager.RoomIDLength = Main.settings.RoomIDLength;
 
+            if (!PlayerController.Instance.respawn.puppetMaster.isBlending)
+            {
+                if (Main.settings.camera_feet) CameraFeet();
+                if (Main.settings.feet_rotation || Main.settings.feet_offset) DynamicFeet();
+            }
+
+            if (!PlayerController.Instance.respawn.puppetMaster.isBlending)
+            {
+                if (Main.settings.camera_feet) CameraFeet();
+                if (Main.settings.feet_rotation || Main.settings.feet_offset) DynamicFeet();
+            }
+
             LogState();
         }
         void DoScalingPlaystate()
@@ -983,7 +1065,7 @@ namespace fro_mod
 
             PlayerController.Instance.skaterController.gameObject.transform.localScale = Main.settings.custom_scale;
             PlayerController.Instance.playerCollider.transform.localScale = Main.settings.custom_scale;
-            //PlayerController.Instance.skaterController.gameObject.transform.parent.Find("CenterOfMassPlayer").localScale = Main.settings.custom_scale;
+            // PlayerController.Instance.skaterController.gameObject.transform.parent.Find("CenterOfMassPlayer").localScale = Main.settings.custom_scale;
         }
 
         void DoScalingReplaystate()
@@ -1102,6 +1184,7 @@ namespace fro_mod
                     {
                         LeftFootRaycast(multi);
                         RightFootRaycast(multi);
+                        PlayerController.Instance.ScalePlayerCollider();
                         return;
                     }
                 }
@@ -1112,7 +1195,8 @@ namespace fro_mod
         void LeftFootRaycast(int multi)
         {
             GameObject temp_go = new GameObject();
-            temp_go.transform.position = left_foot.transform.position;
+            Transform left_pos = (Transform)Traverse.Create(PlayerController.Instance.ikController).Field("ikAnimLeftFootTarget").GetValue();
+            temp_go.transform.position = left_pos.transform.position;
             temp_go.transform.rotation = PlayerController.Instance.boardController.boardRigidbody.gameObject.transform.rotation;
             float multiplier = PlayerController.Instance.GetBoardBackwards() ? -1 : 1;
             multiplier = SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular ? multiplier : -multiplier;
@@ -1120,36 +1204,71 @@ namespace fro_mod
             temp_go.transform.Translate(new Vector3(0.085f * multiplier, 0f, 0.060f * multiplier), Space.Self);
             Vector3 target = temp_go.transform.position;
 
-            if (Main.settings.debug) setDebugCube(debug_cube_3, temp_go.gameObject, Color.blue);
-
             if (Physics.Raycast(target, -temp_go.transform.up, out left_hit, .5f))
             {
                 if (left_hit.collider.gameObject.layer == LayerMask.NameToLayer("Skateboard"))
                 {
                     float offset = (Main.settings.left_foot_offset / 10);
-                    if (Main.settings.debug) left_hit.collider.gameObject.GetComponent<MeshRenderer>().material.SetColor("_BaseColor", Color.blue);
+
+                    if (PlayerController.Instance.IsSwitch)
+                    {
+                        if (PlayerController.Instance.animationController.skaterAnim.GetFloat("Nollie") == 0f)
+                        {
+                            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup)
+                            {
+                                if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular) offset += 0;
+                                if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Goofy) offset -= .008f;
+                            }
+                        }
+                        else
+                        {
+                            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup)
+                            {
+                                if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular) offset -= .008f;
+                                if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Goofy) offset += .002f;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (PlayerController.Instance.animationController.skaterAnim.GetFloat("Nollie") == 0f)
+                        {
+                            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup)
+                            {
+                                if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular) offset += .002f;
+                                if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Goofy) offset -= .01f;
+                            }
+                        }
+                        else
+                        {
+                            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup)
+                            {
+                                if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular) offset -= .008f;
+                                if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Goofy) offset += .004f;
+                            }
+                        }
+                    }
 
                     temp_go.transform.position = left_hit.point;
                     temp_go.transform.rotation = Quaternion.LookRotation(temp_go.transform.forward, left_hit.normal);
-                    if (Main.settings.debug) setDebugCube(debug_cube, temp_go.gameObject, Color.blue);
 
                     if (Main.settings.feet_rotation)
                     {
                         Transform left_rot = (Transform)Traverse.Create(PlayerController.Instance.ikController).Field("ikAnimLeftFootTarget").GetValue();
                         float old_y = left_rot.rotation.eulerAngles.y;
                         left_rot.rotation = Quaternion.LookRotation(left_rot.transform.forward, left_hit.normal);
-                        left_rot.transform.Rotate(new Vector3(0, 0, 90f), Space.Self);
+                        left_rot.transform.Rotate(new Vector3(0, 0, PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Riding ? 90f : 93f), Space.Self);
                         left_rot.rotation = Quaternion.Euler(left_rot.rotation.eulerAngles.x, old_y, left_rot.rotation.eulerAngles.z);
                     }
 
                     if (Main.settings.feet_offset && !Main.settings.camera_feet)
                     {
-                        left_foot.Translate(new Vector3(offset - left_hit.distance, random_offset, random_offset), Space.Self);
-                        PlayerController.Instance.ikController._finalIk.solver.leftFootEffector.position = left_foot.position;
-
-                        Transform left_pos = (Transform)Traverse.Create(PlayerController.Instance.ikController).Field("ikAnimLeftFootTarget").GetValue();
-                        left_pos.position = new Vector3(left_pos.position.x + random_offset, left_foot.position.y, left_pos.position.z + random_offset);
+                        Transform offset_pos = (Transform)Traverse.Create(PlayerController.Instance.ikController).Field("ikLeftFootPositionOffset").GetValue();
+                        offset_pos.localPosition = Vector3.zero;
+                        left_pos.position = new Vector3(left_pos.position.x, left_pos.position.y + (offset - left_hit.distance), left_pos.position.z);
                     }
+
+                    // left_hit.collider.gameObject.GetComponent<MeshRenderer>().material.SetColor("_BaseColor", Color.red);
                 }
             }
 
@@ -1159,43 +1278,84 @@ namespace fro_mod
         void RightFootRaycast(int multi)
         {
             GameObject temp_go = new GameObject();
-            temp_go.transform.position = right_foot.transform.position;
+            Transform right_pos = (Transform)Traverse.Create(PlayerController.Instance.ikController).Field("ikAnimRightFootTarget").GetValue();
+            temp_go.transform.position = right_pos.transform.position;
             temp_go.transform.rotation = PlayerController.Instance.boardController.boardRigidbody.gameObject.transform.rotation;
             float multiplier = PlayerController.Instance.GetBoardBackwards() ? -1 : 1;
             multiplier = SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular ? multiplier : -multiplier;
 
-            temp_go.transform.Translate(new Vector3(0.085f * multiplier, 0f, 0.01f * multiplier), Space.Self);
+            bool additional_offset = SettingsManager.Instance.stance == SkaterXL.Core.Stance.Goofy && (PlayerController.Instance.IsSwitch || PlayerController.Instance.animationController.skaterAnim.GetFloat("Nollie") > 0) && (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Manual);
+            if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular) additional_offset = (!PlayerController.Instance.IsSwitch || PlayerController.Instance.animationController.skaterAnim.GetFloat("Nollie") == 0) && (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Manual);
+            temp_go.transform.Translate(new Vector3(0.085f * multiplier, 0f, additional_offset ? -0.05f * multiplier : 0.01f * multiplier), Space.Self);
             Vector3 target = temp_go.transform.position;
-            if (Main.settings.debug) setDebugCube(debug_cube_4, temp_go.gameObject, Color.red);
+
+            // setDebugCube(debug_cube_4, temp_go, Color.blue);
 
             if (Physics.Raycast(target, -temp_go.transform.up, out right_hit, .5f))
             {
                 if (right_hit.collider.gameObject.layer == LayerMask.NameToLayer("Skateboard"))
                 {
                     float offset = (Main.settings.right_foot_offset / 10);
-                    if (Main.settings.debug) right_hit.collider.gameObject.GetComponent<MeshRenderer>().material.SetColor("_BaseColor", Color.red);
+
+                    if (PlayerController.Instance.IsSwitch)
+                    {
+                        if (PlayerController.Instance.animationController.skaterAnim.GetFloat("Nollie") == 0f)
+                        {
+                            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup)
+                            {
+                                if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular) offset -= .01f;
+                                if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Goofy) offset += .006f;
+                            }
+                        }
+                        else
+                        {
+                            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup)
+                            {
+                                if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular) offset += .006f;
+                                if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Goofy) offset -= .008f;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (PlayerController.Instance.animationController.skaterAnim.GetFloat("Nollie") == 0f)
+                        {
+                            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup)
+                            {
+                                if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular) offset -= .006f;
+                                if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Goofy) offset += .002f;
+                            }
+                        }
+                        else
+                        {
+                            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup)
+                            {
+                                if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular) offset += .003f;
+                                if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Goofy) offset -= .003f;
+                            }
+                        }
+                    }
 
                     temp_go.transform.position = right_hit.point;
                     temp_go.transform.rotation = Quaternion.LookRotation(temp_go.transform.forward, right_hit.normal);
-                    if (Main.settings.debug) setDebugCube(debug_cube_2, temp_go.gameObject, Color.red);
 
                     if (Main.settings.feet_rotation)
                     {
                         Transform right_rot = (Transform)Traverse.Create(PlayerController.Instance.ikController).Field("ikAnimRightFootTarget").GetValue();
                         float old_y = right_rot.rotation.eulerAngles.y;
                         right_rot.rotation = Quaternion.LookRotation(right_rot.transform.forward, right_hit.normal);
-                        right_rot.transform.Rotate(new Vector3(0, 0, 90f), Space.Self);
+                        right_rot.transform.Rotate(new Vector3(0, 0, PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Riding ? 90f : 92f), Space.Self);
                         right_rot.rotation = Quaternion.Euler(right_rot.rotation.eulerAngles.x, old_y, right_rot.rotation.eulerAngles.z);
                     }
 
                     if (Main.settings.feet_offset && !Main.settings.camera_feet)
                     {
-                        right_foot.Translate(new Vector3(offset - right_hit.distance, random_offset, random_offset), Space.Self);
-                        PlayerController.Instance.ikController._finalIk.solver.rightFootEffector.position = right_foot.position;
-
-                        Transform right_pos = (Transform)Traverse.Create(PlayerController.Instance.ikController).Field("ikAnimRightFootTarget").GetValue();
-                        right_pos.position = new Vector3(right_pos.position.x + random_offset, right_foot.position.y, right_pos.position.z + random_offset);
+                        Transform offset_pos = (Transform)Traverse.Create(PlayerController.Instance.ikController).Field("ikRightFootPositionOffset").GetValue();
+                        offset_pos.localPosition = Vector3.zero;
+                        right_pos.position = new Vector3(right_pos.position.x, right_pos.position.y + (offset - right_hit.distance), right_pos.position.z);
                     }
+                    
+                    // right_hit.collider.gameObject.GetComponent<MeshRenderer>().material.SetColor("_BaseColor", Color.blue);
                 }
             }
 
