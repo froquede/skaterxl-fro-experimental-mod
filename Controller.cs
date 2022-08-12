@@ -765,14 +765,10 @@ namespace fro_mod
 
         public void GrindVerticalFlip()
         {
-            int multiplier = -1;
-
-            if (PlayerController.Instance.boardController.IsBoardBackwards)
-            {
-                PlayerController.Instance.boardController.firstVel = -Main.settings.GrindFlipVerticality * multiplier;
-                return;
-            }
-            PlayerController.Instance.boardController.firstVel = Main.settings.GrindFlipVerticality;
+            int multiplier = 1;
+            if (PlayerController.Instance.inputController.RightStick.rawInput.pos.y > 0f || PlayerController.Instance.inputController.LeftStick.rawInput.pos.y > 0f) multiplier = -1;
+            if (PlayerController.Instance.GetBoardBackwards()) multiplier *= -1;
+            PlayerController.Instance.boardController.firstVel = Main.settings.GrindFlipVerticality * multiplier;
         }
 
         public bool LeaningInputRight(float sensibility)
@@ -1354,7 +1350,7 @@ namespace fro_mod
                         offset_pos.localPosition = Vector3.zero;
                         right_pos.position = new Vector3(right_pos.position.x, right_pos.position.y + (offset - right_hit.distance), right_pos.position.z);
                     }
-                    
+
                     // right_hit.collider.gameObject.GetComponent<MeshRenderer>().material.SetColor("_BaseColor", Color.blue);
                 }
             }

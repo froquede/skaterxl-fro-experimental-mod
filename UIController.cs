@@ -46,6 +46,11 @@ namespace fro_mod
             "Braking"
         };
 
+        public void Start()
+        {
+            style.margin = new RectOffset(20, 0, 0, 0);
+        }
+
         public void Update()
         {
             if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(Main.settings.Hotkey.keyCode))
@@ -83,7 +88,7 @@ namespace fro_mod
         {
             if (showMainMenu)
             {
-                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.10.2</b>");
+                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.10.3</b>");
             }
         }
 
@@ -106,9 +111,9 @@ namespace fro_mod
             //GUILayout.EndVertical();
         }
 
-        void Fold(FoldObj obj)
+        void Fold(FoldObj obj, string color = "#fdcb6e")
         {
-            if (GUILayout.Button("<b><size=14><color=#fdcb6e>" + (obj.reference ? "▶" : "▼") + "</color>" + obj.text + "</size></b>", "Label"))
+            if (GUILayout.Button($"<b><size=14><color={color}>" + (obj.reference ? "▶" : "▼") + "</color>" + obj.text + "</size></b>", "Label"))
             {
                 obj.reference = !obj.reference;
                 MainMenuRect.height = 20;
@@ -123,7 +128,7 @@ namespace fro_mod
             if (!about_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b>fro's experimental mod v1.10.2 (12/08/2022)</b>");
+                GUILayout.Label("<b>fro's experimental mod v1.10.3 (12/08/2022)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This software is distributed 'as is', with no warranty expressed or implied, and no guarantee for accuracy or applicability to any purpose.");
                 GUILayout.Label("This mod is not intended to harm the game or its respective developer in any purposeful way, its online functionality, or the game economy.");
@@ -171,8 +176,8 @@ namespace fro_mod
             if (!feet_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                RGUI.WarningLabel("This feature tries to place your feet on board dynamically so no stances are needed for floaty feet");
-                RGUI.WarningLabel("If you already use a stance you can try combining it with rotation / position separately");
+                GUILayout.Label("<b><color=#f9ca24>This feature tries to place your feet on board dynamically so no stances are needed for floaty feet</color></b>", GUILayout.Width(420));
+                GUILayout.Label("<b><color=#f9ca24>If you already use a stance you can try combining it with rotation / position separately</color></b>", GUILayout.Width(420));
                 GUILayout.Label("v1.0.0");
                 if (RGUI.Button(Main.settings.feet_rotation, "Follow board rotation"))
                 {
@@ -192,7 +197,7 @@ namespace fro_mod
 
                 if (Main.settings.feet_rotation || Main.settings.feet_offset)
                 {
-                    Fold(feet_activation);
+                    Fold(feet_activation, "#6ab04c");
 
                     if (!feet_activation.reference)
                     {
@@ -201,27 +206,35 @@ namespace fro_mod
                         GUILayout.FlexibleSpace();
                         foreach (var state in Enum.GetValues(typeof(PlayerController.CurrentState)))
                         {
-                            if (count % 4 == 0)
+                            if (count % 4 == 0 && count != 0)
                             {
+                                GUILayout.FlexibleSpace();
                                 GUILayout.EndHorizontal();
                                 GUILayout.BeginHorizontal();
                                 GUILayout.FlexibleSpace();
                             }
 
-                            if (RGUI.Button(Main.settings.dynamic_feet_states[count], "     " + state.ToString(), GUILayout.Width(144)))
+                            if (Main.settings.dynamic_feet_states[count])
+                            {
+                                Texture2D flatButtonTex = new Texture2D(1, 1);
+                                flatButtonTex.SetPixels(new[] { new Color(1, 1, 1, 1) });
+                                flatButtonTex.Apply();
+                                RGUIStyle.flatButton.active.background = flatButtonTex;
+                                RGUIStyle.flatButton.normal.background = flatButtonTex;
+                                GUI.backgroundColor = new Color32(106, 176, 76, 255);
+                            }
+                            else
+                            {
+                                GUI.backgroundColor = new Color32(1, 1, 1, 50);
+                            }
+
+                            if (GUILayout.Button("<b>" + state.ToString() + "</b>", RGUIStyle.flatButton, GUILayout.Width(92f), GUILayout.Height(26)))
                             {
                                 Main.settings.dynamic_feet_states[count] = !Main.settings.dynamic_feet_states[count];
                             }
                             count++;
                         }
-                        GUILayout.EndHorizontal();
-
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label("     ");
-                        if (GUILayout.Button("<b>Reset all</b>", "Button", GUILayout.Width(120f)))
-                        {
-                            Main.checkLists(Main.modEntry, true);
-                        }
+                        GUILayout.FlexibleSpace();
                         GUILayout.EndHorizontal();
                     }
                 }
@@ -302,7 +315,7 @@ namespace fro_mod
                 {
                     Main.settings.look_forward_delay = (int)RGUI.SliderFloat(Main.settings.look_forward_delay, 0f, 60f, 0f, "Delay (frames)");
                     Main.settings.look_forward_length = (int)RGUI.SliderFloat(Main.settings.look_forward_length, 0f, 60f, 18f, "Animation length (frames)");
-                    Fold(lookforwars_fold);
+                    Fold(lookforwars_fold, "#6ab04c");
                     if (!lookforwars_fold.reference)
                     {
                         int count = 0;
@@ -310,19 +323,37 @@ namespace fro_mod
                         GUILayout.FlexibleSpace();
                         foreach (var state in Enum.GetValues(typeof(PlayerController.CurrentState)))
                         {
-                            if (count % 4 == 0)
+                            if (count % 4 == 0 && count != 0)
                             {
+                                GUILayout.Label("     ");
+                                GUILayout.FlexibleSpace();
                                 GUILayout.EndHorizontal();
                                 GUILayout.BeginHorizontal();
                                 GUILayout.FlexibleSpace();
                             }
 
-                            if (RGUI.Button(Main.settings.look_forward_states[count], "     " + state.ToString(), GUILayout.Width(144)))
+                            if (Main.settings.look_forward_states[count])
+                            {
+                                Texture2D flatButtonTex = new Texture2D(1, 1);
+                                flatButtonTex.SetPixels(new[] { new Color(1, 1, 1, 1) });
+                                flatButtonTex.Apply();
+                                RGUIStyle.flatButton.active.background = flatButtonTex;
+                                RGUIStyle.flatButton.normal.background = flatButtonTex;
+                                GUI.backgroundColor = new Color32(106, 176, 76, 255);
+                            }
+                            else
+                            {
+                                GUI.backgroundColor = new Color32(1, 1, 1, 50);
+                            }
+
+                            if (GUILayout.Button("<b>" + state.ToString() + "</b>", RGUIStyle.flatButton, GUILayout.Width(92f), GUILayout.Height(26)))
                             {
                                 Main.settings.look_forward_states[count] = !Main.settings.look_forward_states[count];
                             }
                             count++;
                         }
+                        GUILayout.Label("     ");
+                        GUILayout.FlexibleSpace();
                         GUILayout.EndHorizontal();
                     }
                 }
@@ -459,6 +490,7 @@ namespace fro_mod
         };
 
         FoldObj camera_fold = new FoldObj(true, "Camera");
+        FoldObj keyframe_fold = new FoldObj(true, "Keyframe creator");
         void CameraSection()
         {
             Fold(camera_fold);
@@ -473,34 +505,38 @@ namespace fro_mod
                 }
 
                 GUILayout.Label("");
-                GUILayout.Label("<b>Keyframe creation</b>");
-
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("<b>Target:</b>");
-                Main.settings.keyframe_target = RGUI.SelectionPopup(Main.settings.keyframe_target, Keyframe_States);
-                GUILayout.EndHorizontal();
-
-                if (RGUI.Button(Main.settings.keyframe_start_of_clip, "Generate from beginning"))
+                Fold(keyframe_fold);
+                if (!keyframe_fold.reference)
                 {
-                    Main.settings.keyframe_start_of_clip = !Main.settings.keyframe_start_of_clip;
-                }
-                Main.settings.keyframe_sample = (int)RGUI.SliderFloat(Main.settings.keyframe_sample, 2f, 200f, 40f, "Number of keyframes to create");
-                Main.settings.keyframe_fov = (int)RGUI.SliderFloat(Main.settings.keyframe_fov, 1f, 180f, 120f, "Keyframe field of view");
-                Main.settings.time_offset = RGUI.SliderFloat(Main.settings.time_offset, -1f, 1f, 0f, "Time offset");
+                    GUILayout.Label("<b>Use this feature for creating filmer mode or first person keyframes on the replay editor</b>", GUILayout.Width(420));
 
-                if (Main.controller.keyframe_state == true)
-                {
-                    if (GUILayout.Button("Cancel creation", GUILayout.Height(32)))
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("<b>Target:</b>");
+                    Main.settings.keyframe_target = RGUI.SelectionPopup(Main.settings.keyframe_target, Keyframe_States);
+                    GUILayout.EndHorizontal();
+
+                    if (RGUI.Button(Main.settings.keyframe_start_of_clip, "Generate from beginning"))
                     {
-                        Main.controller.keyframe_state = false;
+                        Main.settings.keyframe_start_of_clip = !Main.settings.keyframe_start_of_clip;
                     }
-                }
-                else
-                {
-                    if (GUILayout.Button("Create keyframes", GUILayout.Height(32)))
+                    Main.settings.keyframe_sample = (int)RGUI.SliderFloat(Main.settings.keyframe_sample, 2f, 200f, 40f, "Number of keyframes to create");
+                    Main.settings.keyframe_fov = (int)RGUI.SliderFloat(Main.settings.keyframe_fov, 1f, 180f, 120f, "Keyframe field of view");
+                    Main.settings.time_offset = RGUI.SliderFloat(Main.settings.time_offset, -1f, 1f, 0f, "Time offset");
+
+                    if (Main.controller.keyframe_state == true)
                     {
-                        ReplayEditorController.Instance.cameraController.DeleteAllKeyFrames();
-                        Main.controller.keyframe_state = true;
+                        if (GUILayout.Button("Cancel creation", GUILayout.Height(32)))
+                        {
+                            Main.controller.keyframe_state = false;
+                        }
+                    }
+                    else
+                    {
+                        if (GUILayout.Button("Create keyframes", GUILayout.Height(32)))
+                        {
+                            ReplayEditorController.Instance.cameraController.DeleteAllKeyFrames();
+                            Main.controller.keyframe_state = true;
+                        }
                     }
                 }
 
@@ -570,22 +606,22 @@ namespace fro_mod
                 GUILayout.EndVertical();
 
                 GUILayout.BeginVertical("Box");
-                Main.settings.left_hand_weight = RGUI.SliderFloat(Main.settings.left_hand_weight, 0.01f, 5f, 1f, "Left hand weight");
-                Main.settings.right_hand_weight = RGUI.SliderFloat(Main.settings.right_hand_weight, 0.01f, 5f, 1f, "Right hand weight");
-                GUILayout.EndVertical();
-
-                GUILayout.BeginVertical("Box");
                 if (RGUI.Button(Main.settings.alternative_arms, "Alternative setup arms"))
                 {
                     Main.settings.alternative_arms = !Main.settings.alternative_arms;
                 }
-                if(Main.settings.alternative_arms)
+                if (Main.settings.alternative_arms)
                 {
                     if (RGUI.Button(Main.settings.alternative_arms_damping, "Change setup arms damping"))
                     {
                         Main.settings.alternative_arms_damping = !Main.settings.alternative_arms_damping;
                     }
                 }
+                GUILayout.EndVertical();
+
+                GUILayout.BeginVertical("Box");
+                Main.settings.left_hand_weight = RGUI.SliderFloat(Main.settings.left_hand_weight, 0.01f, 5f, 1f, "Left hand weight");
+                Main.settings.right_hand_weight = RGUI.SliderFloat(Main.settings.right_hand_weight, 0.01f, 5f, 1f, "Right hand weight");
                 GUILayout.EndVertical();
             }
 
@@ -644,6 +680,7 @@ namespace fro_mod
 
         FoldObj gameplay_fold = new FoldObj(true, "Gameplay");
         FoldObj multi_all_fold = new FoldObj(true, "Multiplayer");
+        GUIStyle style = new GUIStyle();
         private void MainMenu(int windowID)
         {
             GUI.backgroundColor = Color.red;
@@ -663,7 +700,7 @@ namespace fro_mod
             Fold(gameplay_fold);
             if (!gameplay_fold.reference)
             {
-                GUILayout.BeginVertical("Box");
+                GUILayout.BeginVertical(style);
                 FeetSection();
                 LeanWallrideSection();
                 HippieSection();
@@ -676,7 +713,7 @@ namespace fro_mod
             Fold(multi_all_fold);
             if (!multi_all_fold.reference)
             {
-                GUILayout.BeginVertical("Box");
+                GUILayout.BeginVertical(style);
                 MultiSection();
                 ChatSection();
                 FilmerSection();
