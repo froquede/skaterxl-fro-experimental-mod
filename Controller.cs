@@ -178,7 +178,7 @@ namespace fro_mod
         {
             if (!Main.settings.enabled) return;
 
-            PlayerController.Instance.animationController.ScaleAnimSpeed(1f);
+            if(PlayerController.Instance.currentStateEnum != PlayerController.CurrentState.Pop && PlayerController.Instance.currentStateEnum != PlayerController.CurrentState.Release) PlayerController.Instance.animationController.ScaleAnimSpeed(1f);
 
             if (Main.settings.debug)
             {
