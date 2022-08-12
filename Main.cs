@@ -82,6 +82,14 @@ namespace fro_mod
                 settings.dynamic_feet_states[12] = true;
                 settings.Save(modEntry);
             }
+
+
+            if (settings.look_forward_states.Count == 0 || force)
+            {
+                settings.look_forward_states = new List<bool>(new bool[16]);
+                settings.look_forward_states[1] = true;
+                settings.Save(modEntry);
+            }
         }
 
         private static void OnGUI(UnityModManager.ModEntry modEntry)

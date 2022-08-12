@@ -20,8 +20,8 @@ namespace fro_mod
         public float HippieForce = 1f;
         public float HippieTime = 0.3f;
 
-        public float left_foot_offset = .95f;
-        public float right_foot_offset = .95f;
+        public float left_foot_offset = 1f;
+        public float right_foot_offset = 1f;
 
         public bool swap_lean = false;
 
@@ -65,6 +65,8 @@ namespace fro_mod
 
         public float left_hand_weight = 1f;
         public float right_hand_weight = 1f;
+        public float arms_weight = 1f;
+        public float arms_dampening = 1f;
         public float filmer_arm_angle = 28f;
         public float filmer_hand_height = 0f;
 
@@ -81,6 +83,8 @@ namespace fro_mod
         public bool BetterDecay = true;
         public float decay = 3.25f;
         public List<bool> dynamic_feet_states = new List<Boolean>();
+
+        public List<bool> look_forward_states = new List<Boolean>();        
 
         public float custom_scale_head = 1f;
         public float custom_scale_hand_l = 1f;
@@ -106,12 +110,19 @@ namespace fro_mod
         public float lookat_speed = 1;
         public float time_offset = 0f;
         public bool keyframe_start_of_clip = false;
-        public bool look_forward = true;
-        public int look_forward_delay = 16;
+        public bool look_forward = false;
+        public int look_forward_delay = 0;
+        public int look_forward_length = 18;
+
+        public int RoomIDLength = 5;
 
         public bool powerslide_force = true;
+        public bool powerslide_velocitybased = true;
 
         public string keyframe_target = "Head";
+
+        public bool alternative_arms = false;
+        public bool alternative_arms_damping = false;
 
 #if DEBUG
         public bool debug = true;
