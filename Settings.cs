@@ -124,6 +124,16 @@ namespace fro_mod
         public bool alternative_arms = false;
         public bool alternative_arms_damping = false;
 
+        public bool multiplayer_collision = false;
+
+        public List<Vector3> head_rotation_fakie = new List<Vector3>();
+        public List<Vector3> head_rotation_switch = new List<Vector3>();
+
+        public List<Vector3> head_rotation_grinds_fakie = new List<Vector3>();
+        public List<Vector3> head_rotation_grinds_switch = new List<Vector3>();
+
+        public bool show_colliders = false;
+
 #if DEBUG
         public bool debug = true;
 #else

@@ -40,10 +40,10 @@ namespace fro_mod
             harmonyInstance = new Harmony(modEntry.Info.Id);
             settings = UnityModManager.ModSettings.Load<Settings>(modEntry);
 
-            controller = new GameObject().AddComponent<Controller>();
             ui = new GameObject().AddComponent<UIController>();
-            cbt = new GameObject().AddComponent<ChatBubbleTest>();
             multi = new GameObject().AddComponent<Multiplayer>();
+            cbt = new GameObject().AddComponent<ChatBubbleTest>();
+            controller = new GameObject().AddComponent<Controller>();
             UnityEngine.Object.DontDestroyOnLoad(controller);
             UnityEngine.Object.DontDestroyOnLoad(ui);
             UnityEngine.Object.DontDestroyOnLoad(cbt);
@@ -88,6 +88,30 @@ namespace fro_mod
             {
                 settings.look_forward_states = new List<bool>(new bool[16]);
                 settings.look_forward_states[1] = true;
+                settings.Save(modEntry);
+            }
+
+            if (settings.head_rotation_fakie.Count == 0)
+            {
+                settings.head_rotation_fakie = new List<Vector3>(new Vector3[16]);
+                settings.Save(modEntry);
+            }
+
+            if (settings.head_rotation_switch.Count == 0)
+            {
+                settings.head_rotation_switch = new List<Vector3>(new Vector3[16]);
+                settings.Save(modEntry);
+            }
+
+            if (settings.head_rotation_grinds_fakie.Count == 0)
+            {
+                settings.head_rotation_grinds_fakie = new List<Vector3>(new Vector3[34]);
+                settings.Save(modEntry);
+            }
+
+            if (settings.head_rotation_grinds_switch.Count == 0)
+            {
+                settings.head_rotation_grinds_switch = new List<Vector3>(new Vector3[34]);
                 settings.Save(modEntry);
             }
         }

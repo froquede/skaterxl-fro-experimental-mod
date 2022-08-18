@@ -46,6 +46,67 @@ namespace fro_mod
             "Braking"
         };
 
+        public string[] StatesReal = new string[] {
+            "Riding",
+            "Setup",
+            "BeginPop",
+            "Pop",
+            "InAir",
+            "Release",
+            "Impact",
+            "Powerslide",
+            "Manual",
+            "Grinding",
+            "EnterCoping",
+            "ExitCoping",
+            "Grabs",
+            "Bailed",
+            "Pushing",
+            "Braking"
+        };
+
+        public string[] Stances = new string[] {
+            "Fakie",
+            "Switch"
+        };
+
+        public string[] GrindType = new string[] {
+            "BsFiftyFifty",
+            "FsFiftyFifty",
+            "FsFiveO",
+            "BsFiveO",
+            "BsNoseGrind",
+            "FsNoseGrind",
+            "BsCrook",
+            "FsOverCrook",
+            "FsCrook",
+            "BsOverCrook",
+            "FsNoseSlide",
+            "BsNoseSlide",
+            "FsNoseBluntSlide",
+            "BsNoseBluntSlide",
+            "BsBoardSlide",
+            "FsBoardSlide",
+            "FsLipSlide",
+            "BsLipSlide",
+            "FsTailSlide",
+            "BsBluntSlide",
+            "BsTailSlide",
+            "FsBluntSlide",
+            "BsFeeble",
+            "FsSmith",
+            "FsFeeble",
+            "BsSmith",
+            "BsSuski",
+            "FsSuski",
+            "BsSalad",
+            "FsSalad",
+            "BsWilly",
+            "FsWilly",
+            "FsLosi",
+            "BsLosi"
+        };
+
         public void Start()
         {
             style.margin = new RectOffset(20, 0, 0, 0);
@@ -88,7 +149,7 @@ namespace fro_mod
         {
             if (showMainMenu)
             {
-                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.10.4</b>");
+                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.11.0</b>");
             }
         }
 
@@ -128,7 +189,7 @@ namespace fro_mod
             if (!about_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b>fro's experimental mod v1.10.4 (12/08/2022)</b>");
+                GUILayout.Label("<b>fro's experimental mod v1.11.0 (18/08/2022)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This software is distributed 'as is', with no warranty expressed or implied, and no guarantee for accuracy or applicability to any purpose.");
                 GUILayout.Label("This mod is not intended to harm the game or its respective developer in any purposeful way, its online functionality, or the game economy.");
@@ -178,7 +239,7 @@ namespace fro_mod
                 GUILayout.BeginVertical("Box");
                 GUILayout.Label("<b><color=#f9ca24>This feature tries to place your feet on board dynamically so no stances are needed for floaty feet</color></b>", GUILayout.Width(420));
                 GUILayout.Label("<b><color=#f9ca24>If you already use a stance you can try combining it with rotation / position separately</color></b>", GUILayout.Width(420));
-                GUILayout.Label("v1.0.0");
+                GUILayout.Label("v1.1.0");
                 if (RGUI.Button(Main.settings.feet_rotation, "Follow board rotation"))
                 {
                     Main.settings.feet_rotation = !Main.settings.feet_rotation;
@@ -265,7 +326,6 @@ namespace fro_mod
         }
 
         FoldObj animpush_fold = new FoldObj(true, "Animations");
-        FoldObj lookforwars_fold = new FoldObj(true, "Activation states");
         void AnimationAndPushingSection()
         {
             Fold(animpush_fold);
@@ -302,60 +362,6 @@ namespace fro_mod
                 if (RGUI.Button(Main.settings.bails, "Alternative bails"))
                 {
                     Main.settings.bails = !Main.settings.bails;
-                }
-
-                GUILayout.Label("");
-                GUILayout.Label("<b>Look forward (switch and fakie) - WIP</b>");
-                if (RGUI.Button(Main.settings.look_forward, "Enable"))
-                {
-                    Main.settings.look_forward = !Main.settings.look_forward;
-                }
-
-                if (Main.settings.look_forward)
-                {
-                    Main.settings.look_forward_delay = (int)RGUI.SliderFloat(Main.settings.look_forward_delay, 0f, 60f, 0f, "Delay (frames)");
-                    Main.settings.look_forward_length = (int)RGUI.SliderFloat(Main.settings.look_forward_length, 0f, 60f, 18f, "Animation length (frames)");
-                    Fold(lookforwars_fold, "#6ab04c");
-                    if (!lookforwars_fold.reference)
-                    {
-                        int count = 0;
-                        GUILayout.BeginHorizontal();
-                        GUILayout.FlexibleSpace();
-                        foreach (var state in Enum.GetValues(typeof(PlayerController.CurrentState)))
-                        {
-                            if (count % 4 == 0 && count != 0)
-                            {
-                                GUILayout.Label("     ");
-                                GUILayout.FlexibleSpace();
-                                GUILayout.EndHorizontal();
-                                GUILayout.BeginHorizontal();
-                                GUILayout.FlexibleSpace();
-                            }
-
-                            if (Main.settings.look_forward_states[count])
-                            {
-                                Texture2D flatButtonTex = new Texture2D(1, 1);
-                                flatButtonTex.SetPixels(new[] { new Color(1, 1, 1, 1) });
-                                flatButtonTex.Apply();
-                                RGUIStyle.flatButton.active.background = flatButtonTex;
-                                RGUIStyle.flatButton.normal.background = flatButtonTex;
-                                GUI.backgroundColor = new Color32(106, 176, 76, 255);
-                            }
-                            else
-                            {
-                                GUI.backgroundColor = new Color32(1, 1, 1, 50);
-                            }
-
-                            if (GUILayout.Button("<b>" + state.ToString() + "</b>", RGUIStyle.flatButton, GUILayout.Width(92f), GUILayout.Height(26)))
-                            {
-                                Main.settings.look_forward_states[count] = !Main.settings.look_forward_states[count];
-                            }
-                            count++;
-                        }
-                        GUILayout.Label("     ");
-                        GUILayout.FlexibleSpace();
-                        GUILayout.EndHorizontal();
-                    }
                 }
 
                 GUILayout.EndVertical();
@@ -440,6 +446,19 @@ namespace fro_mod
                     Main.settings.disable_popup = !Main.settings.disable_popup;
                     Main.controller.DisableMultiPopup(Main.settings.disable_popup);
                 }
+                if (RGUI.Button(Main.settings.multiplayer_collision, "Enable player collision - WIP"))
+                {
+                    Main.settings.multiplayer_collision = !Main.settings.multiplayer_collision;
+                }
+                if (Main.settings.multiplayer_collision)
+                {
+                    if (RGUI.Button(Main.settings.show_colliders, "Show colliders"))
+                    {
+                        Main.settings.show_colliders = !Main.settings.show_colliders;
+                    }
+                }
+
+
                 Main.settings.multiplayer_lobby_size = (int)RGUI.SliderFloat(Main.settings.multiplayer_lobby_size, 1f, 35f, 20f, "Multiplayer lobby size");
                 if (Main.settings.multiplayer_lobby_size > 35) Main.settings.multiplayer_lobby_size = 35;
                 if (Main.settings.multiplayer_lobby_size < 1) Main.settings.multiplayer_lobby_size = 1;
@@ -627,6 +646,112 @@ namespace fro_mod
 
         }
 
+        FoldObj head_fold = new FoldObj(true, "Head customization");
+        FoldObj lookforwars_fold = new FoldObj(true, "Activation states");
+        FoldObj lookforward_stance_fold = new FoldObj(true, "Neck rotation");
+        int selected_state = 1;
+        int selected_grind = 0;
+        string selected_stance = "Switch";
+        void HeadSection()
+        {
+            Fold(head_fold);
+            if (!head_fold.reference)
+            {
+                GUILayout.BeginVertical("Box");
+                if (RGUI.Button(Main.settings.look_forward, "Look forward (switch and fakie)"))
+                {
+                    Main.settings.look_forward = !Main.settings.look_forward;
+                }
+
+                if (Main.settings.look_forward)
+                {
+                    Main.settings.look_forward_delay = (int)RGUI.SliderFloat(Main.settings.look_forward_delay, 0f, 60f, 0f, "Delay (frames)");
+                    Main.settings.look_forward_length = (int)RGUI.SliderFloat(Main.settings.look_forward_length, 0f, 60f, 18f, "Animation length (frames)");
+                    Fold(lookforwars_fold, "#6ab04c");
+                    if (!lookforwars_fold.reference)
+                    {
+                        int count = 0;
+                        GUILayout.BeginHorizontal();
+                        GUILayout.FlexibleSpace();
+                        foreach (var state in Enum.GetValues(typeof(PlayerController.CurrentState)))
+                        {
+                            if (count % 4 == 0 && count != 0)
+                            {
+                                GUILayout.FlexibleSpace();
+                                GUILayout.EndHorizontal();
+                                GUILayout.BeginHorizontal();
+                                GUILayout.FlexibleSpace();
+                            }
+
+                            if (Main.settings.look_forward_states[count])
+                            {
+                                Texture2D flatButtonTex = new Texture2D(1, 1);
+                                flatButtonTex.SetPixels(new[] { new Color(1, 1, 1, 1) });
+                                flatButtonTex.Apply();
+                                RGUIStyle.flatButton.active.background = flatButtonTex;
+                                RGUIStyle.flatButton.normal.background = flatButtonTex;
+                                GUI.backgroundColor = new Color32(106, 176, 76, 255);
+                            }
+                            else
+                            {
+                                GUI.backgroundColor = new Color32(1, 1, 1, 50);
+                            }
+
+                            if (GUILayout.Button("<b>" + state.ToString() + "</b>", RGUIStyle.flatButton, GUILayout.Width(92f), GUILayout.Height(26)))
+                            {
+                                Main.settings.look_forward_states[count] = !Main.settings.look_forward_states[count];
+                            }
+                            count++;
+                        }
+                        GUILayout.FlexibleSpace();
+                        GUILayout.EndHorizontal();
+                    }
+
+                    Fold(lookforward_stance_fold, "#6ab04c");
+                    if (!lookforward_stance_fold.reference)
+                    {
+                        if (!Main.settings.look_forward_states[selected_state]) RGUI.WarningLabel($"{StatesReal[selected_state]} is not enabled");
+                        GUILayout.BeginHorizontal();
+                        GUILayout.Label("State:");
+                        selected_state = RGUI.SelectionPopup(selected_state, StatesReal);
+                        GUILayout.EndHorizontal();
+
+                        GUILayout.BeginHorizontal();
+                        GUILayout.Label("Stance:");
+                        selected_stance = RGUI.SelectionPopup(selected_stance, Stances);
+                        GUILayout.EndHorizontal();
+
+                        if (selected_state == 9)
+                        {
+                            GUILayout.BeginHorizontal();
+                            GUILayout.Label("Grind:");
+                            selected_grind = RGUI.SelectionPopup(selected_grind, GrindType);
+                            GUILayout.EndHorizontal();
+
+                            GUILayout.Label("Current detected grind: <b><color=green>" + Main.controller.getStance() + " " + PlayerController.Instance.boardController.triggerManager.grindDetection.grindType + "</color></b>");
+                            Vector3 temp_vector_rot = selected_stance == "Fakie" ? Main.settings.head_rotation_grinds_fakie[selected_grind] : Main.settings.head_rotation_grinds_switch[selected_grind];
+                            temp_vector_rot.x = RGUI.SliderFloat(temp_vector_rot.x, -120f, 120f, 0f, "X");
+                            temp_vector_rot.y = RGUI.SliderFloat(temp_vector_rot.y, -120f, 120f, 0f, "Y");
+                            temp_vector_rot.z = RGUI.SliderFloat(temp_vector_rot.z, -120f, 120f, 0f, "Z");
+                            if (selected_stance == "Fakie") Main.settings.head_rotation_grinds_fakie[selected_grind] = temp_vector_rot;
+                            else Main.settings.head_rotation_grinds_switch[selected_grind] = temp_vector_rot;
+
+                        }
+                        else
+                        {
+                            Vector3 temp_vector_rot = selected_stance == "Fakie" ? Main.settings.head_rotation_fakie[selected_state] : Main.settings.head_rotation_switch[selected_state];
+                            temp_vector_rot.x = RGUI.SliderFloat(temp_vector_rot.x, -120f, 120f, 0f, "X");
+                            temp_vector_rot.y = RGUI.SliderFloat(temp_vector_rot.y, -120f, 120f, 0f, "Y");
+                            temp_vector_rot.z = RGUI.SliderFloat(temp_vector_rot.z, -120f, 120f, 0f, "Z");
+                            if (selected_stance == "Fakie") Main.settings.head_rotation_fakie[selected_state] = temp_vector_rot;
+                            else Main.settings.head_rotation_switch[selected_state] = temp_vector_rot;
+                        }
+                    }
+                }
+                GUILayout.EndVertical();
+            }
+        }
+
         FoldObj skate_fold = new FoldObj(true, "Skate");
         void SkateSection()
         {
@@ -694,6 +819,8 @@ namespace fro_mod
             AnimationAndPushingSection();
 
             BodySection();
+
+            HeadSection();
 
             CameraSection();
 
