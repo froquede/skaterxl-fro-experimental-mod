@@ -107,6 +107,56 @@ namespace fro_mod
             "BsLosi"
         };
 
+        string[] special_patreons = new string[]
+        {
+            "Fury XL",
+            "doobiedoober",
+            "Kai Down",
+            "Tyler W",
+            "Eric Mcgrady",
+            "Slabs",
+            "Marcel Mink",
+            "etcyj",
+            "helio",
+            "Kyle Gherman",
+            "Max Crowe",
+            "Lonelycupid",
+            "Nick Morocco",
+            "Merrick Dougherty",
+            "flipadip",
+            "Nick Hanslip",
+            "Bubble Gun",
+            "Matt B",
+            "Ricky Alonso",
+            "Brody Jackson",
+            "adri montes",
+            "Euan",
+            "Clips And Footage",
+            "silentry",
+            "loganhuntfilmm",
+            "Foolie Surfin",
+            "Nowak",
+            "OG",
+            "khellr",
+            "Alex Tagg",
+            "slade.",
+            "Sir_Cheeba",
+            "Jeffery Depriest",
+            "Alan Nairn",
+            "Trav Wright",
+            "Nati Adams",
+            "Nicki Mouhs",
+            "Krinsher",
+            "DeVion Bailey",
+            "Lucas Jaehn",
+            "heartsick",
+            "b00ph",
+            "dustin fuston",
+            "Dali",
+            "peeeeeee poooooooooo",
+            "Nick Duncan"
+        };
+
         public void Start()
         {
             style.margin = new RectOffset(20, 0, 0, 0);
@@ -149,7 +199,7 @@ namespace fro_mod
         {
             if (showMainMenu)
             {
-                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.11.0</b>");
+                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.11.1</b>");
             }
         }
 
@@ -183,17 +233,37 @@ namespace fro_mod
         }
 
         FoldObj about_fold = new FoldObj(true, "About");
+        FoldObj patreons_fold = new FoldObj(true, "Special thanks <3");
         void AboutSection()
         {
             Fold(about_fold);
             if (!about_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b>fro's experimental mod v1.11.0 (18/08/2022)</b>");
+                GUILayout.Label("<b>fro's experimental mod v1.11.1 (19/08/2022)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This software is distributed 'as is', with no warranty expressed or implied, and no guarantee for accuracy or applicability to any purpose.");
                 GUILayout.Label("This mod is not intended to harm the game or its respective developer in any purposeful way, its online functionality, or the game economy.");
                 GUILayout.Label("I, the author of the mod, repudiate any type of practice or conduct that involves or promotes racism or any type of discrimination.");
+
+                Fold(patreons_fold);
+                if (!patreons_fold.reference)
+                {
+                    GUILayout.BeginVertical("Box", GUILayout.Width(Screen.width / 2));
+                    GUILayout.BeginHorizontal();
+                    GUILayout.FlexibleSpace();
+                    for (int i = 0; i < special_patreons.Length; i++)
+                    {
+                        if (i % 6 == 0)
+                        {
+                            GUILayout.FlexibleSpace(); GUILayout.EndHorizontal(); GUILayout.BeginHorizontal(); GUILayout.FlexibleSpace();
+                        }
+                        GUILayout.Label($"<color=#FFC312>• <b>{special_patreons[i]}</b></color>");
+                    }
+                    GUILayout.FlexibleSpace();
+                    GUILayout.EndHorizontal();
+                    GUILayout.EndVertical();
+                }
                 GUILayout.EndVertical();
             }
         }
