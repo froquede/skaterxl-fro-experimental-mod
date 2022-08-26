@@ -17,7 +17,7 @@ namespace fro_mod
 
         List<GameObject> players = new List<GameObject>();
         List<GameObject> skates = new List<GameObject>();
-        string last_scene;
+        string last_scene = "";
         bool last_visibility = false;
         bool destroyed = false;
         Vector3 last_respawn_point = Vector3.zero;

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace RapidGUI
 {
@@ -13,6 +14,8 @@ namespace RapidGUI
 
         public static GUIStyle warningLabel;
         public static GUIStyle warningLabelNoStyle;
+
+        public static GUIStyle slider, thumb;
 
         // GUIStyleState.background will be null 
         // if it set after secound scene load and don't use a few frame
@@ -37,6 +40,7 @@ namespace RapidGUI
             CreateAlignLeftBox();
             CreateWarningLabel();
             CreateWarningLabelNoStyle();
+            CreateSliderLabel();
         }
 
         static void CreateButton()
@@ -48,6 +52,38 @@ namespace RapidGUI
 
             style.fixedHeight = 21f;
             button = style;
+        }
+
+
+        static void CreateSliderLabel()
+        {
+            var stylethumb = new GUIStyle(GUI.skin.horizontalSliderThumb) { };
+            List<Color32> backgroundColors = new List<Color32>();
+            List<Color32> borderColors = new List<Color32>();
+            backgroundColors.Add(new Color32(200, 200, 200, 200));
+            backgroundColors.Add(new Color32(255, 255, 255, 200));
+            borderColors.Add(new Color32(0, 0, 0, 255));
+            Texture2D tex = RectangleCreator.CreateRoundedRectangleTexture(1, 128, 56, 0, 4, 2, backgroundColors, borderColors, .75f, 0);
+            stylethumb.normal.background = tex;
+
+            List<Color32> backgroundColorsHover = new List<Color32>();
+            backgroundColorsHover.Add(new Color32(200, 200, 200, 255));
+            backgroundColorsHover.Add(new Color32(255, 255, 255, 255));
+            Texture2D texh = RectangleCreator.CreateRoundedRectangleTexture(1, 128, 56, 0, 4, 2, backgroundColorsHover, borderColors, .75f, 0);
+            stylethumb.hover.background = texh;
+            stylethumb.active.background = texh;
+            stylethumb.focused.background = texh;
+            thumb = stylethumb;
+
+            var styleslider = new GUIStyle(GUI.skin.horizontalSlider) { };
+            /*List<Color32> backgroundColorsSlider = new List<Color32>();
+            backgroundColorsSlider.Add(new Color32(45, 52, 54, 255));
+            List<Color32> borderColorsSlider = new List<Color32>();
+            borderColorsSlider.Add(new Color32(0, 0, 0, 255));
+            Texture2D tex_slider = RectangleCreator.CreateRoundedRectangleTexture(2, 256, 56, 6, 8, 0, backgroundColorsSlider, borderColorsSlider, 1, 0);
+            tex_slider.anisoLevel = 6;
+            styleslider.normal.background = tex_slider;*/
+            slider = styleslider;
         }
 
         static void CreateFlatButton()
@@ -186,6 +222,131 @@ namespace RapidGUI
             };
 
             warningLabelNoStyle = style;
+        }
+    }
+
+    // code from https://stackoverflow.com/questions/52615685/create-smoothly-rounded-rectangle-with-texture2d
+    public class RectangleCreator
+    {
+        public static Texture2D CreateRoundedRectangleTexture(int resolutionmultiplier, int width, int height, int borderThickness, int borderRadius, int borderShadow, List<Color32> backgroundColors, List<Color32> borderColors, float initialShadowIntensity, float finalShadowIntensity)
+        {
+            width = width * resolutionmultiplier;
+            height = height * resolutionmultiplier;
+
+            Texture2D texture = new Texture2D(width, height, TextureFormat.ARGB32, false);
+            Color32[] color = new Color32[width * height];
+
+            for (int x = 0; x < texture.width; x++)
+            {
+                for (int y = 0; y < texture.height; y++)
+                {
+                    switch (backgroundColors.Count)
+                    {
+                        case 4:
+                            Color32 leftColor0 = Color32.Lerp(backgroundColors[0], backgroundColors[1], ((float)y / (width - 1)));
+                            Color32 rightColor0 = Color32.Lerp(backgroundColors[2], backgroundColors[3], ((float)y / (height - 1)));
+                            color[x + width * y] = Color32.Lerp(leftColor0, rightColor0, ((float)x / (width - 1)));
+                            break;
+                        case 3:
+                            Color32 leftColor1 = Color32.Lerp(backgroundColors[0], backgroundColors[1], ((float)y / (width - 1)));
+                            Color32 rightColor1 = Color32.Lerp(backgroundColors[1], backgroundColors[2], ((float)y / (height - 1)));
+                            color[x + width * y] = Color32.Lerp(leftColor1, rightColor1, ((float)x / (width - 1)));
+                            break;
+                        case 2:
+                            color[x + width * y] = Color32.Lerp(backgroundColors[0], backgroundColors[1], ((float)x / (width - 1)));
+                            break;
+                        default:
+                            color[x + width * y] = backgroundColors[0];
+                            break;
+                    }
+
+                    color[x + width * y] = ColorBorder(x, y, width, height, borderThickness, borderRadius, borderShadow, color[x + width * y], borderColors, initialShadowIntensity, finalShadowIntensity);
+                }
+            }
+
+            texture.SetPixels32(color);
+            texture.Apply();
+            return texture;
+        }
+
+        private static Color32 ColorBorder(int x, int y, int width, int height, int borderThickness, int borderRadius, int borderShadow, Color32 initialColor, List<Color32> borderColors, float initialShadowIntensity, float finalShadowIntensity)
+        {
+            Rect internalRectangle = new Rect((borderThickness + borderRadius), (borderThickness + borderRadius), width - 2 * (borderThickness + borderRadius), height - 2 * (borderThickness + borderRadius));
+
+
+            Vector2 point = new Vector2(x, y);
+            if (internalRectangle.Contains(point)) return initialColor;
+
+            Vector2 origin = Vector2.zero;
+
+            if (x < borderThickness + borderRadius)
+            {
+                if (y < borderRadius + borderThickness)
+                    origin = new Vector2(borderRadius + borderThickness, borderRadius + borderThickness);
+                else if (y > height - (borderRadius + borderThickness))
+                    origin = new Vector2(borderRadius + borderThickness, height - (borderRadius + borderThickness));
+                else
+                    origin = new Vector2(borderRadius + borderThickness, y);
+            }
+            else if (x > width - (borderRadius + borderThickness))
+            {
+                if (y < borderRadius + borderThickness)
+                    origin = new Vector2(width - (borderRadius + borderThickness), borderRadius + borderThickness);
+                else if (y > height - (borderRadius + borderThickness))
+                    origin = new Vector2(width - (borderRadius + borderThickness), height - (borderRadius + borderThickness));
+                else
+                    origin = new Vector2(width - (borderRadius + borderThickness), y);
+            }
+            else
+            {
+                if (y < borderRadius + borderThickness)
+                    origin = new Vector2(x, borderRadius + borderThickness);
+                else if (y > height - (borderRadius + borderThickness))
+                    origin = new Vector2(x, height - (borderRadius + borderThickness));
+            }
+
+            if (!origin.Equals(Vector2.zero))
+            {
+                float distance = Vector2.Distance(point, origin);
+
+                if (distance > borderRadius + borderThickness + 1)
+                {
+                    return Color.clear;
+                }
+                else if (distance > borderRadius + 1)
+                {
+                    if (borderColors.Count > 2)
+                    {
+                        float modNum = distance - borderRadius;
+
+                        if (modNum < borderThickness / 2)
+                        {
+                            return Color32.Lerp(borderColors[2], borderColors[1], (float)((modNum) / (borderThickness / 2.0)));
+                        }
+                        else
+                        {
+                            return Color32.Lerp(borderColors[1], borderColors[0], (float)((modNum - (borderThickness / 2.0)) / (borderThickness / 2.0)));
+                        }
+                    }
+
+
+                    if (borderColors.Count > 0)
+                        return borderColors[0];
+                }
+                else if (distance > borderRadius - borderShadow + 1)
+                {
+                    float mod = (distance - (borderRadius - borderShadow)) / borderShadow;
+                    float shadowDiff = initialShadowIntensity - finalShadowIntensity;
+                    return DarkenColor(initialColor, ((shadowDiff * mod) + finalShadowIntensity));
+                }
+            }
+
+            return initialColor;
+        }
+
+        private static Color32 DarkenColor(Color32 color, float shadowIntensity)
+        {
+            return Color32.Lerp(color, Color.black, shadowIntensity);
         }
     }
 }

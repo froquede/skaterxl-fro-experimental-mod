@@ -14,11 +14,11 @@ namespace RapidGUI
             object ret = v;
 
             var unparsedStr = UnparsedStr.Create();
-            var color = (unparsedStr.hasStr && !unparsedStr.CanParse(type)) ? Color.red : GUI.color;
+            var color = GUI.color;
 
             using (new ColorScope(color))
             {
-                var text = unparsedStr.Get() ?? ((v != null) ? String.Format("{0:0.00}", v) : "");
+                var text = string.Format("{0:0.00}", v);
                 var displayStr = GUILayout.TextField(text, GUILayout.Height(21f), option ?? fieldWidthMin);
                 if (displayStr != text)
                 {

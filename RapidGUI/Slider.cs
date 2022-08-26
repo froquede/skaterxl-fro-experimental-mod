@@ -18,7 +18,7 @@ namespace RapidGUI
             using (new GUILayout.VerticalScope(options))
             using (new GUILayout.HorizontalScope())
             {
-                GUILayout.Label("<b>" + label + "</b>");
+                GUILayout.Label($"<b><color=#ecf0f1>{label}</color></b>");
             }
 
             return obj;
@@ -29,7 +29,7 @@ namespace RapidGUI
             GUI.backgroundColor = Color.white;
             GUILayout.BeginHorizontal();
             GUILayout.Label("<b>" + label + "</b>", GUILayout.MinWidth(SliderSetting.minWidth));
-            var ret = GUILayout.HorizontalSlider(v, min, max, GUILayout.MinWidth(SliderSetting.minWidth));
+            var ret = GUILayout.HorizontalSlider(v, min, max, RGUIStyle.slider, RGUIStyle.thumb, GUILayout.MinWidth(SliderSetting.minWidth));
             ret = (float)StandardField(ret, v.GetType(), GUILayout.Width(SliderSetting.fieldWidth));
 
             GUI.backgroundColor = Color.black;

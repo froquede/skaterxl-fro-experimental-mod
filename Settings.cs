@@ -84,7 +84,7 @@ namespace fro_mod
         public float decay = 3.25f;
         public List<bool> dynamic_feet_states = new List<Boolean>();
 
-        public List<bool> look_forward_states = new List<Boolean>();        
+        public List<bool> look_forward_states = new List<Boolean>();
 
         public float custom_scale_head = 1f;
         public float custom_scale_hand_l = 1f;
@@ -114,7 +114,7 @@ namespace fro_mod
         public int look_forward_delay = 0;
         public int look_forward_length = 18;
 
-        public int RoomIDLength = 5;
+        public int RoomIDlength = 5;
 
         public bool powerslide_force = true;
         public bool powerslide_velocitybased = true;
@@ -133,6 +133,30 @@ namespace fro_mod
         public List<Vector3> head_rotation_grinds_switch = new List<Vector3>();
 
         public bool show_colliders = false;
+
+        // UnityModManager doesnt seems to like a list of list for saving the settings so unfortunately this is going to be declared manually
+        public List<Vector3> ollie_customization_rotation = new List<Vector3>();
+        public List<float> ollie_customization_length = new List<float>();
+        public List<Vector3> ollie_customization_rotation_backwards = new List<Vector3>();
+        public List<float> ollie_customization_length_backwards = new List<float>();
+        public List<Vector3> ollie_customization_rotation_left_stick = new List<Vector3>();
+        public List<float> ollie_customization_length_left_stick = new List<float>();
+        public List<Vector3> ollie_customization_rotation_right_stick = new List<Vector3>();
+        public List<float> ollie_customization_length_right_stick = new List<float>();
+        public List<Vector3> ollie_customization_rotation_left_stick_backwards = new List<Vector3>();
+        public List<float> ollie_customization_length_left_stick_backwards = new List<float>();
+        public List<Vector3> ollie_customization_rotation_right_stick_backwards = new List<Vector3>();
+        public List<float> ollie_customization_length_right_stick_backwards = new List<float>();
+
+        public List<Vector3> ollie_customization_rotation_both_outside = new List<Vector3>();
+        public List<float> ollie_customization_length_both_outside = new List<float>();
+        public List<Vector3> ollie_customization_rotation_both_inside = new List<Vector3>();
+        public List<float> ollie_customization_length_both_inside = new List<float>();
+        // Ollie customization end
+
+        public bool force_stick_backwards = true;
+        public float force_stick_backwards_multiplier = .125f;
+
 
 #if DEBUG
         public bool debug = true;

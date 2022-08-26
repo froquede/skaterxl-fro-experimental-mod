@@ -15,6 +15,7 @@ using UnityEditor;
 using UnityEngine.UI;
 using ReplayEditor;
 using System.Collections;
+using TMPro;
 
 namespace fro_mod
 {
@@ -540,7 +541,7 @@ namespace fro_mod
             int multiplier = 0;
             if (InAir())
             {
-                float sensibility = Main.settings.input_threshold / 200f;
+                float sensibility = Main.settings.input_threshold / 100f;
                 if (LeaningInputRight(sensibility))
                 {
                     multiplier = 1;
@@ -813,10 +814,10 @@ namespace fro_mod
             setMotionType(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9], ConfigurableJointMotion.Limited);
             setMotionType(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[10], ConfigurableJointMotion.Limited);
             setMotionType(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[11], ConfigurableJointMotion.Limited);
-            setMotionType(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[12], ConfigurableJointMotion.Limited);
+            setMotionType(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[12], ConfigurableJointMotion.Locked);
             setMotionType(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[13], ConfigurableJointMotion.Limited);
             setMotionType(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[14], ConfigurableJointMotion.Limited);
-            setMotionType(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[15], ConfigurableJointMotion.Limited);
+            setMotionType(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[15], ConfigurableJointMotion.Locked);
 
             for (int i = 0; i < PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles.Length; i++)
             {
@@ -828,8 +829,8 @@ namespace fro_mod
 
             PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[1].rigidbody.mass = 20f;
             PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[3].rigidbody.mass = 5f;
-            PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[12].rigidbody.mass = 6.5f;
-            PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[15].rigidbody.mass = 6.5f;
+            PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[12].rigidbody.mass = 4f;
+            PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[15].rigidbody.mass = 4f;
 
             PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].rigidbody.mass = 1f;
             PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].rigidbody.mass = 1f;
@@ -1015,7 +1016,7 @@ namespace fro_mod
                 Traverse.Create(PlayerController.Instance.headIk).Field("currentTargetRot").SetValue(head.rotation);
             }
 
-            // MultiplayerManager.RoomIDLength = Main.settings.RoomIDLength;
+            // MultiplayerManager.RoomIDlength = Main.settings.RoomIDlength;
 
             LogState();
         }
@@ -1169,6 +1170,7 @@ namespace fro_mod
             }
         }
 
+        int grinding_count = 0;
         void LeftFootRaycast(int multiplier)
         {
             GameObject temp_go = new GameObject();
@@ -1182,7 +1184,7 @@ namespace fro_mod
             temp_go.transform.Translate(new Vector3(0.085f * multiplier, 0f, 0.060f * multiplier), Space.Self);
             Vector3 target = temp_go.transform.position;
 
-            if (Physics.Raycast(target, -temp_go.transform.up, out left_hit, .5f, skate_mask))
+            if (Physics.Raycast(target, -temp_go.transform.up, out left_hit, 10f, skate_mask))
             {
                 float offset = (Main.settings.left_foot_offset / 10);
 
@@ -1260,7 +1262,7 @@ namespace fro_mod
             temp_go.transform.Translate(new Vector3(0.085f * multiplier, 0f, additional_offset ? -0.04f * multiplier : 0.01f * multiplier), Space.Self);
             Vector3 target = temp_go.transform.position;
 
-            if (Physics.Raycast(target, -temp_go.transform.up, out right_hit, .5f, skate_mask))
+            if (Physics.Raycast(target, -temp_go.transform.up, out right_hit, 10f, skate_mask))
             {
                 float offset = (Main.settings.right_foot_offset / 10);
 

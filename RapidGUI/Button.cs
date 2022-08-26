@@ -18,7 +18,7 @@ namespace RapidGUI
             using (new GUILayout.HorizontalScope())
             {
                 string text;
-                GUILayout.Label("<b>" + label + "</b>");
+                GUILayout.Label($"<b><color=#ecf0f1>{label}</color></b>");
 
                 if (v)
                 {
@@ -31,7 +31,7 @@ namespace RapidGUI
                     GUI.backgroundColor = Color.black;
                 }
 
-                v = GUILayout.Button("<b>" + text + "</b>", RGUIStyle.button, GUILayout.Width(52f));
+                v = GUILayout.Button($"<b><color=#ecf0f1>{text}</color></b>", RGUIStyle.button, GUILayout.Width(52f));
             }
 
             return v;

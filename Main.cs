@@ -14,17 +14,16 @@ namespace fro_mod
         public static Settings settings;
         public static Harmony harmonyInstance;
         public static UnityModManager.ModEntry modEntry;
+        public static GameObject manager;
         public static Controller controller;
         public static UIController ui;
         public static ChatBubbleTest cbt;
         public static Multiplayer multi;
+        public static TrickCustomizer tc;
 
         static bool Unload(UnityModManager.ModEntry modEntry)
         {
-            UnityEngine.Object.Destroy(controller);
-            UnityEngine.Object.Destroy(ui);
-            UnityEngine.Object.Destroy(cbt);
-            UnityEngine.Object.Destroy(multi);
+            UnityEngine.Object.Destroy(manager);
 
             try
             {
@@ -39,19 +38,15 @@ namespace fro_mod
         {
             harmonyInstance = new Harmony(modEntry.Info.Id);
             settings = UnityModManager.ModSettings.Load<Settings>(modEntry);
+            manager = new GameObject("FroExperimentalModGO");
 
-            ui = new GameObject().AddComponent<UIController>();
-            multi = new GameObject().AddComponent<Multiplayer>();
-            cbt = new GameObject().AddComponent<ChatBubbleTest>();
-            controller = new GameObject().AddComponent<Controller>();
-            UnityEngine.Object.DontDestroyOnLoad(controller);
-            UnityEngine.Object.DontDestroyOnLoad(ui);
-            UnityEngine.Object.DontDestroyOnLoad(cbt);
-            UnityEngine.Object.DontDestroyOnLoad(multi);
+            ui = manager.AddComponent<UIController>();
+            multi = manager.AddComponent<Multiplayer>();
+            cbt = manager.AddComponent<ChatBubbleTest>();
+            controller = manager.AddComponent<Controller>();
+            tc = manager.AddComponent<TrickCustomizer>();
 
-            /*modEntry.OnGUI = OnGUI;
-            modEntry.OnSaveGUI = new Action<UnityModManager.ModEntry>(OnSaveGUI);
-            modEntry.OnToggle = new Func<UnityModManager.ModEntry, bool, bool>(OnToggle);*/
+            UnityEngine.Object.DontDestroyOnLoad(manager);
             modEntry.OnUnload = Unload;
             Main.modEntry = modEntry;
             checkLists(modEntry);
@@ -74,12 +69,13 @@ namespace fro_mod
                 settings.dynamic_feet_states[0] = true;
                 settings.dynamic_feet_states[1] = true;
                 settings.dynamic_feet_states[2] = true;
+                settings.dynamic_feet_states[5] = true;
+                settings.dynamic_feet_states[6] = true;
                 settings.dynamic_feet_states[7] = true;
                 settings.dynamic_feet_states[8] = true;
                 settings.dynamic_feet_states[9] = true;
                 settings.dynamic_feet_states[10] = true;
                 settings.dynamic_feet_states[11] = true;
-                settings.dynamic_feet_states[12] = true;
                 settings.Save(modEntry);
             }
 
@@ -114,6 +110,96 @@ namespace fro_mod
                 settings.head_rotation_grinds_switch = new List<Vector3>(new Vector3[34]);
                 settings.Save(modEntry);
             }
+
+            if (settings.ollie_customization_rotation.Count == 0)
+            {
+                settings.ollie_customization_rotation = new List<Vector3>(new Vector3[4]);
+                settings.Save(modEntry);
+            }
+
+            if (settings.ollie_customization_length.Count == 0)
+            {
+                settings.ollie_customization_length = new List<float> { 12, 12, 12, 12 };
+                settings.Save(modEntry);
+            }
+
+            if (settings.ollie_customization_rotation_backwards.Count == 0)
+            {
+                settings.ollie_customization_rotation_backwards = new List<Vector3>(new Vector3[4]);
+                settings.Save(modEntry);
+            }
+            if (settings.ollie_customization_length_backwards.Count == 0)
+            {
+                settings.ollie_customization_length_backwards = new List<float> { 12, 12, 12, 12 };
+                settings.Save(modEntry);
+            }
+
+            if (settings.ollie_customization_rotation_left_stick.Count == 0)
+            {
+                settings.ollie_customization_rotation_left_stick = new List<Vector3>(new Vector3[4]);
+                settings.Save(modEntry);
+            }
+            if (settings.ollie_customization_length_left_stick.Count == 0)
+            {
+                settings.ollie_customization_length_left_stick = new List<float> { 12, 12, 12, 12 };
+                settings.Save(modEntry);
+            }
+
+
+            if (settings.ollie_customization_rotation_right_stick.Count == 0)
+            {
+                settings.ollie_customization_rotation_right_stick = new List<Vector3>(new Vector3[4]);
+                settings.Save(modEntry);
+            }
+            if (settings.ollie_customization_length_right_stick.Count == 0)
+            {
+                settings.ollie_customization_length_right_stick = new List<float> { 12, 12, 12, 12 };
+                settings.Save(modEntry);
+            }
+
+            if (settings.ollie_customization_rotation_left_stick_backwards.Count == 0)
+            {
+                settings.ollie_customization_rotation_left_stick_backwards = new List<Vector3>(new Vector3[4]);
+                settings.Save(modEntry);
+            }
+            if (settings.ollie_customization_length_left_stick_backwards.Count == 0)
+            {
+                settings.ollie_customization_length_left_stick_backwards = new List<float> { 12, 12, 12, 12 };
+                settings.Save(modEntry);
+            }
+
+            if (settings.ollie_customization_rotation_right_stick_backwards.Count == 0)
+            {
+                settings.ollie_customization_rotation_right_stick_backwards = new List<Vector3>(new Vector3[4]);
+                settings.Save(modEntry);
+            }
+            if (settings.ollie_customization_length_right_stick_backwards.Count == 0)
+            {
+                settings.ollie_customization_length_right_stick_backwards = new List<float> { 12, 12, 12, 12 };
+                settings.Save(modEntry);
+            }
+
+            if (settings.ollie_customization_rotation_both_outside.Count == 0)
+            {
+                settings.ollie_customization_rotation_both_outside = new List<Vector3>(new Vector3[4]);
+                settings.Save(modEntry);
+            }
+            if (settings.ollie_customization_length_both_outside.Count == 0)
+            {
+                settings.ollie_customization_length_both_outside = new List<float> { 12, 12, 12, 12 };
+                settings.Save(modEntry);
+            }
+
+            if (settings.ollie_customization_rotation_both_inside.Count == 0)
+            {
+                settings.ollie_customization_rotation_both_inside = new List<Vector3>(new Vector3[4]);
+                settings.Save(modEntry);
+            }
+            if (settings.ollie_customization_length_both_inside.Count == 0)
+            {
+                settings.ollie_customization_length_both_inside = new List<float> { 12, 12, 12, 12 };
+                settings.Save(modEntry);
+            }
         }
 
         private static void OnGUI(UnityModManager.ModEntry modEntry)
@@ -136,10 +222,7 @@ namespace fro_mod
             }
             else
             {
-                UnityEngine.Object.Destroy(controller);
-                UnityEngine.Object.Destroy(ui);
-                UnityEngine.Object.Destroy(cbt);
-                UnityEngine.Object.Destroy(multi);
+                UnityEngine.Object.Destroy(manager);
                 harmonyInstance.UnpatchAll(harmonyInstance.Id);
             }
 
