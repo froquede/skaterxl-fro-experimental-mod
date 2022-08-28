@@ -119,7 +119,7 @@ namespace fro_mod
 
             if (settings.ollie_customization_length.Count == 0)
             {
-                settings.ollie_customization_length = new List<float> { 12, 12, 12, 12 };
+                settings.ollie_customization_length = new List<float> { 24, 24, 24, 24 };
                 settings.Save(modEntry);
             }
 
@@ -130,7 +130,7 @@ namespace fro_mod
             }
             if (settings.ollie_customization_length_backwards.Count == 0)
             {
-                settings.ollie_customization_length_backwards = new List<float> { 12, 12, 12, 12 };
+                settings.ollie_customization_length_backwards = new List<float> { 24, 24, 24, 24 };
                 settings.Save(modEntry);
             }
 
@@ -141,7 +141,7 @@ namespace fro_mod
             }
             if (settings.ollie_customization_length_left_stick.Count == 0)
             {
-                settings.ollie_customization_length_left_stick = new List<float> { 12, 12, 12, 12 };
+                settings.ollie_customization_length_left_stick = new List<float> { 24, 24, 24, 24 };
                 settings.Save(modEntry);
             }
 
@@ -153,7 +153,7 @@ namespace fro_mod
             }
             if (settings.ollie_customization_length_right_stick.Count == 0)
             {
-                settings.ollie_customization_length_right_stick = new List<float> { 12, 12, 12, 12 };
+                settings.ollie_customization_length_right_stick = new List<float> { 24, 24, 24, 24 };
                 settings.Save(modEntry);
             }
 
@@ -164,7 +164,7 @@ namespace fro_mod
             }
             if (settings.ollie_customization_length_left_stick_backwards.Count == 0)
             {
-                settings.ollie_customization_length_left_stick_backwards = new List<float> { 12, 12, 12, 12 };
+                settings.ollie_customization_length_left_stick_backwards = new List<float> { 24, 24, 24, 24 };
                 settings.Save(modEntry);
             }
 
@@ -175,7 +175,7 @@ namespace fro_mod
             }
             if (settings.ollie_customization_length_right_stick_backwards.Count == 0)
             {
-                settings.ollie_customization_length_right_stick_backwards = new List<float> { 12, 12, 12, 12 };
+                settings.ollie_customization_length_right_stick_backwards = new List<float> { 24, 24, 24, 24 };
                 settings.Save(modEntry);
             }
 
@@ -186,7 +186,7 @@ namespace fro_mod
             }
             if (settings.ollie_customization_length_both_outside.Count == 0)
             {
-                settings.ollie_customization_length_both_outside = new List<float> { 12, 12, 12, 12 };
+                settings.ollie_customization_length_both_outside = new List<float> { 24, 24, 24, 24 };
                 settings.Save(modEntry);
             }
 
@@ -197,7 +197,73 @@ namespace fro_mod
             }
             if (settings.ollie_customization_length_both_inside.Count == 0)
             {
-                settings.ollie_customization_length_both_inside = new List<float> { 12, 12, 12, 12 };
+                settings.ollie_customization_length_both_inside = new List<float> { 24, 24, 24, 24 };
+                settings.Save(modEntry);
+            }
+
+            if (settings.ollie_customization_rotation_left2left.Count == 0)
+            {
+                settings.ollie_customization_rotation_left2left = new List<Vector3>(new Vector3[4]);
+                settings.Save(modEntry);
+            }
+            if (settings.ollie_customization_length_left2left.Count == 0)
+            {
+                settings.ollie_customization_length_left2left = new List<float> { 24, 24, 24, 24 };
+                settings.Save(modEntry);
+            }
+
+            if (settings.ollie_customization_rotation_left2right.Count == 0)
+            {
+                settings.ollie_customization_rotation_left2right = new List<Vector3>(new Vector3[4]);
+                settings.Save(modEntry);
+            }
+            if (settings.ollie_customization_length_left2right.Count == 0)
+            {
+                settings.ollie_customization_length_left2right = new List<float> { 24, 24, 24, 24 };
+                settings.Save(modEntry);
+            }
+
+            if (settings.ollie_customization_rotation_right2left.Count == 0)
+            {
+                settings.ollie_customization_rotation_right2left = new List<Vector3>(new Vector3[4]);
+                settings.Save(modEntry);
+            }
+            if (settings.ollie_customization_length_right2left.Count == 0)
+            {
+                settings.ollie_customization_length_right2left = new List<float> { 24, 24, 24, 24 };
+                settings.Save(modEntry);
+            }
+
+            if (settings.ollie_customization_rotation_right2right.Count == 0)
+            {
+                settings.ollie_customization_rotation_right2right = new List<Vector3>(new Vector3[4]);
+                settings.Save(modEntry);
+            }
+            if (settings.ollie_customization_length_right2right.Count == 0)
+            {
+                settings.ollie_customization_length_right2right = new List<float> { 24, 24, 24, 24 };
+                settings.Save(modEntry);
+            }
+
+            if (settings.ollie_customization_rotation_both2left.Count == 0)
+            {
+                settings.ollie_customization_rotation_both2left = new List<Vector3>(new Vector3[4]);
+                settings.Save(modEntry);
+            }
+            if (settings.ollie_customization_length_both2left.Count == 0)
+            {
+                settings.ollie_customization_length_both2left = new List<float> { 24, 24, 24, 24 };
+                settings.Save(modEntry);
+            }
+
+            if (settings.ollie_customization_rotation_both2right.Count == 0)
+            {
+                settings.ollie_customization_rotation_both2right = new List<Vector3>(new Vector3[4]);
+                settings.Save(modEntry);
+            }
+            if (settings.ollie_customization_length_both2right.Count == 0)
+            {
+                settings.ollie_customization_length_both2right = new List<float> { 24, 24, 24, 24 };
                 settings.Save(modEntry);
             }
         }

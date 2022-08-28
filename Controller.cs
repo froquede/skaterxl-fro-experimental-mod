@@ -191,6 +191,9 @@ namespace fro_mod
             else
             {
                 if (bailed_puppet) RestorePuppet();
+                if (PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].rigidbody.mass != Main.settings.left_hand_weight || PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].rigidbody.mass != Main.settings.right_hand_weight) {
+                    UpdateTotalMass();
+                }
                 PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].rigidbody.mass = Main.settings.left_hand_weight;
                 PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].rigidbody.mass = Main.settings.right_hand_weight;
             }
@@ -213,7 +216,20 @@ namespace fro_mod
 
             LetsGoAnim();
 
+            if (Main.settings.filmer_object && object_found != null) object_found.transform.LookAt(GameStateMachine.Instance.CurrentState.GetType() == typeof(ReplayState) ? pelvis_replay : pelvis);
+
             EA.LookAtAreaAround(PlayerController.Instance.boardController.transform.position);
+        }
+
+        void UpdateTotalMass()
+        {
+            Rigidbody[] componentsInChildren = MonoBehaviourSingleton<PlayerController>.Instance.gameObject.GetComponentsInChildren<Rigidbody>();
+            float num = 0f;
+            foreach (Rigidbody rigidbody in componentsInChildren)
+            {
+                num += rigidbody.mass;
+            }
+            PlayerController.Instance.skaterController.totalSystemMass = num;
         }
 
         void DoDebug()
@@ -333,16 +349,38 @@ namespace fro_mod
                 float sin = (float)Math.Sin(Time.unscaledTime * 12f) / 7f;
                 float multiplier = 1;
                 multiplier = SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular ? multiplier : -multiplier;
+                float sw_multiplier = PlayerController.Instance.IsSwitch ? -1 : 1;
 
                 GameObject center_left = new GameObject();
                 center_left.transform.position = PlayerController.Instance.skaterController.skaterTransform.position;
                 center_left.transform.rotation = PlayerController.Instance.skaterController.skaterTransform.rotation;
-                center_left.transform.Translate(new Vector3(.2f * multiplier, .75f + sin, .25f * multiplier), Space.Self);
+                if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Braking && SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular)
+                {
+                    center_left.transform.Translate(new Vector3(sw_multiplier == -1 ? .2f * multiplier : -.2f * multiplier, .75f + sin, .25f * multiplier), Space.Self);
+                }
+                else
+                {
+                    if(SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular)
+                    {
+                        center_left.transform.Translate(new Vector3(sw_multiplier == -1 ? .2f * multiplier : .2f * multiplier, .75f + sin, .25f * multiplier), Space.Self);
+                    }
+                    else
+                    {
+                        center_left.transform.Translate(new Vector3(sw_multiplier == -1 ? -.2f * multiplier : .2f * multiplier, .75f + sin, .25f * multiplier), Space.Self);
+                    }
+                }
 
                 GameObject center_right = new GameObject();
                 center_right.transform.position = PlayerController.Instance.skaterController.skaterTransform.position;
                 center_right.transform.rotation = PlayerController.Instance.skaterController.skaterTransform.rotation;
-                center_right.transform.Translate(new Vector3(.2f * multiplier, .75f + sin, -.25f * multiplier), Space.Self);
+                if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Braking && SettingsManager.Instance.stance == SkaterXL.Core.Stance.Goofy)
+                {
+                    center_right.transform.Translate(new Vector3(sw_multiplier == -1 ? .2f * multiplier : -.2f * multiplier, .75f + sin, -.25f * multiplier), Space.Self);
+                }
+                else
+                {
+                    center_right.transform.Translate(new Vector3(sw_multiplier == -1 && SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular ? -.2f * multiplier : .2f * multiplier, .75f + sin, -.25f * multiplier), Space.Self);
+                }
 
                 PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].transform.position = Vector3.Lerp(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].transform.position, center_left.transform.position, map01(letsgoanim_frame, 0, letsgoanim_length));
                 PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].transform.position = Vector3.Lerp(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].transform.position, center_right.transform.position, map01(letsgoanim_frame, 0, letsgoanim_length));
@@ -408,7 +446,7 @@ namespace fro_mod
 
                     if (PlayerController.Instance.animationController.skaterAnim.GetFloat("Nollie") == 0f)
                     {
-                        Vector3 t = new Vector3(SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular ? -165 : 285, -140, neck.transform.rotation.z - 15);
+                        Vector3 t = new Vector3(SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular ? -165 : 285, -140, -15);
 
                         if (windup_side < 0)
                         {
@@ -445,11 +483,11 @@ namespace fro_mod
                         t.y += offset.y;
                         t.z += offset.z;
 
-                        head_copy.transform.Rotate(t);
+                        head_copy.transform.Rotate(t, Space.Self);
                     }
                     else
                     {
-                        Vector3 t = new Vector3(SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular ? -170 : 290, -130, neck.transform.rotation.z - 30);
+                        Vector3 t = new Vector3(SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular ? -170 : 290, -130, -30);
 
                         if (windup_side < 0)
                         {
@@ -486,7 +524,7 @@ namespace fro_mod
                         t.y += offset.y;
                         t.z += offset.z;
 
-                        head_copy.transform.Rotate(t);
+                        head_copy.transform.Rotate(t, Space.Self);
                     }
                     neck.rotation = Quaternion.Lerp(neck.rotation, head_copy.transform.rotation, Mathf.SmoothStep(0, 1, map01(head_frame, 0, Main.settings.look_forward_length)));
 
@@ -519,9 +557,9 @@ namespace fro_mod
                 float multiplier = 0;
                 multiplier = SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular ? multiplier : 1;
                 float sin = (float)Math.Sin(Time.unscaledTime * 12f) / 7f;
-                head.transform.rotation = Quaternion.Lerp(head.transform.rotation, spine.transform.rotation, map01(letsgoanim_frame, 0, letsgoanim_length));
+                neck.transform.rotation = Quaternion.Lerp(neck.transform.rotation, spine.transform.rotation, map01(letsgoanim_frame, 0, letsgoanim_length));
                 Vector3 target = Vector3.Lerp(Vector3.zero, new Vector3(sin * 10, sin * 15, (sin * 33.3f)), map01(letsgoanim_frame, 0, letsgoanim_length) / 2);
-                head.transform.Rotate(target);
+                neck.transform.Rotate(target);
             }
         }
 
@@ -1576,6 +1614,12 @@ namespace fro_mod
                 if (PlayerController.Instance.animationController.skaterAnim.GetFloat("Nollie") == 0f) stance = "Fakie";
             }
             return stance;
+        }
+
+        public GameObject object_found = null;
+        public void scanObject()
+        {
+            object_found = GameObject.Find(Main.settings.filmer_object_target);
         }
     }
 }

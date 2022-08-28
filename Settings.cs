@@ -152,11 +152,28 @@ namespace fro_mod
         public List<float> ollie_customization_length_both_outside = new List<float>();
         public List<Vector3> ollie_customization_rotation_both_inside = new List<Vector3>();
         public List<float> ollie_customization_length_both_inside = new List<float>();
+
+        public List<Vector3> ollie_customization_rotation_left2left = new List<Vector3>();
+        public List<float> ollie_customization_length_left2left = new List<float>();
+        public List<Vector3> ollie_customization_rotation_left2right = new List<Vector3>();
+        public List<float> ollie_customization_length_left2right = new List<float>();
+
+        public List<Vector3> ollie_customization_rotation_right2left = new List<Vector3>();
+        public List<float> ollie_customization_length_right2left = new List<float>();
+        public List<Vector3> ollie_customization_rotation_right2right = new List<Vector3>();
+        public List<float> ollie_customization_length_right2right = new List<float>();
+
+        public List<Vector3> ollie_customization_rotation_both2left = new List<Vector3>();
+        public List<float> ollie_customization_length_both2left = new List<float>();
+        public List<Vector3> ollie_customization_rotation_both2right = new List<Vector3>();
+        public List<float> ollie_customization_length_both2right = new List<float>();
         // Ollie customization end
 
-        public bool force_stick_backwards = true;
+        public bool force_stick_backwards = false;
         public float force_stick_backwards_multiplier = .125f;
 
+        public bool filmer_object = false;
+        public string filmer_object_target = "";
 
 #if DEBUG
         public bool debug = true;

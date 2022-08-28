@@ -12,42 +12,47 @@ namespace fro_mod
     {
         public int air_frame = 0;
         string actual_stance;
-        string last_input;
+        List<string> last_input = new List<string>(0);
         Vector3 origin;
         public void FixedUpdate()
         {
             bool run = PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pop || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Release || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.InAir;
-            string type_of_input = getTypeOfInput();
+            List<string> type_of_input = getTypeOfInput();
 
-            if (type_of_input == null) run = false;
+            if (type_of_input.Count == 0) run = false;
 
             if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.BeginPop) actual_stance = getActualStance();
 
             if (run)
             {
-                float multiplier = getMultiplier(type_of_input);
-                Vector3 lerpedRotation;
-                Vector3 offset = getCustomRotation(actual_stance, type_of_input) * multiplier;
-                offset /= 12;
-
-                float anim = Controller.map01(air_frame, 0, getAnimationlength(actual_stance, type_of_input));
-                anim = anim > 1 ? 1 : anim;
-
-                Vector3 origin = PlayerController.Instance.boardController.boardRigidbody.transform.rotation.eulerAngles;
-                if (PlayerController.Instance.GetBoardBackwards())
+                for (int i = 0; i < type_of_input.Count; i++)
                 {
-                    lerpedRotation = Vector3.Lerp(origin, origin + new Vector3(-offset.x, offset.y, -offset.z), anim);
-                }
-                else
-                {
-                    lerpedRotation = Vector3.Lerp(origin, origin + new Vector3(offset.x, offset.y, offset.z), anim);
-                }
+                    string input = type_of_input[i];
+                    float multiplier = getMultiplier(input);
+                    Vector3 lerpedRotation;
+                    Vector3 offset = getCustomRotation(actual_stance, input) * multiplier;
+                    offset /= 12;
 
-                PlayerController.Instance.boardController.gameObject.transform.rotation = Quaternion.Euler(lerpedRotation);
-                PlayerController.Instance.boardController.UpdateBoardPosition();
-                air_frame++;
-                if (last_input != type_of_input) air_frame = 0;
-                last_input = type_of_input;
+                    float anim = Controller.map01(air_frame, 0, getAnimationlength(actual_stance, input));
+                    anim = anim > 1 ? 1 : anim;
+
+                    Vector3 origin = PlayerController.Instance.boardController.boardRigidbody.transform.rotation.eulerAngles;
+                    if (PlayerController.Instance.GetBoardBackwards())
+                    {
+                        lerpedRotation = Vector3.Lerp(origin, origin + new Vector3(-offset.x, offset.y, -offset.z), anim);
+                    }
+                    else
+                    {
+                        lerpedRotation = Vector3.Lerp(origin, origin + new Vector3(offset.x, offset.y, offset.z), anim);
+                    }
+
+                    PlayerController.Instance.boardController.gameObject.transform.rotation = Quaternion.Euler(lerpedRotation);
+                    PlayerController.Instance.boardController.UpdateBoardPosition();
+                    air_frame++;
+
+                    if (!last_input.SequenceEqual(type_of_input)) air_frame = 0;
+                    last_input = type_of_input;
+                }
             }
             else
             {
@@ -57,14 +62,18 @@ namespace fro_mod
 
             if (Main.settings.force_stick_backwards && (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.InAir || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pop || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Release))
             {
-                if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular && type_of_input == "right-backwards" || SettingsManager.Instance.stance == SkaterXL.Core.Stance.Goofy && type_of_input == "left-backwards")
+                for (int i = 0; i < type_of_input.Count; i++)
                 {
-                    GameObject copy = new GameObject();
-                    copy.transform.rotation = PlayerController.Instance.skaterController.skaterTransform.rotation;
-                    copy.transform.position = PlayerController.Instance.skaterController.skaterTransform.position;
-                    copy.transform.Translate(-2f, 0, 0, Space.Self);
-                    PlayerController.Instance.skaterController.skaterRigidbody.AddForceAtPosition(-copy.transform.up * Main.settings.force_stick_backwards_multiplier, copy.transform.position, ForceMode.Impulse);
-                    Destroy(copy);
+                    string input = type_of_input[i];
+                    if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular && input == "right-backwards" || SettingsManager.Instance.stance == SkaterXL.Core.Stance.Goofy && input == "left-backwards")
+                    {
+                        GameObject copy = new GameObject();
+                        copy.transform.rotation = PlayerController.Instance.skaterController.skaterTransform.rotation;
+                        copy.transform.position = PlayerController.Instance.skaterController.skaterTransform.position;
+                        copy.transform.Translate(-2f, 0, 0, Space.Self);
+                        PlayerController.Instance.skaterController.skaterRigidbody.AddForceAtPosition(-copy.transform.up * Main.settings.force_stick_backwards_multiplier, copy.transform.position, ForceMode.Impulse);
+                        Destroy(copy);
+                    }
                 }
             }
         }
@@ -80,6 +89,12 @@ namespace fro_mod
             if (input == "right-backwards") return Main.settings.ollie_customization_rotation_right_stick_backwards[id];
             if (input == "both-outside") return Main.settings.ollie_customization_rotation_both_outside[id];
             if (input == "both-inside") return Main.settings.ollie_customization_rotation_both_inside[id];
+            if (input == "left-left") return Main.settings.ollie_customization_rotation_left2left[id];
+            if (input == "left-right") return Main.settings.ollie_customization_rotation_left2right[id];
+            if (input == "right-left") return Main.settings.ollie_customization_rotation_right2left[id];
+            if (input == "right-right") return Main.settings.ollie_customization_rotation_right2right[id];
+            if (input == "both-left") return Main.settings.ollie_customization_rotation_both2left[id];
+            if (input == "both-right") return Main.settings.ollie_customization_rotation_both2right[id];
             return Vector3.zero;
         }
 
@@ -94,7 +109,13 @@ namespace fro_mod
             if (input == "right-backwards") return Main.settings.ollie_customization_length_right_stick_backwards[id];
             if (input == "both-outside") return Main.settings.ollie_customization_length_both_outside[id];
             if (input == "both-inside") return Main.settings.ollie_customization_length_both_inside[id];
-            return 12;
+            if (input == "left-left") return Main.settings.ollie_customization_length_left2left[id];
+            if (input == "left-right") return Main.settings.ollie_customization_length_left2right[id];
+            if (input == "right-left") return Main.settings.ollie_customization_length_right2left[id];
+            if (input == "right-right") return Main.settings.ollie_customization_length_right2right[id];
+            if (input == "both-left") return Main.settings.ollie_customization_length_both2left[id];
+            if (input == "both-right") return Main.settings.ollie_customization_length_both2right[id];
+            return 24;
         }
 
         int getStanceId(string stance)
@@ -127,21 +148,47 @@ namespace fro_mod
             return stance;
         }
 
-        string getTypeOfInput()
+        List<string> getTypeOfInput()
         {
-            string type_of_input = null;
-            if (PlayerController.Instance.inputController.LeftStick.rawInput.pos.y >= .25f) type_of_input = "left-forward";
-            if (PlayerController.Instance.inputController.RightStick.rawInput.pos.y >= .25f) type_of_input = "right-forward";
-            if (PlayerController.Instance.inputController.RightStick.rawInput.pos.y >= .25f && PlayerController.Instance.inputController.LeftStick.rawInput.pos.y >= .25f) type_of_input = "both-forward";
+            List<string> type_of_input = new List<string>(0);
 
-            if (PlayerController.Instance.inputController.LeftStick.rawInput.pos.y <= -.25f) type_of_input = "left-backwards";
-            if (PlayerController.Instance.inputController.RightStick.rawInput.pos.y <= -.25f) type_of_input = "right-backwards";
-            if (PlayerController.Instance.inputController.RightStick.rawInput.pos.y <= -.25f && PlayerController.Instance.inputController.LeftStick.rawInput.pos.y <= -.25f) type_of_input = "both-backwards";
+            if (PlayerController.Instance.inputController.RightStick.rawInput.pos.y >= .25f && PlayerController.Instance.inputController.LeftStick.rawInput.pos.y >= .25f) type_of_input.Add("both-forward");
+            else
+            {
+                if (PlayerController.Instance.inputController.LeftStick.rawInput.pos.y >= .25f) type_of_input.Add("left-forward");
+                if (PlayerController.Instance.inputController.RightStick.rawInput.pos.y >= .25f) type_of_input.Add("right-forward");
+            }
+
+            if (PlayerController.Instance.inputController.RightStick.rawInput.pos.y <= -.25f && PlayerController.Instance.inputController.LeftStick.rawInput.pos.y <= -.25f) type_of_input.Add("both-backwards");
+            else
+            {
+                if (PlayerController.Instance.inputController.LeftStick.rawInput.pos.y <= -.25f) type_of_input.Add("left-backwards");
+                if (PlayerController.Instance.inputController.RightStick.rawInput.pos.y <= -.25f) type_of_input.Add("right-backwards");
+            }
 
             if (PlayerController.Instance.inputController.LeftStick.rawInput.pos.y <= .25f && PlayerController.Instance.inputController.RightStick.rawInput.pos.y <= .25f && PlayerController.Instance.inputController.LeftStick.rawInput.pos.y >= -.25f && PlayerController.Instance.inputController.RightStick.rawInput.pos.y >= -.25f)
             {
-                if (PlayerController.Instance.inputController.LeftStick.rawInput.pos.x <= -.25f && PlayerController.Instance.inputController.RightStick.rawInput.pos.x >= .25f) type_of_input = "both-outside";
-                if (PlayerController.Instance.inputController.LeftStick.rawInput.pos.x >= .25f && PlayerController.Instance.inputController.RightStick.rawInput.pos.x <= -.25f) type_of_input = "both-inside";
+                if (PlayerController.Instance.inputController.LeftStick.rawInput.pos.x <= -.25f && PlayerController.Instance.inputController.RightStick.rawInput.pos.x >= .25f) type_of_input.Add("both-outside");
+                else
+                {
+                    if (PlayerController.Instance.inputController.LeftStick.rawInput.pos.x <= -.25f && PlayerController.Instance.inputController.RightStick.rawInput.pos.x <= -.25f) type_of_input.Add("both-left");
+                    else
+                    {
+                        if (PlayerController.Instance.inputController.LeftStick.rawInput.pos.x <= -.25f) { type_of_input.Add("left-left"); }
+                        if (PlayerController.Instance.inputController.RightStick.rawInput.pos.x <= -.25f) { type_of_input.Add("right-left"); }
+                    }
+                }
+                if (PlayerController.Instance.inputController.LeftStick.rawInput.pos.x >= .25f && PlayerController.Instance.inputController.RightStick.rawInput.pos.x <= -.25f) type_of_input.Add("both-inside");
+                else
+                {
+                    if (PlayerController.Instance.inputController.LeftStick.rawInput.pos.x >= .25f && PlayerController.Instance.inputController.RightStick.rawInput.pos.x >= .25f) type_of_input.Add("both-right");
+                    else
+                    {
+                        if (PlayerController.Instance.inputController.LeftStick.rawInput.pos.x >= .25f) { type_of_input.Add("left-right"); }
+                        if (PlayerController.Instance.inputController.RightStick.rawInput.pos.x >= .25f) { type_of_input.Add("right-right"); }
+                    }
+                }
+
             }
 
             return type_of_input;
@@ -158,6 +205,12 @@ namespace fro_mod
             if (input == "right-backwards") multi = Controller.map01(PlayerController.Instance.inputController.RightStick.rawInput.pos.y * -1, .25f, 1);
             if (input == "both-outside") multi = Controller.map01((PlayerController.Instance.inputController.RightStick.rawInput.pos.x + -PlayerController.Instance.inputController.LeftStick.rawInput.pos.x) / 2, .25f, 1);
             if (input == "both-inside") multi = Controller.map01((-PlayerController.Instance.inputController.RightStick.rawInput.pos.x + PlayerController.Instance.inputController.LeftStick.rawInput.pos.x) / 2, .25f, 1);
+            if (input == "left-left") multi = Controller.map01(PlayerController.Instance.inputController.LeftStick.rawInput.pos.x * -1, .25f, 1);
+            if (input == "left-right") multi = Controller.map01(PlayerController.Instance.inputController.LeftStick.rawInput.pos.x, .25f, 1);
+            if (input == "right-left") multi = Controller.map01(PlayerController.Instance.inputController.RightStick.rawInput.pos.x * -1, .25f, 1);
+            if (input == "right-right") multi = Controller.map01(PlayerController.Instance.inputController.RightStick.rawInput.pos.x, .25f, 1);
+            if (input == "both-left") multi = Controller.map01((PlayerController.Instance.inputController.RightStick.rawInput.pos.x + PlayerController.Instance.inputController.LeftStick.rawInput.pos.x) / 2 * -1, .25f, 1);
+            if (input == "both-right") multi = Controller.map01((PlayerController.Instance.inputController.RightStick.rawInput.pos.x + PlayerController.Instance.inputController.LeftStick.rawInput.pos.x) / 2, .25f, 1);
 
             return multi;
         }
