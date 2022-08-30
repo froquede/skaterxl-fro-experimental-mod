@@ -24,6 +24,7 @@ namespace RapidGUI
         public static int SelectionPopup(int selectionIndex, string[] displayOptions)
         {
             var label = (selectionIndex < 0 || displayOptions.Length <= selectionIndex) ? "" : displayOptions[selectionIndex];
+            GUI.backgroundColor = Color.black;
             GUILayout.Box("<b>" + label + "</b>", RGUIStyle.alignLeftBox);
             return PopupOnLastRect(selectionIndex, displayOptions);
         }

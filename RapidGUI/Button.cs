@@ -22,16 +22,17 @@ namespace RapidGUI
 
                 if (v)
                 {
-                    text = "On";
                     GUI.backgroundColor = Color.green;
+                    text = "On";
                 }
                 else
                 {
-                    text = "Off";
                     GUI.backgroundColor = Color.black;
+                    text = "Off";
                 }
 
                 v = GUILayout.Button($"<b><color=#ecf0f1>{text}</color></b>", RGUIStyle.button, GUILayout.Width(52f));
+                GUI.backgroundColor = Color.black;
             }
 
             return v;

@@ -24,6 +24,8 @@ namespace RapidGUI
         public static Texture2D popupTex;
         public static Texture2D darkWindowTexNormal;
         public static Texture2D darkWindowTexOnNormal;
+        public static List<Color32> backgroundColors, borderColors, backgroundColorsHover;
+        public static Texture2D tex, texh;
 
         static RGUIStyle()
         {
@@ -57,32 +59,26 @@ namespace RapidGUI
 
         static void CreateSliderLabel()
         {
+            backgroundColors = new List<Color32>();
+            borderColors = new List<Color32>();
+            backgroundColorsHover = new List<Color32>();
+
             var stylethumb = new GUIStyle(GUI.skin.horizontalSliderThumb) { };
-            List<Color32> backgroundColors = new List<Color32>();
-            List<Color32> borderColors = new List<Color32>();
             backgroundColors.Add(new Color32(200, 200, 200, 200));
             backgroundColors.Add(new Color32(255, 255, 255, 200));
             borderColors.Add(new Color32(0, 0, 0, 255));
-            Texture2D tex = RectangleCreator.CreateRoundedRectangleTexture(1, 128, 56, 0, 4, 2, backgroundColors, borderColors, .75f, 0);
+            tex = RectangleCreator.CreateRoundedRectangleTexture(1, 128, 56, 0, 4, 2, backgroundColors, borderColors, .75f, 0);
             stylethumb.normal.background = tex;
 
-            List<Color32> backgroundColorsHover = new List<Color32>();
             backgroundColorsHover.Add(new Color32(200, 200, 200, 255));
             backgroundColorsHover.Add(new Color32(255, 255, 255, 255));
-            Texture2D texh = RectangleCreator.CreateRoundedRectangleTexture(1, 128, 56, 0, 4, 2, backgroundColorsHover, borderColors, .75f, 0);
+            texh = RectangleCreator.CreateRoundedRectangleTexture(1, 128, 56, 0, 4, 2, backgroundColorsHover, borderColors, .75f, 0);
             stylethumb.hover.background = texh;
             stylethumb.active.background = texh;
             stylethumb.focused.background = texh;
             thumb = stylethumb;
 
             var styleslider = new GUIStyle(GUI.skin.horizontalSlider) { };
-            /*List<Color32> backgroundColorsSlider = new List<Color32>();
-            backgroundColorsSlider.Add(new Color32(45, 52, 54, 255));
-            List<Color32> borderColorsSlider = new List<Color32>();
-            borderColorsSlider.Add(new Color32(0, 0, 0, 255));
-            Texture2D tex_slider = RectangleCreator.CreateRoundedRectangleTexture(2, 256, 56, 6, 8, 0, backgroundColorsSlider, borderColorsSlider, 1, 0);
-            tex_slider.anisoLevel = 6;
-            styleslider.normal.background = tex_slider;*/
             slider = styleslider;
         }
 

@@ -124,6 +124,7 @@ namespace fro_mod
             "Slabs",
             "Marcel Mink",
             "etcyj",
+            "Theo Wegner",
             "helio",
             "Kyle Gherman",
             "Max Crowe",
@@ -148,6 +149,7 @@ namespace fro_mod
             "Alex Tagg",
             "slade.",
             "Sir_Cheeba",
+            "Dominic Galbavy",
             "Jeffery Depriest",
             "Alan Nairn",
             "Trav Wright",
@@ -167,7 +169,7 @@ namespace fro_mod
             "StillAManChild",
             "Ted Budd",
             "Drew Muscolo",
-            "Ardell Manning"
+            "Ardell Manning",
         };
 
         public void Start()
@@ -218,7 +220,7 @@ namespace fro_mod
         {
             if (showMainMenu)
             {
-                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.12.1</b>");
+                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.13.0</b>");
             }
         }
 
@@ -259,7 +261,7 @@ namespace fro_mod
             if (!about_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b>fro's experimental mod v1.12.1 (27/08/2022)</b>");
+                GUILayout.Label("<b>fro's experimental mod v1.13.0 (30/08/2022)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This software is distributed 'as is', with no warranty expressed or implied, and no guarantee for accuracy or applicability to any purpose.");
                 GUILayout.Label("This mod is not intended to harm the game or its respective developer in any purposeful way, its online functionality, or the game economy.");
@@ -594,7 +596,8 @@ namespace fro_mod
         public string[] Keyframe_States = new string[] {
             "Head",
             "Left Hand",
-            "Right Hand"
+            "Right Hand",
+            //"Filmer Object"
         };
 
         FoldObj camera_fold = new FoldObj(true, "Camera");
@@ -612,23 +615,57 @@ namespace fro_mod
                     Main.controller.DisableCameraCollider();
                 }
 
+                if (RGUI.Button(Main.settings.camera_shake, "Camera shake and FOV change"))
+                {
+                    Main.settings.camera_shake = !Main.settings.camera_shake;
+                }
+
+                if (Main.settings.camera_shake)
+                {
+                    Main.settings.camera_shake_offset = RGUI.SliderFloat(Main.settings.camera_shake_offset, 0f, 16f, 7f, "Camera shake minimum velocity");
+                    Main.settings.camera_shake_multiplier = RGUI.SliderFloat(Main.settings.camera_shake_multiplier, 0f, 10f, 1f, "Camera shake multiplier");
+                    Main.settings.camera_shake_fov_multiplier = RGUI.SliderFloat(Main.settings.camera_shake_fov_multiplier, 0f, 5f, 1f, "Camera shake FOV multiplier");
+                }
+
                 if (RGUI.Button(Main.settings.filmer_object, "Filmer object"))
                 {
                     Main.settings.filmer_object = !Main.settings.filmer_object;
                     Main.controller.DisableCameraCollider();
                 }
 
-                if(Main.settings.filmer_object)
+                if (Main.settings.filmer_object)
                 {
-                    Main.settings.filmer_object_target = GUILayout.TextField(Main.settings.filmer_object_target, 666);
+                    GUILayout.BeginHorizontal();
+                    Main.settings.filmer_object_target = GUILayout.TextField(Main.settings.filmer_object_target, 666, GUILayout.Height(21f));
 
-                    if(GUILayout.Button("Scan object"))
+                    if (GUILayout.Button("Scan object", RGUIStyle.button, GUILayout.Width(86)))
                     {
                         Main.controller.scanObject();
                     }
+                    GUILayout.EndHorizontal();
 
                     GUILayout.Label("Object " + (Main.controller.object_found != null ? "found" : "not found, check the object name"));
                 }
+
+                GUILayout.BeginHorizontal();
+                GUILayout.BeginVertical();
+                GUILayout.Label("<b>Force LOD 0 in all objects</b>");
+                GUILayout.Label("<color=#f9ca24>After toggling this feature your game will freeze for some seconds</color>");
+                GUILayout.Label("<color=#f9ca24>Enabling this feature will <b>for sure</b> cap some frames</color>");
+                GUILayout.EndVertical();
+                GUILayout.BeginVertical(GUILayout.Width(64f));
+                GUILayout.Space(8);
+                if (GUILayout.Button("Enable", RGUIStyle.button, GUILayout.Width(64f)))
+                {
+                    Main.controller.ForceLODs();
+                }
+
+                if (GUILayout.Button("Disable", RGUIStyle.button, GUILayout.Width(64f)))
+                {
+                    Main.controller.ResetLODs();
+                }
+                GUILayout.EndVertical();
+                GUILayout.EndHorizontal();
 
                 GUILayout.Space(6);
                 Fold(keyframe_fold);
@@ -995,7 +1032,7 @@ namespace fro_mod
                     if (selected_input == 7) Main.settings.ollie_customization_rotation_both_inside[selected_stance_customizer] = rotation;
                     if (selected_input == 8) Main.settings.ollie_customization_rotation_left2left[selected_stance_customizer] = rotation;
                     if (selected_input == 9) Main.settings.ollie_customization_rotation_left2right[selected_stance_customizer] = rotation;
-                    if (selected_input == 10)Main.settings.ollie_customization_rotation_right2left[selected_stance_customizer] = rotation;
+                    if (selected_input == 10) Main.settings.ollie_customization_rotation_right2left[selected_stance_customizer] = rotation;
                     if (selected_input == 11) Main.settings.ollie_customization_rotation_right2right[selected_stance_customizer] = rotation;
                     if (selected_input == 12) Main.settings.ollie_customization_rotation_both2left[selected_stance_customizer] = rotation;
                     if (selected_input == 13) Main.settings.ollie_customization_rotation_both2right[selected_stance_customizer] = rotation;

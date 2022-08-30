@@ -173,7 +173,12 @@ namespace fro_mod
         public float force_stick_backwards_multiplier = .125f;
 
         public bool filmer_object = false;
-        public string filmer_object_target = "";
+        public string filmer_object_target = "Target";
+
+        public bool camera_shake = true;
+        public float camera_shake_offset = 7;
+        public float camera_shake_multiplier = 1f;
+        public float camera_shake_fov_multiplier = 1f;
 
 #if DEBUG
         public bool debug = true;

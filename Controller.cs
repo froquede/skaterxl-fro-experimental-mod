@@ -187,11 +187,13 @@ namespace fro_mod
             {
                 if (!bailed_puppet) SetBailedPuppet();
                 letsgo_anim_time = Time.unscaledTime - 10f;
+                PlayerController.Instance.boardController.ApplyFrictionTowardsVelocity(1f);
             }
             else
             {
                 if (bailed_puppet) RestorePuppet();
-                if (PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].rigidbody.mass != Main.settings.left_hand_weight || PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].rigidbody.mass != Main.settings.right_hand_weight) {
+                if (PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].rigidbody.mass != Main.settings.left_hand_weight || PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].rigidbody.mass != Main.settings.right_hand_weight)
+                {
                     UpdateTotalMass();
                 }
                 PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].rigidbody.mass = Main.settings.left_hand_weight;
@@ -216,7 +218,7 @@ namespace fro_mod
 
             LetsGoAnim();
 
-            if (Main.settings.filmer_object && object_found != null) object_found.transform.LookAt(GameStateMachine.Instance.CurrentState.GetType() == typeof(ReplayState) ? pelvis_replay : pelvis);
+            if (Main.settings.filmer_object && object_found != null) object_found.transform.position = (GameStateMachine.Instance.CurrentState.GetType() == typeof(ReplayState) ? pelvis_replay.position : pelvis.position);
 
             EA.LookAtAreaAround(PlayerController.Instance.boardController.transform.position);
         }
@@ -360,7 +362,7 @@ namespace fro_mod
                 }
                 else
                 {
-                    if(SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular)
+                    if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular)
                     {
                         center_left.transform.Translate(new Vector3(sw_multiplier == -1 ? .2f * multiplier : .2f * multiplier, .75f + sin, .25f * multiplier), Space.Self);
                     }
@@ -874,7 +876,6 @@ namespace fro_mod
             PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].rigidbody.mass = 1f;
 
             PlayerController.Instance.animationController.CrossFadeAnimation("Falling", .2f);
-            PlayerController.Instance.boardController.ApplyFrictionTowardsVelocity(.1f);
             bailed_puppet = true;
         }
 
@@ -931,6 +932,11 @@ namespace fro_mod
                 Transform target = head_replay;
                 if (Main.settings.keyframe_target == "Left Hand") target = left_hand_replay;
                 if (Main.settings.keyframe_target == "Right Hand") target = right_hand_replay;
+                if (Main.settings.keyframe_target == "Filmer Object" && object_found != null) target = object_found.transform;
+
+                UnityModManager.Logger.Log(target == null ? "null" : target.name);
+
+                if (target == null) return;
 
                 if (Main.settings.keyframe_start_of_clip)
                 {
@@ -940,8 +946,7 @@ namespace fro_mod
                 {
                     AddKeyFrame(saved_time + (keyframe_count * pace), target);
                 }
-
-                keyframes.UpdateKeyframes(ReplayEditorController.Instance.cameraController.keyFrames);
+                ReplayEditorController.Instance.cameraController.keyframeUI.UpdateKeyframes(ReplayEditorController.Instance.cameraController.keyFrames);
                 keyframe_count++;
             }
             else
@@ -1620,6 +1625,24 @@ namespace fro_mod
         public void scanObject()
         {
             object_found = GameObject.Find(Main.settings.filmer_object_target);
+        }
+
+        public void ForceLODs()
+        {
+            var lod_objects = FindObjectsOfType<UnityEngine.LODGroup>();
+            for (int i = 0; i < lod_objects.Length; i++)
+            {
+                lod_objects[i].ForceLOD(0);
+            }
+        }
+
+        public void ResetLODs()
+        {
+            var lod_objects = FindObjectsOfType<UnityEngine.LODGroup>();
+            for (int i = 0; i < lod_objects.Length; i++)
+            {
+                lod_objects[i].ForceLOD(-1);
+            }
         }
     }
 }
