@@ -53,10 +53,10 @@ namespace fro_mod
 
             PlayerController.Instance.boardController.boardRigidbody.collisionDetectionMode = PlayerController.Instance.boardController.boardRigidbody.isKinematic ? CollisionDetectionMode.ContinuousSpeculative : CollisionDetectionMode.ContinuousDynamic;
             PlayerController.Instance.boardController.boardRigidbody.solverIterations = 20;
-            PlayerController.Instance.boardController.backTruckRigidbody.collisionDetectionMode = PlayerController.Instance.boardController.backTruckRigidbody.isKinematic ? CollisionDetectionMode.ContinuousSpeculative : CollisionDetectionMode.ContinuousDynamic;
+            /*PlayerController.Instance.boardController.backTruckRigidbody.collisionDetectionMode = PlayerController.Instance.boardController.backTruckRigidbody.isKinematic ? CollisionDetectionMode.ContinuousSpeculative : CollisionDetectionMode.ContinuousDynamic;
             PlayerController.Instance.boardController.backTruckRigidbody.solverIterations = 20;
             PlayerController.Instance.boardController.frontTruckRigidbody.collisionDetectionMode = PlayerController.Instance.boardController.frontTruckRigidbody.isKinematic ? CollisionDetectionMode.ContinuousSpeculative : CollisionDetectionMode.ContinuousDynamic;
-            PlayerController.Instance.boardController.frontTruckRigidbody.solverIterations = 20;
+            PlayerController.Instance.boardController.frontTruckRigidbody.solverIterations = 20;*/
             PlayerController.Instance.skaterController.skaterRigidbody.collisionDetectionMode = PlayerController.Instance.skaterController.skaterRigidbody.isKinematic ? CollisionDetectionMode.ContinuousSpeculative : CollisionDetectionMode.ContinuousDynamic;
             PlayerController.Instance.skaterController.skaterRigidbody.solverIterations = 20;
             PlayerController.Instance.skaterController.leftFootCollider.attachedRigidbody.collisionDetectionMode = PlayerController.Instance.skaterController.leftFootCollider.attachedRigidbody.isKinematic ? CollisionDetectionMode.ContinuousSpeculative : CollisionDetectionMode.ContinuousDynamic;
@@ -220,7 +220,7 @@ namespace fro_mod
 
             if (Main.settings.filmer_object && object_found != null) object_found.transform.position = (GameStateMachine.Instance.CurrentState.GetType() == typeof(ReplayState) ? pelvis_replay.position : pelvis.position);
 
-            EA.LookAtAreaAround(PlayerController.Instance.boardController.transform.position);
+            //EA.LookAtAreaAround(PlayerController.Instance.boardController.transform.position);
         }
 
         void UpdateTotalMass()
@@ -397,6 +397,7 @@ namespace fro_mod
             }
         }
 
+        GameObject pclone;
         void LookForward()
         {
             if (!Main.settings.look_forward) return;
@@ -432,102 +433,72 @@ namespace fro_mod
                     float windup_side = PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup ? PlayerController.Instance.animationController.skaterAnim.GetFloat("WindUp") : 0;
                     if (Main.settings.debug) UnityModManager.Logger.Log(windup_side.ToString());
 
-                    Vector3 target = nose_collider.transform.position;
-                    if (PlayerController.Instance.GetBoardBackwards()) target = tail_collider.transform.position;
-
-                    if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Goofy)
+                    if (pclone == null)
                     {
-                        target = tail_collider.transform.position;
-                        if (PlayerController.Instance.GetBoardBackwards()) target = nose_collider.transform.position;
+                        pclone = new GameObject("HeadRotationTarget");
+                        /*pclone = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                        pclone.GetComponent<SphereCollider>().enabled = false;
+                        pclone.transform.localScale = new Vector3(.1f, .1f, .1f);*/
                     }
+
+                    pclone.transform.rotation = PlayerController.Instance.skaterController.transform.rotation;
+                    pclone.transform.position = PlayerController.Instance.skaterController.transform.position;
+                    pclone.transform.Translate(0, -.4f, -1f, Space.Self);
+                    //EA.LookAtSpecificThing(pclone.transform.position);
+
+                    Vector3 target = pclone.transform.position;
+
+                    //Destroy(pclone);
 
                     GameObject head_copy = new GameObject();
                     head_copy.transform.rotation = neck.rotation;
                     head_copy.transform.position = neck.position;
                     head_copy.transform.LookAt(target);
 
-                    if (PlayerController.Instance.animationController.skaterAnim.GetFloat("Nollie") == 0f)
+                    if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular)
                     {
-                        Vector3 t = new Vector3(SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular ? -165 : 285, -140, -15);
+                        head_copy.transform.Rotate(90f, 0f, 0f, Space.Self);
+                        head_copy.transform.Rotate(0f, -18.5f, 0f, Space.Self);
+                        head_copy.transform.Rotate(0f, 0f, 18.5f, Space.Self);
+                        head_copy.transform.Rotate(0f, -13f, -10f, Space.Self);
+                        head_copy.transform.Rotate(14f, 9f, 0f, Space.Self);
 
-                        if (windup_side < 0)
+                        if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup)
                         {
-                            if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular)
+                            if (windup_side >= 0)
                             {
-                                t.x += 26f * windup_side;
-                                t.y += -36f * windup_side;
-                                t.z += 16f * windup_side;
+                                head_copy.transform.Rotate(new Vector3(33f, 17.4f, 8.7f) * windup_side, Space.Self);
+                                head_copy.transform.Rotate(new Vector3(0f, 17.4f, 0f) * windup_side, Space.Self);
                             }
                             else
                             {
-                                t.x += -76f * windup_side;
-                                t.y += -36f * windup_side;
-                                t.z += 45f * windup_side;
+                                head_copy.transform.Rotate(new Vector3(20.9f, 45.2f, 10.4f) * windup_side, Space.Self);
                             }
                         }
-                        else
-                        {
-                            if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular)
-                            {
-                                t.x += 45f * windup_side;
-                                t.y += -20f * windup_side;
-                                t.z += 10f * windup_side;
-                            }
-                            else
-                            {
-                                t.x += -30f * windup_side;
-                                t.y += 10f * windup_side;
-                                t.z += -10f * windup_side;
-                            }
-                        }
-
-                        t.x += offset.x;
-                        t.y += offset.y;
-                        t.z += offset.z;
-
-                        head_copy.transform.Rotate(t, Space.Self);
                     }
                     else
                     {
-                        Vector3 t = new Vector3(SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular ? -170 : 290, -130, -30);
+                        head_copy.transform.Rotate(-90f, 0f, 180f, Space.Self);
+                        head_copy.transform.Rotate(0f, 18.5f, 0f, Space.Self);
+                        head_copy.transform.Rotate(0f, 0f, 18.5f, Space.Self);
+                        head_copy.transform.Rotate(0f, 13f, -10f, Space.Self);
+                        head_copy.transform.Rotate(-14f, -9f, 0f, Space.Self);
 
-                        if (windup_side < 0)
+                        if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup)
                         {
-                            if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular)
+                            if (windup_side < 0)
                             {
-                                t.x += 26f * windup_side;
-                                t.y += -36f * windup_side;
-                                t.z += -18f * windup_side;
+                                head_copy.transform.Rotate(new Vector3(-33f, -17.4f, 8.7f) * windup_side, Space.Self);
+                                head_copy.transform.Rotate(new Vector3(0f, -17.4f, 0f) * windup_side, Space.Self);
                             }
                             else
                             {
-                                t.x += -55f * windup_side;
-                                t.y += -20f * windup_side;
-                                t.z += 35f * windup_side;
+                                head_copy.transform.Rotate(new Vector3(-20.9f, -45.2f, 10.4f) * windup_side, Space.Self);
                             }
                         }
-                        else
-                        {
-                            if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular)
-                            {
-                                t.x += 25f * windup_side;
-                                t.y += -15f * windup_side;
-                                t.z += -15f * windup_side;
-                            }
-                            else
-                            {
-                                t.x += -43f * windup_side;
-                                t.y += 7.5f * windup_side;
-                                t.z += -10f * windup_side;
-                            }
-                        }
-
-                        t.x += offset.x;
-                        t.y += offset.y;
-                        t.z += offset.z;
-
-                        head_copy.transform.Rotate(t, Space.Self);
                     }
+                    head_copy.transform.Rotate(offset, Space.Self);
+
                     neck.rotation = Quaternion.Lerp(neck.rotation, head_copy.transform.rotation, Mathf.SmoothStep(0, 1, map01(head_frame, 0, Main.settings.look_forward_length)));
 
                     Destroy(head_copy);
@@ -1110,6 +1081,18 @@ namespace fro_mod
             left_leg_replay.localScale = new Vector3(Main.settings.custom_scale_leg_l, Main.settings.custom_scale_leg_l, Main.settings.custom_scale_leg_l);
             right_upleg_replay.localScale = new Vector3(Main.settings.custom_scale_upleg_r, Main.settings.custom_scale_upleg_r, Main.settings.custom_scale_upleg_r);
             right_leg_replay.localScale = new Vector3(Main.settings.custom_scale_leg_r, Main.settings.custom_scale_leg_r, Main.settings.custom_scale_leg_r);
+
+            if (pclone == null)
+            {
+                pclone = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                pclone.GetComponent<SphereCollider>().enabled = false;
+                pclone.transform.localScale = new Vector3(.1f, .1f, .1f);
+            }
+
+            pclone.transform.rotation = PlayerController.Instance.skaterController.transform.rotation;
+            pclone.transform.position = PlayerController.Instance.skaterController.transform.position;
+            pclone.transform.Translate(0, -.4f, -1f, Space.Self);
+            //EA.LookAtSpecificThing(pclone.transform.position);
         }
 
         float tail_collider_offset = 0;

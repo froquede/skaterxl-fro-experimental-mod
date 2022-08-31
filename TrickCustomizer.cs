@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityModManagerNet;
 
@@ -16,6 +17,8 @@ namespace fro_mod
         Vector3 origin;
         public void FixedUpdate()
         {
+            if (!Main.settings.trick_customization) return;
+
             bool run = PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pop || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Release || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.InAir;
             List<string> type_of_input = getTypeOfInput();
 
@@ -75,6 +78,15 @@ namespace fro_mod
                         Destroy(copy);
                     }
                 }
+            }
+        }
+
+        public void LateUpdate()
+        {
+            if ((PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pushing || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Riding || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Impact) && PlayerController.Instance.inputController.player.GetButtonDoublePressDown("Right Stick Button"))
+            {
+                Main.settings.trick_customization = !Main.settings.trick_customization;
+                NotificationManager.Instance.ShowNotification($"Trick customization { (Main.settings.trick_customization ? "enabled" : "disabled") }", 1f, false, NotificationManager.NotificationType.Normal, TextAlignmentOptions.TopRight, 0.1f);
             }
         }
 

@@ -220,7 +220,7 @@ namespace fro_mod
         {
             if (showMainMenu)
             {
-                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.13.0</b>");
+                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.13.1</b>");
             }
         }
 
@@ -261,7 +261,7 @@ namespace fro_mod
             if (!about_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b>fro's experimental mod v1.13.0 (30/08/2022)</b>");
+                GUILayout.Label("<b>fro's experimental mod v1.13.1 (31/08/2022)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This software is distributed 'as is', with no warranty expressed or implied, and no guarantee for accuracy or applicability to any purpose.");
                 GUILayout.Label("This mod is not intended to harm the game or its respective developer in any purposeful way, its online functionality, or the game economy.");
@@ -988,10 +988,16 @@ namespace fro_mod
                     }
                 }
 
-                Fold(customizer_fold);
+
+                Fold(customizer_fold, "#6ab04c");
 
                 if (!customizer_fold.reference)
                 {
+                    if (RGUI.Button(Main.settings.trick_customization, "Enabled"))
+                    {
+                        Main.settings.trick_customization = !Main.settings.trick_customization;
+                    }
+
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("Stance:");
                     selected_stance_customizer = RGUI.SelectionPopup(selected_stance_customizer, StancesCustomizer);

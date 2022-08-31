@@ -180,6 +180,8 @@ namespace fro_mod
         public float camera_shake_multiplier = 1f;
         public float camera_shake_fov_multiplier = 1f;
 
+        public bool trick_customization = true;
+
 #if DEBUG
         public bool debug = true;
 #else
