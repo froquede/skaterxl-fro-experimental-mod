@@ -64,7 +64,7 @@ namespace fro_mod
             PlayerController.Instance.skaterController.rightFootCollider.attachedRigidbody.collisionDetectionMode = PlayerController.Instance.skaterController.rightFootCollider.attachedRigidbody.isKinematic ? CollisionDetectionMode.ContinuousSpeculative : CollisionDetectionMode.ContinuousDynamic;
             PlayerController.Instance.skaterController.rightFootCollider.attachedRigidbody.solverIterations = 20;
 
-            EA = PlayerController.Instance.skaterController.GetComponent<RealisticEyeMovements.EyeAndHeadAnimator>();
+            /*EA = PlayerController.Instance.skaterController.GetComponent<RealisticEyeMovements.EyeAndHeadAnimator>();*/
 
             checkDebug();
             getReplayUI();
@@ -1081,18 +1081,6 @@ namespace fro_mod
             left_leg_replay.localScale = new Vector3(Main.settings.custom_scale_leg_l, Main.settings.custom_scale_leg_l, Main.settings.custom_scale_leg_l);
             right_upleg_replay.localScale = new Vector3(Main.settings.custom_scale_upleg_r, Main.settings.custom_scale_upleg_r, Main.settings.custom_scale_upleg_r);
             right_leg_replay.localScale = new Vector3(Main.settings.custom_scale_leg_r, Main.settings.custom_scale_leg_r, Main.settings.custom_scale_leg_r);
-
-            if (pclone == null)
-            {
-                pclone = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                pclone.GetComponent<SphereCollider>().enabled = false;
-                pclone.transform.localScale = new Vector3(.1f, .1f, .1f);
-            }
-
-            pclone.transform.rotation = PlayerController.Instance.skaterController.transform.rotation;
-            pclone.transform.position = PlayerController.Instance.skaterController.transform.position;
-            pclone.transform.Translate(0, -.4f, -1f, Space.Self);
-            //EA.LookAtSpecificThing(pclone.transform.position);
         }
 
         float tail_collider_offset = 0;
