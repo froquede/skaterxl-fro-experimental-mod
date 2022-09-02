@@ -24,6 +24,7 @@ namespace RapidGUI
         public static int SelectionPopup(int selectionIndex, string[] displayOptions)
         {
             var label = (selectionIndex < 0 || displayOptions.Length <= selectionIndex) ? "" : displayOptions[selectionIndex];
+            GUI.backgroundColor = Color.black;
             GUILayout.Box("<b>" + label + "</b>", RGUIStyle.alignLeftBox);
             return PopupOnLastRect(selectionIndex, displayOptions);
         }
@@ -91,7 +92,7 @@ namespace RapidGUI
                         contentSize.y += 4;
 
                         var margin = buttonStyle.margin;
-                        // contentSize.y += Mathf.Max(0, displayOptions.Length - 1) * Mathf.Max(margin.top, margin.bottom); // is this right?
+                        // contentSize.y += Mathf.Max(0, displayOptions.length - 1) * Mathf.Max(margin.top, margin.bottom); // is this right?
 
                         var vbarSkin = GUI.skin.verticalScrollbar;
                         var vbarSize = vbarSkin.CalcScreenSize(Vector2.zero);

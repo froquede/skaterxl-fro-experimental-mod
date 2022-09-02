@@ -18,20 +18,21 @@ namespace RapidGUI
             using (new GUILayout.HorizontalScope())
             {
                 string text;
-                GUILayout.Label("<b>" + label + "</b>");
+                GUILayout.Label($"<b><color=#ecf0f1>{label}</color></b>");
 
                 if (v)
                 {
-                    text = "On";
                     GUI.backgroundColor = Color.green;
+                    text = "On";
                 }
                 else
                 {
-                    text = "Off";
                     GUI.backgroundColor = Color.black;
+                    text = "Off";
                 }
 
-                v = GUILayout.Button("<b>" + text + "</b>", RGUIStyle.button, GUILayout.Width(52f));
+                v = GUILayout.Button($"<b><color=#ecf0f1>{text}</color></b>", RGUIStyle.button, GUILayout.Width(52f));
+                GUI.backgroundColor = Color.black;
             }
 
             return v;

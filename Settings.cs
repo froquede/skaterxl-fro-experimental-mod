@@ -81,10 +81,10 @@ namespace fro_mod
         public float input_threshold = 20f;
 
         public bool BetterDecay = true;
-        public float decay = 3.25f;
+        public float decay = 1.5f;
         public List<bool> dynamic_feet_states = new List<Boolean>();
 
-        public List<bool> look_forward_states = new List<Boolean>();        
+        public List<bool> look_forward_states = new List<Boolean>();
 
         public float custom_scale_head = 1f;
         public float custom_scale_hand_l = 1f;
@@ -114,7 +114,7 @@ namespace fro_mod
         public int look_forward_delay = 0;
         public int look_forward_length = 18;
 
-        public int RoomIDLength = 5;
+        public int RoomIDlength = 5;
 
         public bool powerslide_force = true;
         public bool powerslide_velocitybased = true;
@@ -123,6 +123,85 @@ namespace fro_mod
 
         public bool alternative_arms = false;
         public bool alternative_arms_damping = false;
+
+        public bool multiplayer_collision = false;
+
+        public List<Vector3> head_rotation_fakie = new List<Vector3>();
+        public List<Vector3> head_rotation_switch = new List<Vector3>();
+
+        public List<Vector3> head_rotation_grinds_fakie = new List<Vector3>();
+        public List<Vector3> head_rotation_grinds_switch = new List<Vector3>();
+
+        public bool show_colliders = false;
+
+        // UnityModManager doesnt seems to like a list of list for saving the settings so unfortunately this is going to be declared manually
+        public List<Vector3> ollie_customization_rotation = new List<Vector3>();
+        public List<float> ollie_customization_length = new List<float>();
+        public List<Vector3> ollie_customization_rotation_backwards = new List<Vector3>();
+        public List<float> ollie_customization_length_backwards = new List<float>();
+        public List<Vector3> ollie_customization_rotation_left_stick = new List<Vector3>();
+        public List<float> ollie_customization_length_left_stick = new List<float>();
+        public List<Vector3> ollie_customization_rotation_right_stick = new List<Vector3>();
+        public List<float> ollie_customization_length_right_stick = new List<float>();
+        public List<Vector3> ollie_customization_rotation_left_stick_backwards = new List<Vector3>();
+        public List<float> ollie_customization_length_left_stick_backwards = new List<float>();
+        public List<Vector3> ollie_customization_rotation_right_stick_backwards = new List<Vector3>();
+        public List<float> ollie_customization_length_right_stick_backwards = new List<float>();
+
+        public List<Vector3> ollie_customization_rotation_both_outside = new List<Vector3>();
+        public List<float> ollie_customization_length_both_outside = new List<float>();
+        public List<Vector3> ollie_customization_rotation_both_inside = new List<Vector3>();
+        public List<float> ollie_customization_length_both_inside = new List<float>();
+
+        public List<Vector3> ollie_customization_rotation_left2left = new List<Vector3>();
+        public List<float> ollie_customization_length_left2left = new List<float>();
+        public List<Vector3> ollie_customization_rotation_left2right = new List<Vector3>();
+        public List<float> ollie_customization_length_left2right = new List<float>();
+
+        public List<Vector3> ollie_customization_rotation_right2left = new List<Vector3>();
+        public List<float> ollie_customization_length_right2left = new List<float>();
+        public List<Vector3> ollie_customization_rotation_right2right = new List<Vector3>();
+        public List<float> ollie_customization_length_right2right = new List<float>();
+
+        public List<Vector3> ollie_customization_rotation_both2left = new List<Vector3>();
+        public List<float> ollie_customization_length_both2left = new List<float>();
+        public List<Vector3> ollie_customization_rotation_both2right = new List<Vector3>();
+        public List<float> ollie_customization_length_both2right = new List<float>();
+        // Ollie customization end
+
+        public bool force_stick_backwards = false;
+        public float force_stick_backwards_multiplier = .125f;
+
+        public bool filmer_object = false;
+        public string filmer_object_target = "Target";
+
+        public bool camera_shake = true;
+        public float camera_shake_offset = 7;
+        public float camera_shake_multiplier = 3f;
+        public float camera_shake_fov_multiplier = 1.5f;
+
+        public bool trick_customization = true;
+
+        public float Kp = 5000f;
+        public float Ki = 0f;
+        public float Kd = 900f;
+        public float KpImpact = 5000f;
+        public float KdImpact = 1000f;
+        public float KpSetup = 20000f;
+        public float KdSetup = 1500f;
+        public float KpGrind = 2000f;
+        public float KdGrind = 900f;
+        public float comOffset_y = 0.07f;
+        public float comHeightRiding = 1.06f;
+        public float maxLegForce = 5000f;
+
+        public bool forward_force_onpop = false;
+        public float forward_force = .35f;
+
+        public string multi_filmer_activation = "On pump input";
+
+        public float camera_shake_range = .2f;
+        public int camera_shake_length = 4;
 
 #if DEBUG
         public bool debug = true;
