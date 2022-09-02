@@ -81,7 +81,7 @@ namespace fro_mod
         public float input_threshold = 20f;
 
         public bool BetterDecay = true;
-        public float decay = 3.25f;
+        public float decay = 1.5f;
         public List<bool> dynamic_feet_states = new List<Boolean>();
 
         public List<bool> look_forward_states = new List<Boolean>();
@@ -177,8 +177,8 @@ namespace fro_mod
 
         public bool camera_shake = true;
         public float camera_shake_offset = 7;
-        public float camera_shake_multiplier = 1f;
-        public float camera_shake_fov_multiplier = 1f;
+        public float camera_shake_multiplier = 3f;
+        public float camera_shake_fov_multiplier = 1.5f;
 
         public bool trick_customization = true;
 
@@ -194,6 +194,14 @@ namespace fro_mod
         public float comOffset_y = 0.07f;
         public float comHeightRiding = 1.06f;
         public float maxLegForce = 5000f;
+
+        public bool forward_force_onpop = false;
+        public float forward_force = .35f;
+
+        public string multi_filmer_activation = "On pump input";
+
+        public float camera_shake_range = .2f;
+        public int camera_shake_length = 4;
 
 #if DEBUG
         public bool debug = true;

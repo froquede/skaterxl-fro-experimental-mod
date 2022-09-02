@@ -24,6 +24,10 @@ namespace fro_mod
 
     public class UIController : MonoBehaviour
     {
+        string green = "#b8e994";
+        string white = "#ecf0f1";
+        string red = "#b71540";
+
         bool showMainMenu = false;
         private Rect MainMenuRect = new Rect(20, 20, Screen.width / 6, 20);
         public string[] States = new string[] {
@@ -118,26 +122,20 @@ namespace fro_mod
         {
             "Fury XL",
             "doobiedoober",
-            "Kai Down",
             "Tyler W",
             "Eric Mcgrady",
             "Slabs",
             "Marcel Mink",
             "etcyj",
-            "Theo Wegner",
             "helio",
             "Kyle Gherman",
             "Max Crowe",
-            "Lonelycupid",
             "Nick Morocco",
-            "Merrick Dougherty",
             "flipadip",
             "Nick Hanslip",
             "Bubble Gun",
             "Matt B",
             "Ricky Alonso",
-            "Brody Jackson",
-            "adri montes",
             "Euan",
             "Clips And Footage",
             "silentry",
@@ -148,18 +146,11 @@ namespace fro_mod
             "khellr",
             "Alex Tagg",
             "slade.",
-            "Sir_Cheeba",
-            "Dominic Galbavy",
             "Jeffery Depriest",
-            "Alan Nairn",
-            "Trav Wright",
             "Nati Adams",
             "Nicki Mouhs",
-            "Krinsher",
-            "DeVion Bailey",
             "Lucas Jaehn",
             "heartsick",
-            "b00ph",
             "dustin fuston",
             "Dali",
             "peeeeeee poooooooooo",
@@ -167,9 +158,7 @@ namespace fro_mod
             "Rogue Bond",
             "Malleik",
             "StillAManChild",
-            "Ted Budd",
-            "Drew Muscolo",
-            "Ardell Manning",
+            "Ardell Manning"
         };
 
         public void Start()
@@ -216,11 +205,25 @@ namespace fro_mod
             Main.settings.Save(Main.modEntry);
         }
 
+        bool style_applied = false;
         private void OnGUI()
         {
             if (showMainMenu)
             {
-                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.13.2</b>");
+                GUI.backgroundColor = new Color32(87, 75, 144, 255);
+                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod</b>");
+
+                if (!style_applied)
+                {
+                    Texture2D flatButtonTex = new Texture2D(1, 1);
+                    flatButtonTex.SetPixels(new[] { new Color(1, 1, 1, 1) });
+                    flatButtonTex.Apply();
+                    RGUIStyle.flatButton.active.background = flatButtonTex;
+                    RGUIStyle.flatButton.normal.background = flatButtonTex;
+                    RGUIStyle.flatButton.focused.background = flatButtonTex;
+                    RGUIStyle.flatButton.hover.background = flatButtonTex;
+                    style_applied = true;
+                }
             }
         }
 
@@ -243,7 +246,7 @@ namespace fro_mod
             //GUILayout.EndVertical();
         }
 
-        void Fold(FoldObj obj, string color = "#fdcb6e")
+        void Fold(FoldObj obj, string color = "#fad390")
         {
             if (GUILayout.Button($"<b><size=14><color={color}>" + (obj.reference ? "▶" : "▼") + "</color>" + obj.text + "</size></b>", "Label"))
             {
@@ -257,11 +260,11 @@ namespace fro_mod
         FoldObj patreons_fold = new FoldObj(true, "Special thanks <3");
         void AboutSection()
         {
-            Fold(about_fold);
+            Fold(about_fold, white);
             if (!about_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b>fro's experimental mod v1.13.2 (01/09/2022)</b>");
+                GUILayout.Label("<b>fro's experimental mod v1.13.3 for XL v1.2.X.X (02/09/2022)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This software is distributed 'as is', with no warranty expressed or implied, and no guarantee for accuracy or applicability to any purpose.");
                 GUILayout.Label("This mod is not intended to harm the game or its respective developer in any purposeful way, its online functionality, or the game economy.");
@@ -323,7 +326,7 @@ namespace fro_mod
         FoldObj feet_activation = new FoldObj(true, "Activation states");
         void FeetSection()
         {
-            Fold(feet_fold);
+            Fold(feet_fold, green);
 
             if (!feet_fold.reference)
             {
@@ -349,7 +352,7 @@ namespace fro_mod
 
                 if (Main.settings.feet_rotation || Main.settings.feet_offset)
                 {
-                    Fold(feet_activation, "#6ab04c");
+                    Fold(feet_activation);
 
                     if (!feet_activation.reference)
                     {
@@ -368,11 +371,6 @@ namespace fro_mod
 
                             if (Main.settings.dynamic_feet_states[count])
                             {
-                                Texture2D flatButtonTex = new Texture2D(1, 1);
-                                flatButtonTex.SetPixels(new[] { new Color(1, 1, 1, 1) });
-                                flatButtonTex.Apply();
-                                RGUIStyle.flatButton.active.background = flatButtonTex;
-                                RGUIStyle.flatButton.normal.background = flatButtonTex;
                                 GUI.backgroundColor = new Color32(106, 176, 76, 255);
                             }
                             else
@@ -398,7 +396,7 @@ namespace fro_mod
         FoldObj hippie_fold = new FoldObj(true, "Hippie jump downforce");
         void HippieSection()
         {
-            Fold(hippie_fold);
+            Fold(hippie_fold, green);
 
             if (!hippie_fold.reference)
             {
@@ -419,7 +417,7 @@ namespace fro_mod
         FoldObj animpush_fold = new FoldObj(true, "Animations");
         void AnimationAndPushingSection()
         {
-            Fold(animpush_fold);
+            Fold(animpush_fold, green);
 
             if (!animpush_fold.reference)
             {
@@ -461,6 +459,7 @@ namespace fro_mod
 
         FoldObj filmer_fold = new FoldObj(true, "Filmer mode");
         FoldObj instructions_fold = new FoldObj(true, "Instructions");
+        string[] FilmerActivation = new string[] { "On pump input", "Always on" };
         void FilmerSection()
         {
             Fold(filmer_fold);
@@ -468,8 +467,6 @@ namespace fro_mod
             if (!filmer_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-
-                RGUI.WarningLabel("<b>Activated on pump input</b>");
 
                 if (RGUI.Button(Main.settings.follow_mode_left, "Follow player with left hand"))
                 {
@@ -488,6 +485,11 @@ namespace fro_mod
 
                 if (Main.settings.follow_mode_left || Main.settings.follow_mode_right || Main.settings.follow_mode_head)
                 {
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("<b>Activation</b>");
+                    Main.settings.multi_filmer_activation = RGUI.SelectionPopup(Main.settings.multi_filmer_activation, FilmerActivation);
+                    GUILayout.EndHorizontal();
+
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("<b>Player username</b>");
                     Main.settings.selected_player = RGUI.SelectionPopup(Main.settings.selected_player, Main.controller.getListOfPlayers());
@@ -523,7 +525,7 @@ namespace fro_mod
         FoldObj multi_fold = new FoldObj(true, "Settings");
         void MultiSection()
         {
-            Fold(multi_fold);
+            Fold(multi_fold, green);
 
             if (!multi_fold.reference)
             {
@@ -570,7 +572,7 @@ namespace fro_mod
         FoldObj multichat_fold = new FoldObj(true, "Chat");
         void ChatSection()
         {
-            Fold(multichat_fold);
+            Fold(multichat_fold, green);
 
             if (!multichat_fold.reference)
             {
@@ -601,77 +603,85 @@ namespace fro_mod
         };
 
         FoldObj camera_fold = new FoldObj(true, "Camera");
+        FoldObj camera_settings_fold = new FoldObj(true, "Settings");
         FoldObj keyframe_fold = new FoldObj(true, "Keyframe creator");
         void CameraSection()
         {
-            Fold(camera_fold);
+            Fold(camera_fold, green);
 
             if (!camera_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                if (RGUI.Button(Main.settings.camera_avoidance, "Alpha camera obstacle avoidance"))
+                Fold(camera_settings_fold, green);
+                if (!camera_settings_fold.reference)
                 {
-                    Main.settings.camera_avoidance = !Main.settings.camera_avoidance;
-                    Main.controller.DisableCameraCollider();
-                }
 
-                if (RGUI.Button(Main.settings.camera_shake, "Camera shake and FOV change"))
-                {
-                    Main.settings.camera_shake = !Main.settings.camera_shake;
-                }
-
-                if (Main.settings.camera_shake)
-                {
-                    Main.settings.camera_shake_offset = RGUI.SliderFloat(Main.settings.camera_shake_offset, 0f, 16f, 7f, "Camera shake minimum velocity");
-                    Main.settings.camera_shake_multiplier = RGUI.SliderFloat(Main.settings.camera_shake_multiplier, 0f, 10f, 1f, "Camera shake multiplier");
-                    Main.settings.camera_shake_fov_multiplier = RGUI.SliderFloat(Main.settings.camera_shake_fov_multiplier, 0f, 5f, 1f, "Camera shake FOV multiplier");
-                }
-
-                if (RGUI.Button(Main.settings.filmer_object, "Filmer object"))
-                {
-                    Main.settings.filmer_object = !Main.settings.filmer_object;
-                    Main.controller.DisableCameraCollider();
-                }
-
-                if (Main.settings.filmer_object)
-                {
-                    GUILayout.BeginHorizontal();
-                    Main.settings.filmer_object_target = GUILayout.TextField(Main.settings.filmer_object_target, 666, GUILayout.Height(21f));
-
-                    if (GUILayout.Button("Scan object", RGUIStyle.button, GUILayout.Width(86)))
+                    if (RGUI.Button(Main.settings.camera_avoidance, "Alpha camera obstacle avoidance"))
                     {
-                        Main.controller.scanObject();
+                        Main.settings.camera_avoidance = !Main.settings.camera_avoidance;
+                        Main.controller.DisableCameraCollider();
                     }
+
+                    if (RGUI.Button(Main.settings.camera_shake, "Camera shake and FOV change"))
+                    {
+                        Main.settings.camera_shake = !Main.settings.camera_shake;
+                    }
+
+                    if (Main.settings.camera_shake)
+                    {
+                        Main.settings.camera_shake_offset = RGUI.SliderFloat(Main.settings.camera_shake_offset, 0f, 16f, 7f, "Camera shake minimum velocity");
+                        Main.settings.camera_shake_multiplier = RGUI.SliderFloat(Main.settings.camera_shake_multiplier, 0f, 10f, 3f, "Camera shake multiplier");
+                        /*Main.settings.camera_shake_range = RGUI.SliderFloat(Main.settings.camera_shake_range, 0f, 1f, .2f, "Camera shake range");*/
+                        Main.settings.camera_shake_length = (int)RGUI.SliderFloat(Main.settings.camera_shake_length, 1f, 10f, 4f, "Camera shake length");
+                        Main.settings.camera_shake_fov_multiplier = RGUI.SliderFloat(Main.settings.camera_shake_fov_multiplier, 0f, 5f, 1.5f, "Camera shake FOV multiplier");
+                    }
+
+                    if (RGUI.Button(Main.settings.filmer_object, "Filmer object"))
+                    {
+                        Main.settings.filmer_object = !Main.settings.filmer_object;
+                        Main.controller.DisableCameraCollider();
+                    }
+
+                    if (Main.settings.filmer_object)
+                    {
+                        GUILayout.BeginHorizontal();
+                        Main.settings.filmer_object_target = GUILayout.TextField(Main.settings.filmer_object_target, 666, GUILayout.Height(21f));
+
+                        if (GUILayout.Button("Scan object", RGUIStyle.button, GUILayout.Width(86)))
+                        {
+                            Main.controller.scanObject();
+                        }
+                        GUILayout.EndHorizontal();
+
+                        GUILayout.Label("Object " + (Main.controller.object_found != null ? "found" : "not found, check the object name"));
+                    }
+
+                    GUILayout.BeginHorizontal();
+                    GUILayout.BeginVertical();
+                    GUILayout.Label("<b>Force LOD 0 in all objects</b>");
+                    GUILayout.Label("<color=#f9ca24>After toggling this feature your game can freeze for some seconds</color>");
+                    GUILayout.Label("<color=#f9ca24>Enabling this feature will <b>for sure</b> cap some frames</color>");
+                    GUILayout.EndVertical();
+                    GUILayout.BeginVertical(GUILayout.Width(64f));
+                    GUILayout.Space(8);
+                    if (GUILayout.Button("Enable", RGUIStyle.button, GUILayout.Width(64f)))
+                    {
+                        Main.controller.ForceLODs();
+                    }
+
+                    if (GUILayout.Button("Disable", RGUIStyle.button, GUILayout.Width(64f)))
+                    {
+                        Main.controller.ResetLODs();
+                    }
+                    GUILayout.EndVertical();
                     GUILayout.EndHorizontal();
-
-                    GUILayout.Label("Object " + (Main.controller.object_found != null ? "found" : "not found, check the object name"));
+                    GUILayout.Space(6);
                 }
 
-                GUILayout.BeginHorizontal();
-                GUILayout.BeginVertical();
-                GUILayout.Label("<b>Force LOD 0 in all objects</b>");
-                GUILayout.Label("<color=#f9ca24>After toggling this feature your game will freeze for some seconds</color>");
-                GUILayout.Label("<color=#f9ca24>Enabling this feature will <b>for sure</b> cap some frames</color>");
-                GUILayout.EndVertical();
-                GUILayout.BeginVertical(GUILayout.Width(64f));
-                GUILayout.Space(8);
-                if (GUILayout.Button("Enable", RGUIStyle.button, GUILayout.Width(64f)))
-                {
-                    Main.controller.ForceLODs();
-                }
-
-                if (GUILayout.Button("Disable", RGUIStyle.button, GUILayout.Width(64f)))
-                {
-                    Main.controller.ResetLODs();
-                }
-                GUILayout.EndVertical();
-                GUILayout.EndHorizontal();
-
-                GUILayout.Space(6);
                 Fold(keyframe_fold);
                 if (!keyframe_fold.reference)
                 {
-                    GUILayout.Label("<b>Use this feature for creating filmer mode or first person keyframes on the replay editor</b>", GUILayout.Width(420));
+                    GUILayout.Label("<b><color=#f9ca24>Use this feature for creating filmer mode or first person keyframes on the replay editor</color></b>", GUILayout.Width(420));
 
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("<b>Target:</b>");
@@ -710,7 +720,7 @@ namespace fro_mod
         FoldObj grinds_fold = new FoldObj(true, "Grinds");
         void GrindsSection()
         {
-            Fold(grinds_fold);
+            Fold(grinds_fold, green);
 
             if (!grinds_fold.reference)
             {
@@ -724,7 +734,7 @@ namespace fro_mod
         FoldObj muscle_fold = new FoldObj(true, "Body parts scale");
         void BodySection()
         {
-            Fold(body_fold);
+            Fold(body_fold, green);
 
             if (!body_fold.reference)
             {
@@ -735,7 +745,7 @@ namespace fro_mod
                 Main.settings.custom_scale.z = RGUI.SliderFloat(Main.settings.custom_scale.z, 0f, 2f, 1f, "Scale body z");
                 GUILayout.Space(6);
 
-                Fold(muscle_fold);
+                Fold(muscle_fold, green);
                 if (!muscle_fold.reference)
                 {
                     Main.settings.custom_scale_pelvis = RGUI.SliderFloat(Main.settings.custom_scale_pelvis, 0f, 4f, 1f, "Pelvis scale");
@@ -780,9 +790,6 @@ namespace fro_mod
                         Main.settings.alternative_arms_damping = !Main.settings.alternative_arms_damping;
                     }
                 }
-                GUILayout.EndVertical();
-
-                GUILayout.BeginVertical("Box");
                 Main.settings.left_hand_weight = RGUI.SliderFloat(Main.settings.left_hand_weight, 0.01f, 5f, 1f, "Left hand weight");
                 Main.settings.right_hand_weight = RGUI.SliderFloat(Main.settings.right_hand_weight, 0.01f, 5f, 1f, "Right hand weight");
                 GUILayout.EndVertical();
@@ -798,7 +805,7 @@ namespace fro_mod
         string selected_stance = "Switch";
         void HeadSection()
         {
-            Fold(head_fold);
+            Fold(head_fold, green);
             if (!head_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
@@ -811,7 +818,7 @@ namespace fro_mod
                 {
                     Main.settings.look_forward_delay = (int)RGUI.SliderFloat(Main.settings.look_forward_delay, 0f, 60f, 0f, "Delay (frames)");
                     Main.settings.look_forward_length = (int)RGUI.SliderFloat(Main.settings.look_forward_length, 0f, 60f, 18f, "Animation length (frames)");
-                    Fold(lookforwars_fold, "#6ab04c");
+                    Fold(lookforwars_fold);
                     if (!lookforwars_fold.reference)
                     {
                         int count = 0;
@@ -829,11 +836,6 @@ namespace fro_mod
 
                             if (Main.settings.look_forward_states[count])
                             {
-                                Texture2D flatButtonTex = new Texture2D(1, 1);
-                                flatButtonTex.SetPixels(new[] { new Color(1, 1, 1, 1) });
-                                flatButtonTex.Apply();
-                                RGUIStyle.flatButton.active.background = flatButtonTex;
-                                RGUIStyle.flatButton.normal.background = flatButtonTex;
                                 GUI.backgroundColor = new Color32(106, 176, 76, 255);
                             }
                             else
@@ -851,7 +853,7 @@ namespace fro_mod
                         GUILayout.EndHorizontal();
                     }
 
-                    Fold(lookforward_stance_fold, "#6ab04c");
+                    Fold(lookforward_stance_fold, red);
                     if (!lookforward_stance_fold.reference)
                     {
                         if (!Main.settings.look_forward_states[selected_state]) RGUI.WarningLabel($"{StatesReal[selected_state]} is not enabled");
@@ -896,13 +898,13 @@ namespace fro_mod
             }
         }
 
-        FoldObj experimental_fold = new FoldObj(true, "COM sliders");
+        FoldObj experimental_fold = new FoldObj(true, "COMController");
 
         void ReallyExperimental()
         {
-            Fold(experimental_fold, "#e74c3c");
+            Fold(experimental_fold, red);
 
-            if(!experimental_fold.reference)
+            if (!experimental_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
                 Main.settings.Kp = RGUI.SliderFloat(Main.settings.Kp, 0f, 10000f, 5000f, "Kp");
@@ -955,12 +957,12 @@ namespace fro_mod
 
         void SkateSection()
         {
-            Fold(skate_fold);
+            Fold(skate_fold, green);
 
             if (!skate_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                Fold(skate_settings_fold);
+                Fold(skate_settings_fold, green);
 
                 if (!skate_settings_fold.reference)
                 {
@@ -981,7 +983,7 @@ namespace fro_mod
                         Main.settings.BetterDecay = !Main.settings.BetterDecay;
                     }
 
-                    Main.settings.decay = RGUI.SliderFloat(Main.settings.decay, 0f, 10f, 3.25f, "Friction force");
+                    Main.settings.decay = RGUI.SliderFloat(Main.settings.decay, 0f, 4f, 1.5f, "Friction force");
 
                     GUILayout.Space(6);
 
@@ -1012,10 +1014,21 @@ namespace fro_mod
                     {
                         Main.settings.force_stick_backwards_multiplier = RGUI.SliderFloat(Main.settings.force_stick_backwards_multiplier, 0f, .5f, .125f, "Stomp force");
                     }
+
+                    GUILayout.Space(6);
+
+                    if (RGUI.Button(Main.settings.forward_force_onpop, "Add forward force on pop"))
+                    {
+                        Main.settings.forward_force_onpop = !Main.settings.forward_force_onpop;
+                    }
+                    if (Main.settings.forward_force_onpop)
+                    {
+                        Main.settings.forward_force = RGUI.SliderFloat(Main.settings.forward_force, -1f, 2f, 1f, "Forward force");
+                    }
                 }
 
 
-                Fold(customizer_fold, "#6ab04c");
+                Fold(customizer_fold, red);
 
                 if (!customizer_fold.reference)
                 {
@@ -1119,11 +1132,12 @@ namespace fro_mod
                 HippieSection();
                 GrindsSection();
                 SkateSection();
+                ReallyExperimental();
                 GUILayout.EndVertical();
             }
 
 
-            Fold(multi_all_fold);
+            Fold(multi_all_fold, green);
             if (!multi_all_fold.reference)
             {
                 GUILayout.BeginVertical(style);
@@ -1132,11 +1146,6 @@ namespace fro_mod
                 FilmerSection();
                 GUILayout.EndVertical();
             }
-
-
-#if DEBUG
-            ReallyExperimental();
-#endif
         }
     }
 }

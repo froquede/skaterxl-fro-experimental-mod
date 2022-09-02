@@ -51,8 +51,8 @@ namespace fro_mod
             DisableCameraCollider();
             MultiplayerManager.ROOMSIZE = 20;
 
-            PlayerController.Instance.boardController.boardRigidbody.collisionDetectionMode = PlayerController.Instance.boardController.boardRigidbody.isKinematic ? CollisionDetectionMode.ContinuousSpeculative : CollisionDetectionMode.ContinuousDynamic;
-            PlayerController.Instance.boardController.boardRigidbody.solverIterations = 20;
+            /*PlayerController.Instance.boardController.boardRigidbody.collisionDetectionMode = PlayerController.Instance.boardController.boardRigidbody.isKinematic ? CollisionDetectionMode.ContinuousSpeculative : CollisionDetectionMode.ContinuousDynamic;
+            PlayerController.Instance.boardController.boardRigidbody.solverIterations = 20;*/
             /*PlayerController.Instance.boardController.backTruckRigidbody.collisionDetectionMode = PlayerController.Instance.boardController.backTruckRigidbody.isKinematic ? CollisionDetectionMode.ContinuousSpeculative : CollisionDetectionMode.ContinuousDynamic;
             PlayerController.Instance.boardController.backTruckRigidbody.solverIterations = 20;
             PlayerController.Instance.boardController.frontTruckRigidbody.collisionDetectionMode = PlayerController.Instance.boardController.frontTruckRigidbody.isKinematic ? CollisionDetectionMode.ContinuousSpeculative : CollisionDetectionMode.ContinuousDynamic;
@@ -221,6 +221,12 @@ namespace fro_mod
             if (Main.settings.filmer_object && object_found != null) object_found.transform.position = (GameStateMachine.Instance.CurrentState.GetType() == typeof(ReplayState) ? pelvis_replay.position : pelvis.position);
 
             //EA.LookAtAreaAround(PlayerController.Instance.boardController.transform.position);
+
+            if (Main.settings.forward_force_onpop && PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pop)
+            {
+                PlayerController.Instance.boardController.boardRigidbody.AddRelativeForce(0, 0, Main.settings.forward_force * (PlayerController.Instance.IsSwitch ? -1 : 1), ForceMode.Impulse);
+                PlayerController.Instance.skaterController.skaterRigidbody.AddRelativeForce(0, 0, (Main.settings.forward_force / 50f) * (PlayerController.Instance.IsSwitch ? -1 : 1), ForceMode.Impulse);
+            }
         }
 
         void UpdateTotalMass()
@@ -649,7 +655,9 @@ namespace fro_mod
             Muscle left_hand = PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6];
             Muscle right_hand = PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9];
 
-            if (IsPumping())
+            if (!Main.settings.follow_mode_left && !Main.settings.follow_mode_right && !Main.settings.follow_mode_head) return;
+
+            if (IsPumping() || Main.settings.multi_filmer_activation == "Always on")
             {
                 if (Main.settings.follow_mode_left || Main.settings.follow_mode_right || Main.settings.follow_mode_head)
                 {

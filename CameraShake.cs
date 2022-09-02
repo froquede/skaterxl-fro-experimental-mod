@@ -20,35 +20,48 @@ namespace fro_mod
         }
 
         float last_x = 0, last_y = 0;
+        float initial_point_x = 0, initial_point_y = 0;
         float last_fov = 0;
+        int count = 0;
+
         void LateUpdate()
         {
-            if (!Main.settings.camera_shake) return;
+            if (!Main.settings.camera_shake || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Bailed) return;
 
-            float velocity = PlayerController.Instance.boardController.boardRigidbody.velocity.magnitude - Main.settings.camera_shake_offset;
+            float velocity = PlayerController.Instance.skaterController.skaterRigidbody.velocity.magnitude - Main.settings.camera_shake_offset;
             if (velocity < 0) velocity = 0;
 
-            if (velocity == 0) last_fov = camera.m_Lens.FieldOfView;
-            else
+            if (velocity == 0)
             {
+                last_fov = camera.m_Lens.FieldOfView;
+                last_x = 0;
+                last_y = 0;
+                initial_point_x = 0;
+                initial_point_y = 0;
+            }
+            if (velocity > 0)
+            {
+                camera.transform.Translate(Mathf.SmoothStep(last_x, initial_point_x, Controller.map01(count, 0, Main.settings.camera_shake_length)), Mathf.SmoothStep(last_y, initial_point_y, Controller.map01(count, 0, Main.settings.camera_shake_length)), 0, Space.Self);
+
+                if (count >= Main.settings.camera_shake_length)
+                {
+                    last_x = initial_point_x;
+                    last_y = initial_point_y;
+                    count = 0;
+                }
+                if (count == 0)
+                {
+                    initial_point_x = WobbleValue(velocity) * Main.settings.camera_shake_multiplier;
+                    initial_point_y = WobbleValue(velocity) * Main.settings.camera_shake_multiplier;
+                }
+
+                count++;
+
                 camera.m_Lens.FieldOfView = last_fov + ((velocity / 2) * Main.settings.camera_shake_fov_multiplier);
             }
-
-            float wobble_x = WobbleValueX(velocity) * Main.settings.camera_shake_multiplier;
-            float wobble_y = WobbleValueY(velocity) * Main.settings.camera_shake_multiplier;
-
-            camera.transform.Translate(Mathf.Lerp(last_x, wobble_x, Time.deltaTime), Mathf.Lerp(last_y, wobble_y, Time.deltaTime), 0, Space.Self);
-
-            last_x = wobble_x;
-            last_y = wobble_y;
         }
 
-        public float WobbleValueX(float vel)
-        {
-            return vel * (float)rd.NextDouble() / 1200f;
-        }
-
-        public float WobbleValueY(float vel)
+        public float WobbleValue(float vel)
         {
             return vel * (float)rd.NextDouble() / 1200f;
         }
