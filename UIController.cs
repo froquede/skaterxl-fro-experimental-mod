@@ -220,7 +220,7 @@ namespace fro_mod
         {
             if (showMainMenu)
             {
-                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.13.1</b>");
+                MainMenuRect = GUILayout.Window(666, MainMenuRect, MainMenu, "<b>Fro's Experimental Mod v1.13.2</b>");
             }
         }
 
@@ -261,7 +261,7 @@ namespace fro_mod
             if (!about_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b>fro's experimental mod v1.13.1 (31/08/2022)</b>");
+                GUILayout.Label("<b>fro's experimental mod v1.13.2 (01/09/2022)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This software is distributed 'as is', with no warranty expressed or implied, and no guarantee for accuracy or applicability to any purpose.");
                 GUILayout.Label("This mod is not intended to harm the game or its respective developer in any purposeful way, its online functionality, or the game economy.");
@@ -343,8 +343,8 @@ namespace fro_mod
 
                 if (Main.settings.feet_offset)
                 {
-                    Main.settings.left_foot_offset = RGUI.SliderFloat(Main.settings.left_foot_offset, 0f, 2f, 1f, "Left shoe height offset");
-                    Main.settings.right_foot_offset = RGUI.SliderFloat(Main.settings.right_foot_offset, 0f, 2f, 1f, "Right shoe height offset");
+                    Main.settings.left_foot_offset = RGUI.SliderFloat(Main.settings.left_foot_offset, 0.01f, 2f, 1f, "Left shoe height offset");
+                    Main.settings.right_foot_offset = RGUI.SliderFloat(Main.settings.right_foot_offset, 0.01f, 2f, 1f, "Right shoe height offset");
                 }
 
                 if (Main.settings.feet_rotation || Main.settings.feet_offset)
@@ -896,6 +896,32 @@ namespace fro_mod
             }
         }
 
+        FoldObj experimental_fold = new FoldObj(true, "COM sliders");
+
+        void ReallyExperimental()
+        {
+            Fold(experimental_fold, "#e74c3c");
+
+            if(!experimental_fold.reference)
+            {
+                GUILayout.BeginVertical("Box");
+                Main.settings.Kp = RGUI.SliderFloat(Main.settings.Kp, 0f, 10000f, 5000f, "Kp");
+                Main.settings.Ki = RGUI.SliderFloat(Main.settings.Ki, 0f, 10000f, 0f, "Ki");
+                Main.settings.Kd = RGUI.SliderFloat(Main.settings.Kd, 0f, 2000f, 900f, "Kd");
+                Main.settings.KpImpact = RGUI.SliderFloat(Main.settings.KpImpact, 0f, 10000f, 5000f, "KpImpact");
+                Main.settings.KdImpact = RGUI.SliderFloat(Main.settings.KdImpact, 0f, 2000f, 1000f, "KdImpact");
+                Main.settings.KpSetup = RGUI.SliderFloat(Main.settings.KpSetup, 0f, 40000f, 20000f, "KpSetup");
+                Main.settings.KdSetup = RGUI.SliderFloat(Main.settings.KdSetup, 0f, 3000f, 1500f, "KdSetup");
+                Main.settings.KpGrind = RGUI.SliderFloat(Main.settings.KpGrind, 0f, 4000f, 2000f, "KpGrind");
+                Main.settings.KdGrind = RGUI.SliderFloat(Main.settings.KdGrind, 0f, 2000f, 900f, "KdGrind");
+                GUILayout.Space(8);
+                Main.settings.comOffset_y = RGUI.SliderFloat(Main.settings.comOffset_y, -1f, 1f, 0.07f, "Offset Y \n(use this to compensate the body customization)");
+                Main.settings.comHeightRiding = RGUI.SliderFloat(Main.settings.comHeightRiding, -1f, 2f, 1.06f, "Height Riding");
+                Main.settings.maxLegForce = RGUI.SliderFloat(Main.settings.maxLegForce, 0f, 10000f, 5000f, "Max Leg Force");
+                GUILayout.EndVertical();
+            }
+        }
+
         FoldObj skate_fold = new FoldObj(true, "Skate");
         FoldObj skate_settings_fold = new FoldObj(true, "Settings");
         FoldObj customizer_fold = new FoldObj(true, "Trick customizer");
@@ -1106,6 +1132,11 @@ namespace fro_mod
                 FilmerSection();
                 GUILayout.EndVertical();
             }
+
+
+#if DEBUG
+            ReallyExperimental();
+#endif
         }
     }
 }

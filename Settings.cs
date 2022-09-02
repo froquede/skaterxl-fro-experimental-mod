@@ -182,6 +182,19 @@ namespace fro_mod
 
         public bool trick_customization = true;
 
+        public float Kp = 5000f;
+        public float Ki = 0f;
+        public float Kd = 900f;
+        public float KpImpact = 5000f;
+        public float KdImpact = 1000f;
+        public float KpSetup = 20000f;
+        public float KdSetup = 1500f;
+        public float KpGrind = 2000f;
+        public float KdGrind = 900f;
+        public float comOffset_y = 0.07f;
+        public float comHeightRiding = 1.06f;
+        public float maxLegForce = 5000f;
+
 #if DEBUG
         public bool debug = true;
 #else

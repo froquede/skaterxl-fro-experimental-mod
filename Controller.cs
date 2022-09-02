@@ -1032,8 +1032,28 @@ namespace fro_mod
 
             // MultiplayerManager.RoomIDlength = Main.settings.RoomIDlength;
 
+            COMControllerValues();
+
             LogState();
         }
+
+        void COMControllerValues()
+        {
+            COMController cc = PlayerController.Instance.comController;
+            cc.Kp = Main.settings.Kp;
+            cc.Ki = Main.settings.Ki;
+            cc.Kd = Main.settings.Kd;
+            cc.KpImpact = Main.settings.KpImpact;
+            cc.KdImpact = Main.settings.KdImpact;
+            cc.KpSetup = Main.settings.KpSetup;
+            cc.KdSetup = Main.settings.KdSetup;
+            cc.KpGrind = Main.settings.KpGrind;
+            cc.KdGrind = Main.settings.KdGrind;
+            cc.comOffset.y = Main.settings.comOffset_y;
+            cc.comHeightRiding = Main.settings.comHeightRiding;
+            cc.maxLegForce = Main.settings.maxLegForce;
+        }
+
         void DoScalingPlaystate()
         {
             head.localScale = new Vector3(Main.settings.custom_scale_head, Main.settings.custom_scale_head, Main.settings.custom_scale_head);
@@ -1057,7 +1077,6 @@ namespace fro_mod
 
             PlayerController.Instance.skaterController.gameObject.transform.localScale = Main.settings.custom_scale;
             PlayerController.Instance.playerCollider.transform.localScale = Main.settings.custom_scale;
-            // PlayerController.Instance.skaterController.gameObject.transform.parent.Find("CenterOfMassPlayer").localScale = Main.settings.custom_scale;
         }
 
         void DoScalingReplaystate()
