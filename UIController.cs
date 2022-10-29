@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,9 +28,18 @@ namespace fro_mod
         string green = "#b8e994";
         string white = "#ecf0f1";
         string red = "#b71540";
+        Texture2D inputbg, buttonbg, knob;
+
+        public void LoadBG()
+        {
+            buttonbg = new Texture2D(128, 128);
+            var bytes = File.ReadAllBytes(Main.modEntry.Path + "Background.png");
+            ImageConversion.LoadImage(buttonbg, bytes, false);
+            buttonbg.filterMode = FilterMode.Point;
+        }
 
         bool showMainMenu = false;
-        private Rect MainMenuRect = new Rect(20, 20, Screen.width / 6, 20);
+        private Rect MainMenuRect = new Rect(0, 0, Screen.width / 6, Screen.height);
         public string[] States = new string[] {
             "Disabled",
             "Riding",
@@ -189,8 +199,6 @@ namespace fro_mod
 
         private void Open()
         {
-            MainMenuRect.height = 20;
-            MainMenuRect.width = Screen.width / 6;
             showMainMenu = true;
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
@@ -198,16 +206,15 @@ namespace fro_mod
 
         private void Close()
         {
-            MainMenuRect.height = 20;
-            MainMenuRect.width = Screen.width / 6;
             showMainMenu = false;
             Cursor.visible = false;
             Main.settings.Save(Main.modEntry);
         }
 
-        bool style_applied = false;
+        bool style_applied = false, loaded = false;
         private void OnGUI()
         {
+            Debug.Log(MainMenuRect.width);
             if (showMainMenu)
             {
                 GUI.backgroundColor = new Color32(87, 75, 144, 255);
@@ -224,6 +231,12 @@ namespace fro_mod
                     RGUIStyle.flatButton.hover.background = flatButtonTex;
                     style_applied = true;
                 }
+            }
+
+            if(!loaded)
+            {
+                LoadBG();
+                loaded = true;
             }
         }
 
@@ -251,8 +264,8 @@ namespace fro_mod
             if (GUILayout.Button($"<b><size=14><color={color}>" + (obj.reference ? "▶" : "▼") + "</color>" + obj.text + "</size></b>", "Label"))
             {
                 obj.reference = !obj.reference;
-                MainMenuRect.height = 20;
-                MainMenuRect.width = Screen.width / 6;
+                //MainMenuRect.height = 20;
+                //MainMenuRect.width = Screen.width / 6;
             }
         }
 
@@ -264,7 +277,7 @@ namespace fro_mod
             if (!about_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b>fro's experimental mod v1.13.3 for XL v1.2.X.X (02/09/2022)</b>");
+                GUILayout.Label("<b>fro's experimental mod v1.14.0 for XL v1.2.X.X (29/10/2022)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This software is distributed 'as is', with no warranty expressed or implied, and no guarantee for accuracy or applicability to any purpose.");
                 GUILayout.Label("This mod is not intended to harm the game or its respective developer in any purposeful way, its online functionality, or the game economy.");
@@ -415,6 +428,11 @@ namespace fro_mod
         }
 
         FoldObj animpush_fold = new FoldObj(true, "Animations");
+        public string[] Animations = new string[] {
+            "Waving",
+            "Celebrating",
+            "Clapping"
+        };
         void AnimationAndPushingSection()
         {
             Fold(animpush_fold, green);
@@ -439,6 +457,24 @@ namespace fro_mod
                     if (Main.settings.sonic_mode) Main.settings.push_by_velocity = false;
                 }
 
+
+                if (RGUI.Button(Main.settings.bails, "Alternative bails"))
+                {
+                    Main.settings.bails = !Main.settings.bails;
+                }
+
+                /*GUILayout.Label("<b>Automatically play animation on state</b>");
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("<b>Animation:</b>");
+                Main.settings.wave_on = RGUI.SelectionPopup(Main.settings.wave_on, States);
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("<b>State:</b>");
+                Main.settings.wave_on = RGUI.SelectionPopup(Main.settings.wave_on, States);
+                GUILayout.EndHorizontal();*/
+
+
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("<b>Automatically wave on:</b>");
                 Main.settings.wave_on = RGUI.SelectionPopup(Main.settings.wave_on, States);
@@ -447,11 +483,6 @@ namespace fro_mod
                 GUILayout.Label("<b>Automatically celebrate on:</b>");
                 Main.settings.celebrate_on = RGUI.SelectionPopup(Main.settings.celebrate_on, States);
                 GUILayout.EndHorizontal();
-
-                if (RGUI.Button(Main.settings.bails, "Alternative bails"))
-                {
-                    Main.settings.bails = !Main.settings.bails;
-                }
 
                 GUILayout.EndVertical();
             }
@@ -594,6 +625,34 @@ namespace fro_mod
             }
         }
 
+        void ClothColliders()
+        {
+            Cloth[] dynamic = FindObjectsOfType<Cloth>();
+            List<CapsuleCollider> colliders = new List<CapsuleCollider>();
+
+            for (int i = 0; i < PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles.Length; i++)
+            {
+                if (i != 4 && i != 5 && i != 7 && i != 8)
+                {
+                    if (PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[i].transform.gameObject.GetComponent<CapsuleCollider>() != null)
+                    {
+                        colliders.Add(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[i].transform.gameObject.GetComponent<CapsuleCollider>());
+                    }
+                }
+            }
+
+            /*colliders.Add(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].transform.gameObject.GetComponent<CapsuleCollider>());
+            colliders.Add(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].transform.gameObject.GetComponent<CapsuleCollider>());*/
+
+            foreach (Cloth c in dynamic)
+            {
+                c.stretchingStiffness = 1;
+                c.enableContinuousCollision = true;
+                c.stiffnessFrequency = 1;
+                c.capsuleColliders = colliders.ToArray();
+            }
+        }
+
 
         public string[] Keyframe_States = new string[] {
             "Head",
@@ -604,6 +663,7 @@ namespace fro_mod
 
         FoldObj camera_fold = new FoldObj(true, "Camera");
         FoldObj camera_settings_fold = new FoldObj(true, "Settings");
+        FoldObj camera_shake_fold = new FoldObj(true, "Camera shake");
         FoldObj keyframe_fold = new FoldObj(true, "Keyframe creator");
         void CameraSection()
         {
@@ -616,30 +676,16 @@ namespace fro_mod
                 if (!camera_settings_fold.reference)
                 {
 
-                    if (RGUI.Button(Main.settings.camera_avoidance, "Alpha camera obstacle avoidance"))
+                    if (RGUI.Button(Main.settings.camera_avoidance, "v1.2.x.x obstacle avoidance"))
                     {
                         Main.settings.camera_avoidance = !Main.settings.camera_avoidance;
-                        Main.controller.DisableCameraCollider();
-                    }
-
-                    if (RGUI.Button(Main.settings.camera_shake, "Camera shake and FOV change"))
-                    {
-                        Main.settings.camera_shake = !Main.settings.camera_shake;
-                    }
-
-                    if (Main.settings.camera_shake)
-                    {
-                        Main.settings.camera_shake_offset = RGUI.SliderFloat(Main.settings.camera_shake_offset, 0f, 16f, 7f, "Camera shake minimum velocity");
-                        Main.settings.camera_shake_multiplier = RGUI.SliderFloat(Main.settings.camera_shake_multiplier, 0f, 10f, 3f, "Camera shake multiplier");
-                        /*Main.settings.camera_shake_range = RGUI.SliderFloat(Main.settings.camera_shake_range, 0f, 1f, .2f, "Camera shake range");*/
-                        Main.settings.camera_shake_length = (int)RGUI.SliderFloat(Main.settings.camera_shake_length, 1f, 10f, 4f, "Camera shake length");
-                        Main.settings.camera_shake_fov_multiplier = RGUI.SliderFloat(Main.settings.camera_shake_fov_multiplier, 0f, 5f, 1.5f, "Camera shake FOV multiplier");
+                        Main.controller.DisableCameraCollider(Main.settings.camera_avoidance);
                     }
 
                     if (RGUI.Button(Main.settings.filmer_object, "Filmer object"))
                     {
                         Main.settings.filmer_object = !Main.settings.filmer_object;
-                        Main.controller.DisableCameraCollider();
+                        Main.controller.DisableCameraCollider(Main.settings.camera_avoidance);
                     }
 
                     if (Main.settings.filmer_object)
@@ -676,6 +722,26 @@ namespace fro_mod
                     GUILayout.EndVertical();
                     GUILayout.EndHorizontal();
                     GUILayout.Space(6);
+                }
+
+                Fold(camera_shake_fold, green);
+                if (!camera_shake_fold.reference)
+                {
+                    if (RGUI.Button(Main.settings.camera_shake, "Velocity based shake and field of view"))
+                    {
+                        Main.settings.camera_shake = !Main.settings.camera_shake;
+                    }
+
+                    if (Main.settings.camera_shake)
+                    {
+                        Main.settings.camera_shake_offset = RGUI.SliderFloat(Main.settings.camera_shake_offset, 0f, 16f, 7f, "Shake minimum velocity");
+                        Main.settings.camera_shake_multiplier = RGUI.SliderFloat(Main.settings.camera_shake_multiplier, 0f, 10f, 3f, "Shake multiplier");
+                        /*Main.settings.camera_shake_range = RGUI.SliderFloat(Main.settings.camera_shake_range, 0f, 1f, .2f, "Camera shake range");*/
+                        Main.settings.camera_shake_length = (int)RGUI.SliderFloat(Main.settings.camera_shake_length, 1f, 10f, 4f, "Shake animation length");
+                        GUILayout.Space(8);
+                        Main.settings.camera_fov_offset = RGUI.SliderFloat(Main.settings.camera_fov_offset, 0f, 16f, 4f, "FOV minimum velocity");
+                        Main.settings.camera_shake_fov_multiplier = RGUI.SliderFloat(Main.settings.camera_shake_fov_multiplier, 0f, 5f, 1.5f, "FOV multiplier");
+                    }
                 }
 
                 Fold(keyframe_fold);
@@ -717,7 +783,7 @@ namespace fro_mod
             }
         }
 
-        FoldObj grinds_fold = new FoldObj(true, "Grinds");
+        FoldObj grinds_fold = new FoldObj(true, "Verticality");
         void GrindsSection()
         {
             Fold(grinds_fold, green);
@@ -725,7 +791,11 @@ namespace fro_mod
             if (!grinds_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                Main.settings.GrindFlipVerticality = RGUI.SliderFloat(Main.settings.GrindFlipVerticality, -1f, 1f, 0f, "Flip verticality out of grinds");
+                Main.settings.GrindFlipVerticality = RGUI.SliderFloat(Main.settings.GrindFlipVerticality, -1f, 1f, 0f, "Out of grinds");
+                GUILayout.EndVertical();
+
+                GUILayout.BeginVertical("Box");
+                Main.settings.ManualFlipVerticality = RGUI.SliderFloat(Main.settings.ManualFlipVerticality, -1f, 1f, 0f, "Out of manuals");
                 GUILayout.EndVertical();
             }
         }
@@ -914,12 +984,19 @@ namespace fro_mod
                 Main.settings.KdImpact = RGUI.SliderFloat(Main.settings.KdImpact, 0f, 2000f, 1000f, "KdImpact");
                 Main.settings.KpSetup = RGUI.SliderFloat(Main.settings.KpSetup, 0f, 40000f, 20000f, "KpSetup");
                 Main.settings.KdSetup = RGUI.SliderFloat(Main.settings.KdSetup, 0f, 3000f, 1500f, "KdSetup");
-                Main.settings.KpGrind = RGUI.SliderFloat(Main.settings.KpGrind, 0f, 4000f, 2000f, "KpGrind");
-                Main.settings.KdGrind = RGUI.SliderFloat(Main.settings.KdGrind, 0f, 2000f, 900f, "KdGrind");
+                /*Main.settings.KpGrind = RGUI.SliderFloat(Main.settings.KpGrind, 0f, 4000f, 2000f, "KpGrind");
+                Main.settings.KdGrind = RGUI.SliderFloat(Main.settings.KdGrind, 0f, 2000f, 900f, "KdGrind");*/
                 GUILayout.Space(8);
                 Main.settings.comOffset_y = RGUI.SliderFloat(Main.settings.comOffset_y, -1f, 1f, 0.07f, "Offset Y \n(use this to compensate the body customization)");
                 Main.settings.comHeightRiding = RGUI.SliderFloat(Main.settings.comHeightRiding, -1f, 2f, 1.06f, "Height Riding");
                 Main.settings.maxLegForce = RGUI.SliderFloat(Main.settings.maxLegForce, 0f, 10000f, 5000f, "Max Leg Force");
+
+                GUILayout.Space(8);
+
+                /*PlayerController.Instance.boardController.Kp = RGUI.SliderFloat(PlayerController.Instance.boardController.Kp, 0f, 10000f, 5000f, "Board KP");
+                PlayerController.Instance.boardController.Ki = RGUI.SliderFloat(PlayerController.Instance.boardController.Ki, 0f, 10000f, 5000f, "Board KI");
+                PlayerController.Instance.boardController.Kd = RGUI.SliderFloat(PlayerController.Instance.boardController.Kd, 0f, 10000f, 5000f, "Board KD");*/
+
                 GUILayout.EndVertical();
             }
         }
@@ -1023,7 +1100,7 @@ namespace fro_mod
                     }
                     if (Main.settings.forward_force_onpop)
                     {
-                        Main.settings.forward_force = RGUI.SliderFloat(Main.settings.forward_force, -1f, 2f, 1f, "Forward force");
+                        Main.settings.forward_force = RGUI.SliderFloat(Main.settings.forward_force, -1f, 2f, .35f, "Forward force");
                     }
                 }
 
@@ -1104,12 +1181,15 @@ namespace fro_mod
 
         FoldObj gameplay_fold = new FoldObj(true, "Gameplay");
         FoldObj multi_all_fold = new FoldObj(true, "Multiplayer");
+        FoldObj exp_fold = new FoldObj(true, "Experimental");
         GUIStyle style = new GUIStyle();
+        public Vector2 scrollPosition = Vector2.zero;
         private void MainMenu(int windowID)
         {
             GUI.backgroundColor = Color.red;
-            GUI.DragWindow(new Rect(0, 0, 10000, 20));
+            //GUI.DragWindow(new Rect(0, 0, 10000, 20));
 
+            //GUI.BeginScrollView(new Rect(0, 0, 0, Screen.height), scrollPosition, MainMenuRect, false, true);
             MainSection();
             if (!Main.settings.enabled) return;
 
@@ -1146,6 +1226,49 @@ namespace fro_mod
                 FilmerSection();
                 GUILayout.EndVertical();
             }
+
+            Fold(exp_fold, red);
+            if (!exp_fold.reference)
+            {
+                if (RGUI.Button(Main.settings.walk_after_bail, "Ghost walking after bail"))
+                {
+                    Main.settings.walk_after_bail = !Main.settings.walk_after_bail;
+                }
+
+                /*if(Main.settings.walk_after_bail)
+                {
+                    if (RGUI.Button(Main.settings.haunting_arms, "Haunting arms"))
+                    {
+                        Main.settings.haunting_arms = !Main.settings.haunting_arms;
+                    }
+                }*/
+
+                GUILayout.Space(6);
+
+                if (RGUI.Button(Main.settings.alternative_powerslide, "Alternative powerslides"))
+                {
+                    Main.settings.alternative_powerslide = !Main.settings.alternative_powerslide;
+                }
+
+                Main.settings.powerslide_animation_length = RGUI.SliderFloat(Main.settings.powerslide_animation_length, 0f, 64f, 24f, "Powerslide animation length");
+                Main.settings.powerslide_minimum_velocity = RGUI.SliderFloat(Main.settings.powerslide_minimum_velocity, 0f, 20f, 10f, "Powerslide min velocity");
+                Main.settings.powerslide_max_velocity = RGUI.SliderFloat(Main.settings.powerslide_max_velocity, 0f, 20f, 10f, "Powerslide max velocity");
+
+                GUILayout.Space(6);
+
+                if (RGUI.Button(Main.settings.bump_anim, "Bump animations"))
+                {
+                    Main.settings.bump_anim = !Main.settings.bump_anim;
+                }
+                Main.settings.bump_pop_length = RGUI.SliderFloat(Main.settings.bump_pop_length, 0f, 1f, .2f, "Bump animation length");
+
+                if (GUILayout.Button("Change Cloth Colliders to legs, torso, and hands", GUILayout.Height(34)))
+                {
+                    ClothColliders();
+                }
+            }
+
+            //GUI.EndScrollView();
         }
     }
 }

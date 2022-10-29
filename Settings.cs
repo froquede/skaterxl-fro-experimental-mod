@@ -60,6 +60,7 @@ namespace fro_mod
         public bool bails = true;
 
         public float GrindFlipVerticality = 0f;
+        public float ManualFlipVerticality = 0f;
 
         public Vector3 custom_scale = new Vector3(1f, 1f, 1f);
 
@@ -118,6 +119,10 @@ namespace fro_mod
 
         public bool powerslide_force = true;
         public bool powerslide_velocitybased = true;
+        public bool alternative_powerslide = false;
+        public float powerslide_animation_length = 24f;
+        public float powerslide_minimum_velocity = 0f;
+        public float powerslide_max_velocity = 10f;
 
         public string keyframe_target = "Head";
 
@@ -179,6 +184,7 @@ namespace fro_mod
         public float camera_shake_offset = 7;
         public float camera_shake_multiplier = 3f;
         public float camera_shake_fov_multiplier = 1.5f;
+        public float camera_fov_offset = 4;
 
         public bool trick_customization = true;
 
@@ -202,6 +208,12 @@ namespace fro_mod
 
         public float camera_shake_range = .2f;
         public int camera_shake_length = 4;
+
+        public bool walk_after_bail = false;
+        public bool haunting_arms = false;
+        public bool bump_anim = false;
+
+        public float bump_pop_length = .2f;
 
 #if DEBUG
         public bool debug = true;
