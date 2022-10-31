@@ -58,28 +58,26 @@ namespace fro_mod
             DisableMultiPopup(Main.settings.disable_popup);
             DisableCameraCollider(Main.settings.camera_avoidance);
             MultiplayerManager.ROOMSIZE = 20;
-
-            /*PlayerController.Instance.boardController.boardRigidbody.collisionDetectionMode = PlayerController.Instance.boardController.boardRigidbody.isKinematic ? CollisionDetectionMode.ContinuousSpeculative : CollisionDetectionMode.ContinuousDynamic;
-            PlayerController.Instance.boardController.boardRigidbody.solverIterations = 20;*/
-            /*PlayerController.Instance.boardController.backTruckRigidbody.collisionDetectionMode = PlayerController.Instance.boardController.backTruckRigidbody.isKinematic ? CollisionDetectionMode.ContinuousSpeculative : CollisionDetectionMode.ContinuousDynamic;
-            PlayerController.Instance.boardController.backTruckRigidbody.solverIterations = 20;
-            PlayerController.Instance.boardController.frontTruckRigidbody.collisionDetectionMode = PlayerController.Instance.boardController.frontTruckRigidbody.isKinematic ? CollisionDetectionMode.ContinuousSpeculative : CollisionDetectionMode.ContinuousDynamic;
-            PlayerController.Instance.boardController.frontTruckRigidbody.solverIterations = 20;*/
             PlayerController.Instance.skaterController.skaterRigidbody.collisionDetectionMode = PlayerController.Instance.skaterController.skaterRigidbody.isKinematic ? CollisionDetectionMode.ContinuousSpeculative : CollisionDetectionMode.ContinuousDynamic;
             PlayerController.Instance.skaterController.skaterRigidbody.solverIterations = 20;
+            PlayerController.Instance.skaterController.skaterRigidbody.maxDepenetrationVelocity = 100f;
+
             PlayerController.Instance.skaterController.leftFootCollider.attachedRigidbody.collisionDetectionMode = PlayerController.Instance.skaterController.leftFootCollider.attachedRigidbody.isKinematic ? CollisionDetectionMode.ContinuousSpeculative : CollisionDetectionMode.ContinuousDynamic;
             PlayerController.Instance.skaterController.leftFootCollider.attachedRigidbody.solverIterations = 20;
+            PlayerController.Instance.skaterController.leftFootCollider.attachedRigidbody.maxDepenetrationVelocity = 100f;
+
             PlayerController.Instance.skaterController.rightFootCollider.attachedRigidbody.collisionDetectionMode = PlayerController.Instance.skaterController.rightFootCollider.attachedRigidbody.isKinematic ? CollisionDetectionMode.ContinuousSpeculative : CollisionDetectionMode.ContinuousDynamic;
             PlayerController.Instance.skaterController.rightFootCollider.attachedRigidbody.solverIterations = 20;
+            PlayerController.Instance.skaterController.rightFootCollider.attachedRigidbody.maxDepenetrationVelocity = 100f;
 
             PlayerController.Instance.boardController.boardRigidbody.maxDepenetrationVelocity = 100f;
-            /*PlayerController.Instance.boardController.backTruckRigidbody.maxDepenetrationVelocity = 100f;
-            PlayerController.Instance.boardController.frontTruckRigidbody.maxDepenetrationVelocity = 100f;*/
+            PlayerController.Instance.boardController.backTruckRigidbody.maxDepenetrationVelocity = 100f;
+            PlayerController.Instance.boardController.frontTruckRigidbody.maxDepenetrationVelocity = 100f;
             PlayerController.Instance.boardController.boardRigidbody.solverIterations = 1;
-            /*PlayerController.Instance.boardController.backTruckRigidbody.solverIterations = 1;
-            PlayerController.Instance.boardController.frontTruckRigidbody.solverIterations = 1;*/
+            PlayerController.Instance.boardController.backTruckRigidbody.solverIterations = 1;
+            PlayerController.Instance.boardController.frontTruckRigidbody.solverIterations = 1;
 
-            PlayerController.Instance.SetTruckPhysicsCollisionType(CollisionDetectionMode.Continuous);
+            PlayerController.Instance.SetTruckPhysicsCollisionType(CollisionDetectionMode.ContinuousDynamic);
 
             /*trucks_spring.spring = 0.1f;
             trucks_spring.damper = 0.1f;
@@ -363,7 +361,7 @@ namespace fro_mod
             PlayerController.Instance.skaterController.UpdateSkaterPosFromComPos();
         }
 
-       public void Respawn(RespawnInfo respawnInfos, bool tutorial = false)
+        public void Respawn(RespawnInfo respawnInfos, bool tutorial = false)
         {
             FullBodyBipedIK _finalIk = (FullBodyBipedIK)Traverse.Create(PlayerController.Instance.respawn).Field("_finalIk").GetValue();
             Time.timeScale = 0f;
@@ -640,6 +638,7 @@ namespace fro_mod
         GameObject pclone;
         void LookForward()
         {
+            string actual_state = "";
             if (!Main.settings.look_forward) return;
 
             bool inState = false;
@@ -651,11 +650,14 @@ namespace fro_mod
                 {
                     if (Main.settings.look_forward_states[count] == true)
                     {
+                        actual_state = PlayerController.Instance.currentStateEnum.ToString();
                         inState = true;
                     }
                 }
                 count++;
             }
+
+            //if (actual_state != last_state) head_frame = 0;
 
             if (inState || head_frame > 0)
             {
@@ -739,7 +741,7 @@ namespace fro_mod
                     }
                     head_copy.transform.Rotate(offset, Space.Self);
 
-                    neck.rotation = Quaternion.Lerp(neck.rotation, head_copy.transform.rotation, Mathf.SmoothStep(0, 1, map01(head_frame, 0, Main.settings.look_forward_length)));
+                    neck.rotation = Quaternion.Lerp(inState ? neck.rotation : PlayerController.Instance.headIk.resetRot.rotation, head_copy.transform.rotation, Mathf.Lerp(0, 1, map01(head_frame, 0, Main.settings.look_forward_length)));
 
                     Destroy(head_copy);
 
@@ -752,12 +754,14 @@ namespace fro_mod
                         }
                         delay_head++;
                     }
+
+                    head_frame = head_frame > Main.settings.look_forward_length ? Main.settings.look_forward_length : head_frame;
                 }
             }
             if (!inState && head_frame > 0)
             {
                 head_frame = head_frame > Main.settings.look_forward_length ? Main.settings.look_forward_length : head_frame;
-                head_frame -= 2;
+                head_frame -= 1;
                 delay_head = 0;
             }
         }
@@ -790,16 +794,17 @@ namespace fro_mod
         void Lean()
         {
             int multiplier = 0;
-            if (InAir())
+            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.InAir || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Release)
             {
                 float sensibility = Main.settings.input_threshold / 100f;
-                if (LeaningInputRight(sensibility))
+                List<string> input = Main.tc.getTypeOfInput();
+                if (input.Contains("both-right"))
                 {
                     multiplier = 1;
                     count++;
                 }
 
-                if (LeaningInputLeft(sensibility))
+                if (input.Contains("both-left"))
                 {
                     multiplier = -1;
                     count++;
@@ -1103,14 +1108,14 @@ namespace fro_mod
             PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].rigidbody.mass = 1f;
             PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].rigidbody.mass = 1f;
 
-            MonoBehaviourSingleton<PlayerController>.Instance.respawn.behaviourPuppet.BoostImmunity(500f);
+            //MonoBehaviourSingleton<PlayerController>.Instance.respawn.behaviourPuppet.BoostImmunity(500f);
             MonoBehaviourSingleton<PlayerController>.Instance.respawn.behaviourPuppet.maxCollisions = 50;
             MonoBehaviourSingleton<PlayerController>.Instance.respawn.behaviourPuppet.maxRigidbodyVelocity = 100f;
             MonoBehaviourSingleton<PlayerController>.Instance.respawn.behaviourPuppet.canGetUp = true;
             MonoBehaviourSingleton<PlayerController>.Instance.respawn.behaviourPuppet.maxGetUpVelocity = 0f;
             MonoBehaviourSingleton<PlayerController>.Instance.respawn.behaviourPuppet.getUpDelay = 0;
-            PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.mode = PuppetMaster.Mode.Disabled;
-            PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.state = PuppetMaster.State.Alive;
+            //PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.mode = PuppetMaster.Mode.Disabled;
+            //PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.state = PuppetMaster.State.Alive;
             PlayerController.Instance.DisableBodyPhysics();
             PlayerController.Instance.EnableArmPhysics();
             PlayerController.Instance.animationController.skaterAnim.enabled = true;
@@ -1318,7 +1323,7 @@ namespace fro_mod
                     PlayerController.Instance.inputController.ResetInAirTurn();
                     MonoBehaviourSingleton<SoundManager>.Instance.PlayShoeMovementSound();
                     MonoBehaviourSingleton<PlayerController>.Instance.skaterController.InitializeSkateRotation();
-                    MonoBehaviourSingleton<PlayerController>.Instance.animationController.ikAnim.SetFloat("Nollie", (MonoBehaviourSingleton<PlayerController>.Instance.animationController.ikAnim.GetFloat("Nollie") > 0f) ? 0f : 1f);
+                    MonoBehaviourSingleton<PlayerController>.Instance.animationController.ikAnim.SetFloat("Nollie", PlayerController.Instance.inputController.RightStick.rawInput.pos.y > 0f || PlayerController.Instance.inputController.LeftStick.rawInput.pos.y > 0f ? 1f : 0f);
                     MonoBehaviourSingleton<PlayerController>.Instance.skaterController.InitializeSkateRotation();
                     MonoBehaviourSingleton<PlayerController>.Instance.AnimSetNoComply(false);
                     MonoBehaviourSingleton<PlayerController>.Instance.boardController.ResetAll();
@@ -1327,8 +1332,7 @@ namespace fro_mod
                     MonoBehaviourSingleton<PlayerController>.Instance.SetTurnMultiplier(1f);
                     MonoBehaviourSingleton<PlayerController>.Instance.SetTurningMode(InputController.TurningMode.PreWind);
                     MonoBehaviourSingleton<PlayerController>.Instance.AnimSetGrinding(false);
-                    PlayerController.Instance.animationController.skaterAnim.CrossFadeInFixedTime("Pop", Main.settings.bump_pop_length);
-                    PlayerController.Instance.animationController.ikAnim.CrossFadeInFixedTime("Pop", Main.settings.bump_pop_length);
+                    PlayerController.Instance.animationController.ForceAnimation("Pop");
                     MonoBehaviourSingleton<PlayerController>.Instance.OnExitSetupState();
                     MonoBehaviourSingleton<PlayerController>.Instance.AnimOllieTransition(false);
 

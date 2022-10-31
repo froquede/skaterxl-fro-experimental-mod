@@ -39,7 +39,7 @@ namespace fro_mod
         }
 
         bool showMainMenu = false;
-        private Rect MainMenuRect = new Rect(0, 0, Screen.width / 6, Screen.height);
+        private Rect MainMenuRect = new Rect(20, 20, Screen.width / 6, 20);
         public string[] States = new string[] {
             "Disabled",
             "Riding",
@@ -130,33 +130,31 @@ namespace fro_mod
 
         string[] special_patreons = new string[]
         {
-            "Fury XL",
             "doobiedoober",
-            "Tyler W",
             "Eric Mcgrady",
             "Slabs",
             "Marcel Mink",
             "etcyj",
             "helio",
             "Kyle Gherman",
+            "SKSixtySeven",
             "Max Crowe",
             "Nick Morocco",
             "flipadip",
             "Nick Hanslip",
             "Bubble Gun",
             "Matt B",
-            "Ricky Alonso",
             "Euan",
-            "Clips And Footage",
+            "J'vonte Johnson",
             "silentry",
             "loganhuntfilmm",
             "Foolie Surfin",
             "Nowak",
             "OG",
-            "khellr",
             "Alex Tagg",
             "slade.",
             "Jeffery Depriest",
+            "Trav Wright",
             "Nati Adams",
             "Nicki Mouhs",
             "Lucas Jaehn",
@@ -167,8 +165,16 @@ namespace fro_mod
             "Nick Duncan",
             "Rogue Bond",
             "Malleik",
-            "StillAManChild",
-            "Ardell Manning"
+            "Subaru Factory Worker",
+            "Ardell Manning",
+            "Nathaniel Gardner",
+            "Corey Populus",
+            "countinsequence",
+            "Lurki. XL",
+            "Eigil Wayne",
+            "Matthew Jewell",
+            "19945series",
+            "Gabriel Ortiz"         
         };
 
         public void Start()
@@ -232,12 +238,6 @@ namespace fro_mod
                     style_applied = true;
                 }
             }
-
-            if(!loaded)
-            {
-                LoadBG();
-                loaded = true;
-            }
         }
 
         void MainSection()
@@ -264,8 +264,8 @@ namespace fro_mod
             if (GUILayout.Button($"<b><size=14><color={color}>" + (obj.reference ? "▶" : "▼") + "</color>" + obj.text + "</size></b>", "Label"))
             {
                 obj.reference = !obj.reference;
-                //MainMenuRect.height = 20;
-                //MainMenuRect.width = Screen.width / 6;
+                MainMenuRect.height = 20;
+                MainMenuRect.width = Screen.width / 6;
             }
         }
 
@@ -277,7 +277,7 @@ namespace fro_mod
             if (!about_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b>fro's experimental mod v1.14.0 for XL v1.2.X.X (29/10/2022)</b>");
+                GUILayout.Label("<b>fro's experimental mod v1.14.0-spooky for XL v1.2.X.X (31/10/2022)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This software is distributed 'as is', with no warranty expressed or implied, and no guarantee for accuracy or applicability to any purpose.");
                 GUILayout.Label("This mod is not intended to harm the game or its respective developer in any purposeful way, its online functionality, or the game economy.");
@@ -324,7 +324,7 @@ namespace fro_mod
                     // Main.settings.grind_speed = RGUI.SliderFloat(Main.settings.grind_speed, 0f, 240f, 40f, "Grinding Speed");
                     Main.settings.wallride_downforce = RGUI.SliderFloat(Main.settings.wallride_downforce, 0f, 200f, 80f, "Wallride downforce");
                     Main.settings.wait_threshold = (int)RGUI.SliderFloat(Main.settings.wait_threshold, 0f, 60f, 10f, "Hold X frames to activate");
-                    Main.settings.input_threshold = RGUI.SliderFloat(Main.settings.input_threshold, 0f, 100f, 20f, "Valid stick vertical area (%)");
+                    //Main.settings.input_threshold = RGUI.SliderFloat(Main.settings.input_threshold, 0f, 100f, 20f, "Valid stick vertical area (%)");
 
                     if (RGUI.Button(Main.settings.swap_lean, "Invert input"))
                     {
@@ -395,6 +395,8 @@ namespace fro_mod
                             {
                                 Main.settings.dynamic_feet_states[count] = !Main.settings.dynamic_feet_states[count];
                             }
+
+                            GUI.backgroundColor = Color.black;
                             count++;
                         }
                         GUILayout.FlexibleSpace();
@@ -917,6 +919,8 @@ namespace fro_mod
                             {
                                 Main.settings.look_forward_states[count] = !Main.settings.look_forward_states[count];
                             }
+
+                            GUI.backgroundColor = Color.black;
                             count++;
                         }
                         GUILayout.FlexibleSpace();
@@ -1187,7 +1191,7 @@ namespace fro_mod
         private void MainMenu(int windowID)
         {
             GUI.backgroundColor = Color.red;
-            //GUI.DragWindow(new Rect(0, 0, 10000, 20));
+            GUI.DragWindow(new Rect(0, 0, 10000, 20));
 
             //GUI.BeginScrollView(new Rect(0, 0, 0, Screen.height), scrollPosition, MainMenuRect, false, true);
             MainSection();
