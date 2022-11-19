@@ -21,8 +21,26 @@ namespace fro_mod
 
         float last_x = 0, last_y = 0;
         float initial_point_x = 0, initial_point_y = 0;
-        float last_fov = 0;
+        float last_fov = -1;
         int count = 0;
+        int zero_count = 0;
+
+        void FixedUpdate()
+        {
+            if (PlayerController.Instance.skaterController.skaterRigidbody.velocity.magnitude <= 0.15f && !PlayerController.Instance.IsRespawning)
+            {
+                if (zero_count >= 24f)
+                {
+                    last_fov = camera.m_Lens.FieldOfView;
+                    last_x = 0;
+                    last_y = 0;
+                    initial_point_x = 0;
+                    initial_point_y = 0;
+                    zero_count = 0;
+                }
+                zero_count++;
+            }
+        }
 
         void LateUpdate()
         {
@@ -30,15 +48,6 @@ namespace fro_mod
 
             float velocity = PlayerController.Instance.skaterController.skaterRigidbody.velocity.magnitude - Main.settings.camera_shake_offset;
             if (velocity < 0) velocity = 0;
-
-            if (velocity == 0)
-            {
-                last_fov = camera.m_Lens.FieldOfView;
-                last_x = 0;
-                last_y = 0;
-                initial_point_x = 0;
-                initial_point_y = 0;
-            }
             if (velocity > 0)
             {
                 camera.transform.Translate(Mathf.SmoothStep(last_x, initial_point_x, Controller.map01(count, 0, Main.settings.camera_shake_length)), Mathf.SmoothStep(last_y, initial_point_y, Controller.map01(count, 0, Main.settings.camera_shake_length)), 0, Space.Self);
@@ -56,8 +65,15 @@ namespace fro_mod
                 }
 
                 count++;
+            }
 
-                camera.m_Lens.FieldOfView = last_fov + ((velocity / 2) * Main.settings.camera_shake_fov_multiplier);
+            float velocity_fov = (PlayerController.Instance.skaterController.skaterRigidbody.velocity.magnitude / 2) - Main.settings.camera_fov_offset;
+            if (velocity_fov < 0) velocity_fov = 0;
+
+            if (last_fov >= 0 && velocity_fov > 0)
+            {
+                float target_fov = last_fov + (velocity_fov * Main.settings.camera_shake_fov_multiplier);
+                camera.m_Lens.FieldOfView = target_fov;
             }
         }
 

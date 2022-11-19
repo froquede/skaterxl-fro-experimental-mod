@@ -21,6 +21,8 @@ namespace fro_mod
         public static Multiplayer multi;
         public static TrickCustomizer tc;
         public static CameraShake cs;
+        public static AnimationController am;
+        public static WalkController wc;
 
         static bool Unload(UnityModManager.ModEntry modEntry)
         {
@@ -47,17 +49,15 @@ namespace fro_mod
             controller = manager.AddComponent<Controller>();
             tc = manager.AddComponent<TrickCustomizer>();
             cs = manager.AddComponent<CameraShake>();
+            am = manager.AddComponent<AnimationController>();
+            wc = manager.AddComponent<WalkController>();
 
             UnityEngine.Object.DontDestroyOnLoad(manager);
             modEntry.OnUnload = Unload;
             Main.modEntry = modEntry;
             checkLists(modEntry);
 
-            try
-            {
-                harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
-            }
-            catch { }
+            harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
 
             UnityModManager.Logger.Log("Loaded " + modEntry.Info.Id);
             return true;
@@ -71,7 +71,6 @@ namespace fro_mod
                 settings.dynamic_feet_states[0] = true;
                 settings.dynamic_feet_states[1] = true;
                 settings.dynamic_feet_states[2] = true;
-                settings.dynamic_feet_states[5] = true;
                 settings.dynamic_feet_states[6] = true;
                 settings.dynamic_feet_states[7] = true;
                 settings.dynamic_feet_states[8] = true;

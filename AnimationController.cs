@@ -7,39 +7,49 @@ using UnityEngine;
 
 namespace fro_mod
 {
-    class AnimationController : MonoBehaviour
+    public class AnimationController : MonoBehaviour
     {
-        public LetsGo LetsGoAnim = new LetsGo();
-    }
-
-    class LetsGo
-    {
-        System.Random rd = new System.Random();
-        float left_rand = 1, right_rand = 1;
-        float letsgo_anim_time = 1;
-
-        public void Play()
+        int frame = 0;
+        int clap_length = 24;
+        void FixedUpdate()
         {
-            letsgo_anim_time = 0;
-            left_rand = 0;
-            right_rand = 0;
+            /*ResetArms();
+            ClapAnimation();*/
         }
 
-        void Step()
+        void ResetArms()
         {
-            if (letsgo_anim_time == 0) letsgo_anim_time = Time.unscaledTime;
+            PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].rigidbody.mass = 1f;
+            PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].rigidbody.mass = 1f;
+        }
 
-            if (Time.unscaledTime - letsgo_anim_time <= 3f)
-            {
-                if (left_rand == 0) left_rand = ((float)rd.NextDouble() / 8f);
-                if (right_rand == 0) right_rand = ((float)rd.NextDouble() / 8f);
+        void ClapAnimation()
+        {
+            float sin = (float)Math.Sin(Time.unscaledTime * 12f) / 7f;
+            float multiplier = 1;
+            multiplier = SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular ? multiplier : -multiplier;
+            float sw_multiplier = PlayerController.Instance.IsSwitch ? -1 : 1;
 
-                float sin = (float)Math.Sin(Time.unscaledTime * 12f) / 7f;
-                Vector3 left = PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].transform.position;
-                PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].transform.position = new Vector3(left.x, PlayerController.Instance.skaterController.skaterTransform.position.y + .7f + sin + left_rand, left.z);
-                Vector3 right = PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].transform.position;
-                PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].transform.position = new Vector3(right.x, PlayerController.Instance.skaterController.skaterTransform.position.y + .7f + sin + right_rand, right.z);
-            }
+            GameObject center_left = new GameObject();
+            center_left.transform.position = PlayerController.Instance.skaterController.skaterTransform.position;
+            center_left.transform.rotation = PlayerController.Instance.skaterController.skaterTransform.rotation;
+            center_left.transform.Translate(.25f, .25f, .25f - sin, Space.Self);
+            center_left.transform.Rotate(0, 0, -180, Space.Self);
+
+            GameObject center_right = new GameObject();
+            center_right.transform.position = PlayerController.Instance.skaterController.skaterTransform.position;
+            center_right.transform.rotation = PlayerController.Instance.skaterController.skaterTransform.rotation;
+            center_right.transform.Translate(.20f, .25f, 0 + sin, Space.Self);
+            center_right.transform.Rotate(0, 0, 180, Space.Self);
+
+            PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].transform.rotation = Quaternion.Lerp(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].transform.rotation, center_left.transform.rotation, Controller.map01(frame, 0, clap_length));
+            PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].transform.position = Vector3.Lerp(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[6].transform.position, center_left.transform.position, Controller.map01(frame, 0, clap_length));
+            PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].transform.rotation = Quaternion.Lerp(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].transform.rotation, center_right.transform.rotation, Controller.map01(frame, 0, clap_length));
+            PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].transform.position = Vector3.Lerp(PlayerController.Instance.respawn.behaviourPuppet.puppetMaster.muscles[9].transform.position, center_right.transform.position, Controller.map01(frame, 0, clap_length));
+            frame++;
+
+            Destroy(center_left);
+            Destroy(center_right);
         }
     }
 }
