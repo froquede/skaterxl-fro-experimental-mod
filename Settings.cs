@@ -121,6 +121,7 @@ namespace fro_mod
         public bool powerslide_velocitybased = true;
         public bool alternative_powerslide = false;
         public float powerslide_animation_length = 24f;
+        public float powerslide_maxangle = 15f;
         public float powerslide_minimum_velocity = 0f;
         public float powerslide_max_velocity = 10f;
 
@@ -213,7 +214,24 @@ namespace fro_mod
         public bool haunting_arms = false;
         public bool bump_anim = false;
 
-        public float bump_pop_length = .2f;
+        public float bump_pop_delay = .15f;
+
+        public float catch_acc = 10f;
+        public bool catch_acc_enabled = false;
+        public float catch_lerp_speed = 30f;
+        public int bounce_delay = 4;
+
+        public bool partial_gear = false;
+
+        public bool custom_board_correction = false;
+        public float board_p = 5000f;
+        public float board_i = 0f;
+        public float board_d = 1f;
+
+        public bool jiggle_on_setup = false;
+        public float jiggle_limit = 40f;
+        public float jiggle_delay = 24f;
+        public float jiggle_randommax = 10f;
 
 #if DEBUG
         public bool debug = true;

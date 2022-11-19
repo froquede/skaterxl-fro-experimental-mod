@@ -174,7 +174,7 @@ namespace fro_mod
             "Eigil Wayne",
             "Matthew Jewell",
             "19945series",
-            "Gabriel Ortiz"         
+            "Gabriel Ortiz"
         };
 
         public void Start()
@@ -277,7 +277,7 @@ namespace fro_mod
             if (!about_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b>fro's experimental mod v1.14.0-spooky for XL v1.2.X.X (31/10/2022)</b>");
+                GUILayout.Label("<b>fro's experimental mod v1.15.0 for XL v1.2.X.X (18/11/2022)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This software is distributed 'as is', with no warranty expressed or implied, and no guarantee for accuracy or applicability to any purpose.");
                 GUILayout.Label("This mod is not intended to harm the game or its respective developer in any purposeful way, its online functionality, or the game economy.");
@@ -485,6 +485,31 @@ namespace fro_mod
                 GUILayout.Label("<b>Automatically celebrate on:</b>");
                 Main.settings.celebrate_on = RGUI.SelectionPopup(Main.settings.celebrate_on, States);
                 GUILayout.EndHorizontal();
+
+                GUILayout.Space(6);
+
+                if (RGUI.Button(Main.settings.bump_anim, "Bump animations"))
+                {
+                    Main.settings.bump_anim = !Main.settings.bump_anim;
+                }
+                if (Main.settings.bump_anim)
+                {
+                    Main.settings.bump_pop_delay = RGUI.SliderFloat(Main.settings.bump_pop_delay, 0f, 1f, .15f, "Animation delay");
+                }
+
+                GUILayout.Space(6);
+
+                if (RGUI.Button(Main.settings.catch_acc_enabled, "Catch fast forward"))
+                {
+                    Main.settings.catch_acc_enabled = !Main.settings.catch_acc_enabled;
+                }
+
+                if (Main.settings.catch_acc_enabled)
+                {
+                    Main.settings.catch_acc = RGUI.SliderFloat(Main.settings.catch_acc, 0f, 10f, 10f, "Animation speed");
+                    Main.settings.catch_lerp_speed = RGUI.SliderFloat(Main.settings.catch_lerp_speed, 10f, 30f, 30f, "Feet lerp speed");
+                    Main.settings.bounce_delay = (int)RGUI.SliderFloat(Main.settings.bounce_delay, 0f, 12f, 4f, "Catch correction delay");
+                }
 
                 GUILayout.EndVertical();
             }
@@ -817,6 +842,10 @@ namespace fro_mod
                 Main.settings.custom_scale.z = RGUI.SliderFloat(Main.settings.custom_scale.z, 0f, 2f, 1f, "Scale body z");
                 GUILayout.Space(6);
 
+                Main.settings.comOffset_y = RGUI.SliderFloat(Main.settings.comOffset_y, -1f, 1f, 0.07f, "Offset Y \n(use this to compensate the body customization)");
+
+                GUILayout.Space(6);
+
                 Fold(muscle_fold, green);
                 if (!muscle_fold.reference)
                 {
@@ -972,7 +1001,7 @@ namespace fro_mod
             }
         }
 
-        FoldObj experimental_fold = new FoldObj(true, "COMController");
+        FoldObj experimental_fold = new FoldObj(true, "Skater center of mass");
 
         void ReallyExperimental()
         {
@@ -991,7 +1020,6 @@ namespace fro_mod
                 /*Main.settings.KpGrind = RGUI.SliderFloat(Main.settings.KpGrind, 0f, 4000f, 2000f, "KpGrind");
                 Main.settings.KdGrind = RGUI.SliderFloat(Main.settings.KdGrind, 0f, 2000f, 900f, "KdGrind");*/
                 GUILayout.Space(8);
-                Main.settings.comOffset_y = RGUI.SliderFloat(Main.settings.comOffset_y, -1f, 1f, 0.07f, "Offset Y \n(use this to compensate the body customization)");
                 Main.settings.comHeightRiding = RGUI.SliderFloat(Main.settings.comHeightRiding, -1f, 2f, 1.06f, "Height Riding");
                 Main.settings.maxLegForce = RGUI.SliderFloat(Main.settings.maxLegForce, 0f, 10000f, 5000f, "Max Leg Force");
 
@@ -1043,141 +1071,157 @@ namespace fro_mod
             if (!skate_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                Fold(skate_settings_fold, green);
+                /*Fold(skate_settings_fold, green);
 
                 if (!skate_settings_fold.reference)
+                {*/
+                if (RGUI.Button(Main.settings.wobble, "Wobble on high speed"))
                 {
-                    if (RGUI.Button(Main.settings.wobble, "Wobble on high speed"))
+                    Main.settings.wobble = !Main.settings.wobble;
+                }
+
+                if (Main.settings.wobble)
+                {
+                    Main.settings.wobble_offset = RGUI.SliderFloat(Main.settings.wobble_offset, 0f, 16f, 4f, "Minimum velocity for wobbling");
+                }
+
+                GUILayout.Space(6);
+
+                if (RGUI.Button(Main.settings.BetterDecay, "Better friction / decay"))
+                {
+                    Main.settings.BetterDecay = !Main.settings.BetterDecay;
+                }
+
+                Main.settings.decay = RGUI.SliderFloat(Main.settings.decay, 0f, 4f, 1.5f, "Friction force");
+
+                GUILayout.Space(6);
+
+                Main.settings.nose_tail_collider = RGUI.SliderFloat(Main.settings.nose_tail_collider, 0f, 2f, 1f, "Nose and tail collider height");
+
+                GUILayout.Space(6);
+
+                if (RGUI.Button(Main.settings.powerslide_force, "Add force to powerslides"))
+                {
+                    Main.settings.powerslide_force = !Main.settings.powerslide_force;
+                }
+
+                if (Main.settings.powerslide_force)
+                {
+                    if (RGUI.Button(Main.settings.powerslide_velocitybased, "Velocity based"))
                     {
-                        Main.settings.wobble = !Main.settings.wobble;
-                    }
-
-                    if (Main.settings.wobble)
-                    {
-                        Main.settings.wobble_offset = RGUI.SliderFloat(Main.settings.wobble_offset, 0f, 16f, 4f, "Minimum velocity for wobbling");
-                    }
-
-                    GUILayout.Space(6);
-
-                    if (RGUI.Button(Main.settings.BetterDecay, "Better friction / decay"))
-                    {
-                        Main.settings.BetterDecay = !Main.settings.BetterDecay;
-                    }
-
-                    Main.settings.decay = RGUI.SliderFloat(Main.settings.decay, 0f, 4f, 1.5f, "Friction force");
-
-                    GUILayout.Space(6);
-
-                    Main.settings.nose_tail_collider = RGUI.SliderFloat(Main.settings.nose_tail_collider, 0f, 2f, 1f, "Nose and tail collider height");
-
-                    GUILayout.Space(6);
-
-                    if (RGUI.Button(Main.settings.powerslide_force, "Add force to powerslides"))
-                    {
-                        Main.settings.powerslide_force = !Main.settings.powerslide_force;
-                    }
-
-                    if (Main.settings.powerslide_force)
-                    {
-                        if (RGUI.Button(Main.settings.powerslide_velocitybased, "Velocity based"))
-                        {
-                            Main.settings.powerslide_velocitybased = !Main.settings.powerslide_velocitybased;
-                        }
-                    }
-
-                    GUILayout.Space(6);
-
-                    if (RGUI.Button(Main.settings.force_stick_backwards, "Add stomp force on back foot stick to the back"))
-                    {
-                        Main.settings.force_stick_backwards = !Main.settings.force_stick_backwards;
-                    }
-                    if (Main.settings.force_stick_backwards)
-                    {
-                        Main.settings.force_stick_backwards_multiplier = RGUI.SliderFloat(Main.settings.force_stick_backwards_multiplier, 0f, .5f, .125f, "Stomp force");
-                    }
-
-                    GUILayout.Space(6);
-
-                    if (RGUI.Button(Main.settings.forward_force_onpop, "Add forward force on pop"))
-                    {
-                        Main.settings.forward_force_onpop = !Main.settings.forward_force_onpop;
-                    }
-                    if (Main.settings.forward_force_onpop)
-                    {
-                        Main.settings.forward_force = RGUI.SliderFloat(Main.settings.forward_force, -1f, 2f, .35f, "Forward force");
+                        Main.settings.powerslide_velocitybased = !Main.settings.powerslide_velocitybased;
                     }
                 }
 
+                GUILayout.Space(6);
 
-                Fold(customizer_fold, red);
-
-                if (!customizer_fold.reference)
+                if (RGUI.Button(Main.settings.force_stick_backwards, "Add stomp force on back foot stick to the back"))
                 {
-                    if (RGUI.Button(Main.settings.trick_customization, "Enabled"))
-                    {
-                        Main.settings.trick_customization = !Main.settings.trick_customization;
-                    }
-
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label("Stance:");
-                    selected_stance_customizer = RGUI.SelectionPopup(selected_stance_customizer, StancesCustomizer);
-                    GUILayout.EndHorizontal();
-
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label("Input:");
-                    selected_input = RGUI.SelectionPopup(selected_input, input_types);
-                    GUILayout.EndHorizontal();
-
-                    // this is not ideal but letsgo
-                    Vector3 rotation = Main.settings.ollie_customization_rotation[selected_stance_customizer];
-                    if (selected_input == 1) rotation = Main.settings.ollie_customization_rotation_backwards[selected_stance_customizer];
-                    if (selected_input == 2) rotation = Main.settings.ollie_customization_rotation_left_stick[selected_stance_customizer];
-                    if (selected_input == 3) rotation = Main.settings.ollie_customization_rotation_right_stick[selected_stance_customizer];
-                    if (selected_input == 4) rotation = Main.settings.ollie_customization_rotation_left_stick_backwards[selected_stance_customizer];
-                    if (selected_input == 5) rotation = Main.settings.ollie_customization_rotation_right_stick_backwards[selected_stance_customizer];
-                    if (selected_input == 6) rotation = Main.settings.ollie_customization_rotation_both_outside[selected_stance_customizer];
-                    if (selected_input == 7) rotation = Main.settings.ollie_customization_rotation_both_inside[selected_stance_customizer];
-                    if (selected_input == 8) rotation = Main.settings.ollie_customization_rotation_left2left[selected_stance_customizer];
-                    if (selected_input == 9) rotation = Main.settings.ollie_customization_rotation_left2right[selected_stance_customizer];
-                    if (selected_input == 10) rotation = Main.settings.ollie_customization_rotation_right2left[selected_stance_customizer];
-                    if (selected_input == 11) rotation = Main.settings.ollie_customization_rotation_right2right[selected_stance_customizer];
-                    if (selected_input == 12) rotation = Main.settings.ollie_customization_rotation_both2left[selected_stance_customizer];
-                    if (selected_input == 13) rotation = Main.settings.ollie_customization_rotation_both2right[selected_stance_customizer];
-
-                    rotation.z = RGUI.SliderFloat(rotation.z, -180f, 180f, 0f, "Roll");
-                    rotation.x = RGUI.SliderFloat(rotation.x, -180f, 180f, 0f, "Pitch");
-                    rotation.y = RGUI.SliderFloat(rotation.y, -180f, 180f, 0f, "Yaw");
-
-                    if (selected_input == 0) Main.settings.ollie_customization_rotation[selected_stance_customizer] = rotation;
-                    if (selected_input == 1) Main.settings.ollie_customization_rotation_backwards[selected_stance_customizer] = rotation;
-                    if (selected_input == 2) Main.settings.ollie_customization_rotation_left_stick[selected_stance_customizer] = rotation;
-                    if (selected_input == 3) Main.settings.ollie_customization_rotation_right_stick[selected_stance_customizer] = rotation;
-                    if (selected_input == 4) Main.settings.ollie_customization_rotation_left_stick_backwards[selected_stance_customizer] = rotation;
-                    if (selected_input == 5) Main.settings.ollie_customization_rotation_right_stick_backwards[selected_stance_customizer] = rotation;
-                    if (selected_input == 6) Main.settings.ollie_customization_rotation_both_outside[selected_stance_customizer] = rotation;
-                    if (selected_input == 7) Main.settings.ollie_customization_rotation_both_inside[selected_stance_customizer] = rotation;
-                    if (selected_input == 8) Main.settings.ollie_customization_rotation_left2left[selected_stance_customizer] = rotation;
-                    if (selected_input == 9) Main.settings.ollie_customization_rotation_left2right[selected_stance_customizer] = rotation;
-                    if (selected_input == 10) Main.settings.ollie_customization_rotation_right2left[selected_stance_customizer] = rotation;
-                    if (selected_input == 11) Main.settings.ollie_customization_rotation_right2right[selected_stance_customizer] = rotation;
-                    if (selected_input == 12) Main.settings.ollie_customization_rotation_both2left[selected_stance_customizer] = rotation;
-                    if (selected_input == 13) Main.settings.ollie_customization_rotation_both2right[selected_stance_customizer] = rotation;
-
-                    if (selected_input == 0) Main.settings.ollie_customization_length[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                    if (selected_input == 1) Main.settings.ollie_customization_length_backwards[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_backwards[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                    if (selected_input == 2) Main.settings.ollie_customization_length_left_stick[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_left_stick[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                    if (selected_input == 3) Main.settings.ollie_customization_length_right_stick[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_right_stick[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                    if (selected_input == 4) Main.settings.ollie_customization_length_left_stick_backwards[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_left_stick_backwards[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                    if (selected_input == 5) Main.settings.ollie_customization_length_right_stick_backwards[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_right_stick_backwards[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                    if (selected_input == 6) Main.settings.ollie_customization_length_both_outside[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_both_outside[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                    if (selected_input == 7) Main.settings.ollie_customization_length_both_inside[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_both_inside[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                    if (selected_input == 8) Main.settings.ollie_customization_length_left2left[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_left2left[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                    if (selected_input == 9) Main.settings.ollie_customization_length_left2right[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_left2right[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                    if (selected_input == 10) Main.settings.ollie_customization_length_right2left[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_right2left[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                    if (selected_input == 11) Main.settings.ollie_customization_length_right2right[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_right2right[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                    if (selected_input == 12) Main.settings.ollie_customization_length_both2left[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_both2left[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                    if (selected_input == 13) Main.settings.ollie_customization_length_both2right[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_both2right[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                    Main.settings.force_stick_backwards = !Main.settings.force_stick_backwards;
                 }
+                if (Main.settings.force_stick_backwards)
+                {
+                    Main.settings.force_stick_backwards_multiplier = RGUI.SliderFloat(Main.settings.force_stick_backwards_multiplier, 0f, .5f, .125f, "Stomp force");
+                }
+
+                GUILayout.Space(6);
+
+                if (RGUI.Button(Main.settings.forward_force_onpop, "Add forward force on pop"))
+                {
+                    Main.settings.forward_force_onpop = !Main.settings.forward_force_onpop;
+                }
+                if (Main.settings.forward_force_onpop)
+                {
+                    Main.settings.forward_force = RGUI.SliderFloat(Main.settings.forward_force, -1f, 2f, .35f, "Forward force");
+                }
+
+                GUILayout.Space(6);
+
+                if (RGUI.Button(Main.settings.custom_board_correction, "Custom board correction"))
+                {
+                    Main.settings.custom_board_correction = !Main.settings.custom_board_correction;
+                }
+
+                if (Main.settings.custom_board_correction)
+                {
+                    Main.settings.board_p = RGUI.SliderFloat(Main.settings.board_p, 0f, 10000f, 5000, "Board P");
+                    Main.settings.board_i = RGUI.SliderFloat(Main.settings.board_i, 0f, 2f, 0, "Board I");
+                    Main.settings.board_d = RGUI.SliderFloat(Main.settings.board_d, 0f, 2f, 1, "Board D");
+                }
+
+
+                GUILayout.EndVertical();
+            }
+
+            Fold(customizer_fold, red);
+
+            if (!customizer_fold.reference)
+            {
+                GUILayout.BeginVertical("Box");
+                if (RGUI.Button(Main.settings.trick_customization, "Enabled"))
+                {
+                    Main.settings.trick_customization = !Main.settings.trick_customization;
+                }
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Stance:");
+                selected_stance_customizer = RGUI.SelectionPopup(selected_stance_customizer, StancesCustomizer);
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Input:");
+                selected_input = RGUI.SelectionPopup(selected_input, input_types);
+                GUILayout.EndHorizontal();
+
+                // this is not ideal but letsgo
+                Vector3 rotation = Main.settings.ollie_customization_rotation[selected_stance_customizer];
+                if (selected_input == 1) rotation = Main.settings.ollie_customization_rotation_backwards[selected_stance_customizer];
+                if (selected_input == 2) rotation = Main.settings.ollie_customization_rotation_left_stick[selected_stance_customizer];
+                if (selected_input == 3) rotation = Main.settings.ollie_customization_rotation_right_stick[selected_stance_customizer];
+                if (selected_input == 4) rotation = Main.settings.ollie_customization_rotation_left_stick_backwards[selected_stance_customizer];
+                if (selected_input == 5) rotation = Main.settings.ollie_customization_rotation_right_stick_backwards[selected_stance_customizer];
+                if (selected_input == 6) rotation = Main.settings.ollie_customization_rotation_both_outside[selected_stance_customizer];
+                if (selected_input == 7) rotation = Main.settings.ollie_customization_rotation_both_inside[selected_stance_customizer];
+                if (selected_input == 8) rotation = Main.settings.ollie_customization_rotation_left2left[selected_stance_customizer];
+                if (selected_input == 9) rotation = Main.settings.ollie_customization_rotation_left2right[selected_stance_customizer];
+                if (selected_input == 10) rotation = Main.settings.ollie_customization_rotation_right2left[selected_stance_customizer];
+                if (selected_input == 11) rotation = Main.settings.ollie_customization_rotation_right2right[selected_stance_customizer];
+                if (selected_input == 12) rotation = Main.settings.ollie_customization_rotation_both2left[selected_stance_customizer];
+                if (selected_input == 13) rotation = Main.settings.ollie_customization_rotation_both2right[selected_stance_customizer];
+
+                rotation.z = RGUI.SliderFloat(rotation.z, -180f, 180f, 0f, "Roll");
+                rotation.x = RGUI.SliderFloat(rotation.x, -180f, 180f, 0f, "Pitch");
+                rotation.y = RGUI.SliderFloat(rotation.y, -180f, 180f, 0f, "Yaw");
+
+                if (selected_input == 0) Main.settings.ollie_customization_rotation[selected_stance_customizer] = rotation;
+                if (selected_input == 1) Main.settings.ollie_customization_rotation_backwards[selected_stance_customizer] = rotation;
+                if (selected_input == 2) Main.settings.ollie_customization_rotation_left_stick[selected_stance_customizer] = rotation;
+                if (selected_input == 3) Main.settings.ollie_customization_rotation_right_stick[selected_stance_customizer] = rotation;
+                if (selected_input == 4) Main.settings.ollie_customization_rotation_left_stick_backwards[selected_stance_customizer] = rotation;
+                if (selected_input == 5) Main.settings.ollie_customization_rotation_right_stick_backwards[selected_stance_customizer] = rotation;
+                if (selected_input == 6) Main.settings.ollie_customization_rotation_both_outside[selected_stance_customizer] = rotation;
+                if (selected_input == 7) Main.settings.ollie_customization_rotation_both_inside[selected_stance_customizer] = rotation;
+                if (selected_input == 8) Main.settings.ollie_customization_rotation_left2left[selected_stance_customizer] = rotation;
+                if (selected_input == 9) Main.settings.ollie_customization_rotation_left2right[selected_stance_customizer] = rotation;
+                if (selected_input == 10) Main.settings.ollie_customization_rotation_right2left[selected_stance_customizer] = rotation;
+                if (selected_input == 11) Main.settings.ollie_customization_rotation_right2right[selected_stance_customizer] = rotation;
+                if (selected_input == 12) Main.settings.ollie_customization_rotation_both2left[selected_stance_customizer] = rotation;
+                if (selected_input == 13) Main.settings.ollie_customization_rotation_both2right[selected_stance_customizer] = rotation;
+
+                if (selected_input == 0) Main.settings.ollie_customization_length[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                if (selected_input == 1) Main.settings.ollie_customization_length_backwards[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_backwards[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                if (selected_input == 2) Main.settings.ollie_customization_length_left_stick[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_left_stick[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                if (selected_input == 3) Main.settings.ollie_customization_length_right_stick[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_right_stick[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                if (selected_input == 4) Main.settings.ollie_customization_length_left_stick_backwards[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_left_stick_backwards[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                if (selected_input == 5) Main.settings.ollie_customization_length_right_stick_backwards[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_right_stick_backwards[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                if (selected_input == 6) Main.settings.ollie_customization_length_both_outside[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_both_outside[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                if (selected_input == 7) Main.settings.ollie_customization_length_both_inside[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_both_inside[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                if (selected_input == 8) Main.settings.ollie_customization_length_left2left[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_left2left[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                if (selected_input == 9) Main.settings.ollie_customization_length_left2right[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_left2right[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                if (selected_input == 10) Main.settings.ollie_customization_length_right2left[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_right2left[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                if (selected_input == 11) Main.settings.ollie_customization_length_right2right[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_right2right[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                if (selected_input == 12) Main.settings.ollie_customization_length_both2left[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_both2left[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                if (selected_input == 13) Main.settings.ollie_customization_length_both2right[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_both2right[selected_stance_customizer], 0, 60f, 24f, "Animation length");
 
                 GUILayout.EndVertical();
             }
@@ -1186,8 +1230,10 @@ namespace fro_mod
         FoldObj gameplay_fold = new FoldObj(true, "Gameplay");
         FoldObj multi_all_fold = new FoldObj(true, "Multiplayer");
         FoldObj exp_fold = new FoldObj(true, "Experimental");
+        FoldObj walking_fold = new FoldObj(true, "Ghost walking");
         GUIStyle style = new GUIStyle();
         public Vector2 scrollPosition = Vector2.zero;
+        string kickplayer = "";
         private void MainMenu(int windowID)
         {
             GUI.backgroundColor = Color.red;
@@ -1231,14 +1277,30 @@ namespace fro_mod
                 GUILayout.EndVertical();
             }
 
-            Fold(exp_fold, red);
-            if (!exp_fold.reference)
+            Fold(walking_fold, green);
+            if (!walking_fold.reference)
             {
                 if (RGUI.Button(Main.settings.walk_after_bail, "Ghost walking after bail"))
                 {
                     Main.settings.walk_after_bail = !Main.settings.walk_after_bail;
                 }
 
+                if (Main.settings.walk_after_bail)
+                {
+                    GUILayout.BeginVertical("Box");
+                    GUILayout.Label("Circle / B for magnetizing the skate");
+                    GUILayout.Label("Square / X for dropping the skate");
+                    GUILayout.Label("Left stick click to toggle between walking / running");
+                    GUILayout.Label("If you jump into the skate the skater will respawn at that position");
+                    GUILayout.EndVertical();
+
+                    Main.settings.bails = true;
+                }
+            }
+
+            Fold(exp_fold, red);
+            if (!exp_fold.reference)
+            {
                 /*if(Main.settings.walk_after_bail)
                 {
                     if (RGUI.Button(Main.settings.haunting_arms, "Haunting arms"))
@@ -1254,22 +1316,77 @@ namespace fro_mod
                     Main.settings.alternative_powerslide = !Main.settings.alternative_powerslide;
                 }
 
-                Main.settings.powerslide_animation_length = RGUI.SliderFloat(Main.settings.powerslide_animation_length, 0f, 64f, 24f, "Powerslide animation length");
-                Main.settings.powerslide_minimum_velocity = RGUI.SliderFloat(Main.settings.powerslide_minimum_velocity, 0f, 20f, 10f, "Powerslide min velocity");
-                Main.settings.powerslide_max_velocity = RGUI.SliderFloat(Main.settings.powerslide_max_velocity, 0f, 20f, 10f, "Powerslide max velocity");
-
-                GUILayout.Space(6);
-
-                if (RGUI.Button(Main.settings.bump_anim, "Bump animations"))
+                if (Main.settings.alternative_powerslide)
                 {
-                    Main.settings.bump_anim = !Main.settings.bump_anim;
+                    Main.settings.powerslide_animation_length = RGUI.SliderFloat(Main.settings.powerslide_animation_length, 0f, 64f, 24f, "Powerslide animation length");
+                    Main.settings.powerslide_minimum_velocity = RGUI.SliderFloat(Main.settings.powerslide_minimum_velocity, 0f, 20f, 0f, "Powerslide min velocity");
+                    Main.settings.powerslide_max_velocity = RGUI.SliderFloat(Main.settings.powerslide_max_velocity, 0f, 20f, 0f, "Powerslide max velocity");
+                    Main.settings.powerslide_maxangle = RGUI.SliderFloat(Main.settings.powerslide_maxangle, 0f, 45f, 15f, "Powerslide max angle");
                 }
-                Main.settings.bump_pop_length = RGUI.SliderFloat(Main.settings.bump_pop_length, 0f, 1f, .2f, "Bump animation length");
 
-                if (GUILayout.Button("Change Cloth Colliders to legs, torso, and hands", GUILayout.Height(34)))
+
+                /*if (GUILayout.Button("Change Cloth Colliders to legs, torso, and hands", GUILayout.Height(34)))
                 {
                     ClothColliders();
+                }*/
+
+                GUILayout.Space(12);
+
+                if (RGUI.Button(Main.settings.jiggle_on_setup, "Jiggle feet on setup"))
+                {
+                    Main.settings.jiggle_on_setup = !Main.settings.jiggle_on_setup;
                 }
+
+                if (Main.settings.jiggle_on_setup)
+                {
+                    if(!Main.settings.feet_rotation) RGUI.WarningLabel("You need to enable dynamic feet rotation for this feature to work (Gameplay > Dynamic feet)");
+                    Main.settings.jiggle_delay = RGUI.SliderFloat(Main.settings.jiggle_delay, 0f, 60f, 24f, "Jiggle delay");
+                    Main.settings.jiggle_limit = RGUI.SliderFloat(Main.settings.jiggle_limit, 0f, 90f, 40f, "Jiggle angle limit");
+                    Main.settings.jiggle_randommax = RGUI.SliderFloat(Main.settings.jiggle_randommax, 0f, 30f, 10f, "Jiggle max random angle");
+                }
+
+                GUILayout.Space(12);
+
+                if (RGUI.Button(Main.settings.partial_gear, "Multiplayer load partial gear"))
+                {
+                    Main.settings.partial_gear = !Main.settings.partial_gear;
+                }
+
+                GUILayout.Space(12);
+
+                if (GUILayout.Button("Update gear files", GUILayout.Height(28)))
+                {
+                    SaveManagerFocusPatch.HandleCustomGearChanges();
+                }
+
+                //GUILayout.Space(12);
+
+                /*GUILayout.BeginHorizontal();
+                GUILayout.Label("<b>Player username</b>");
+                kickplayer = RGUI.SelectionPopup(kickplayer, Main.controller.getListOfPlayers());
+                GUILayout.EndHorizontal();
+                if (Main.multi.isMaster())
+                {
+                    if (GUILayout.Button("Kick " + kickplayer, GUILayout.Height(34)))
+                    {
+                        Main.multi.KickPlayer(kickplayer);
+                    }
+                }
+
+                if (GUILayout.Button("Steal main", GUILayout.Height(34)))
+                {
+                    Main.multi.setMeAsMaster();
+                }
+
+                if (GUILayout.Button("Restore main", GUILayout.Height(34)))
+                {
+                    Main.multi.restoreMaster();
+                }
+
+                if (GUILayout.Button("Master to " + kickplayer, GUILayout.Height(34)))
+                {
+                    Main.multi.MasterPlayer(kickplayer);
+                }*/
             }
 
             //GUI.EndScrollView();

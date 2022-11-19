@@ -57,11 +57,7 @@ namespace fro_mod
             Main.modEntry = modEntry;
             checkLists(modEntry);
 
-            try
-            {
-                harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
-            }
-            catch { }
+            harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
 
             UnityModManager.Logger.Log("Loaded " + modEntry.Info.Id);
             return true;

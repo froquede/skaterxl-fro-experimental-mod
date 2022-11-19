@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GameManagement;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -86,10 +87,13 @@ namespace fro_mod
 
         public void LateUpdate()
         {
-            if ((PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pushing || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Riding || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Impact) && PlayerController.Instance.inputController.player.GetButtonDoublePressDown("Right Stick Button"))
+            if (GameStateMachine.Instance.CurrentState.GetType() == typeof(PlayState))
             {
-                Main.settings.trick_customization = !Main.settings.trick_customization;
-                NotificationManager.Instance.ShowNotification($"Trick customization { (Main.settings.trick_customization ? "enabled" : "disabled") }", 1f, false, NotificationManager.NotificationType.Normal, TextAlignmentOptions.TopRight, 0.1f);
+                if ((PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pushing || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Riding || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Impact) && PlayerController.Instance.inputController.player.GetButtonDoublePressDown("Right Stick Button"))
+                {
+                    Main.settings.trick_customization = !Main.settings.trick_customization;
+                    NotificationManager.Instance.ShowNotification($"Trick customization { (Main.settings.trick_customization ? "enabled" : "disabled") }", 1f, false, NotificationManager.NotificationType.Normal, TextAlignmentOptions.TopRight, 0.1f);
+                }
             }
         }
 
