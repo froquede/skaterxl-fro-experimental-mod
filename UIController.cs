@@ -146,7 +146,6 @@ namespace fro_mod
             "Matt B",
             "Euan",
             "J'vonte Johnson",
-            "silentry",
             "loganhuntfilmm",
             "Foolie Surfin",
             "Nowak",
@@ -161,20 +160,20 @@ namespace fro_mod
             "heartsick",
             "dustin fuston",
             "Dali",
-            "peeeeeee poooooooooo",
-            "Nick Duncan",
             "Rogue Bond",
-            "Malleik",
-            "Subaru Factory Worker",
             "Ardell Manning",
             "Nathaniel Gardner",
             "Corey Populus",
             "countinsequence",
-            "Lurki. XL",
             "Eigil Wayne",
-            "Matthew Jewell",
-            "19945series",
-            "Gabriel Ortiz"
+            "Gabriel Ortiz",
+            "JdFilthyFree",
+            "Ayden",
+            "nahkel skylar",
+            "Justin S Reynolds",
+            "Joel de Roll",
+            "Temp",
+            "Seth Bates",
         };
 
         public void Start()
@@ -1339,7 +1338,7 @@ namespace fro_mod
 
                 if (Main.settings.jiggle_on_setup)
                 {
-                    if(!Main.settings.feet_rotation) RGUI.WarningLabel("You need to enable dynamic feet rotation for this feature to work (Gameplay > Dynamic feet)");
+                    if (!Main.settings.feet_rotation) RGUI.WarningLabel("You need to enable dynamic feet rotation for this feature to work (Gameplay > Dynamic feet)");
                     Main.settings.jiggle_delay = RGUI.SliderFloat(Main.settings.jiggle_delay, 0f, 60f, 24f, "Jiggle delay");
                     Main.settings.jiggle_limit = RGUI.SliderFloat(Main.settings.jiggle_limit, 0f, 90f, 40f, "Jiggle angle limit");
                     Main.settings.jiggle_randommax = RGUI.SliderFloat(Main.settings.jiggle_randommax, 0f, 30f, 10f, "Jiggle max random angle");
