@@ -145,6 +145,7 @@ namespace fro_mod
             "Bubble Gun",
             "Matt B",
             "Euan",
+            "Cameron Peixoto",
             "J'vonte Johnson",
             "loganhuntfilmm",
             "Foolie Surfin",
@@ -171,9 +172,14 @@ namespace fro_mod
             "Ayden",
             "nahkel skylar",
             "Justin S Reynolds",
+            "Ross Hill",
             "Joel de Roll",
             "Temp",
             "Seth Bates",
+            "Neal Tate",
+            "etown sk8r",
+            "Alex Baker",
+            "JMCAutomatic"
         };
 
         public void Start()
@@ -248,13 +254,6 @@ namespace fro_mod
                 Main.settings.enabled = !Main.settings.enabled;
             }
 
-            if (RGUI.Button(Main.settings.debug, "Debug"))
-            {
-                Main.settings.debug = !Main.settings.debug;
-                Main.controller.checkDebug();
-                Main.controller.getDeck();
-            }
-
             //GUILayout.EndVertical();
         }
 
@@ -276,7 +275,7 @@ namespace fro_mod
             if (!about_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b>fro's experimental mod v1.15.0 for XL v1.2.X.X (18/11/2022)</b>");
+                GUILayout.Label("<b>fro's experimental mod v1.15.1 for XL v1.2.X.X (22/11/2022)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This software is distributed 'as is', with no warranty expressed or implied, and no guarantee for accuracy or applicability to any purpose.");
                 GUILayout.Label("This mod is not intended to harm the game or its respective developer in any purposeful way, its online functionality, or the game economy.");
@@ -508,6 +507,10 @@ namespace fro_mod
                     Main.settings.catch_acc = RGUI.SliderFloat(Main.settings.catch_acc, 0f, 10f, 10f, "Animation speed");
                     Main.settings.catch_lerp_speed = RGUI.SliderFloat(Main.settings.catch_lerp_speed, 10f, 30f, 30f, "Feet lerp speed");
                     Main.settings.bounce_delay = (int)RGUI.SliderFloat(Main.settings.bounce_delay, 0f, 12f, 4f, "Catch correction delay");
+                    if (RGUI.Button(Main.settings.snappy_catch, "Disable XXL3 catch correction"))
+                    {
+                        Main.settings.snappy_catch = !Main.settings.snappy_catch;
+                    }
                 }
 
                 GUILayout.EndVertical();
@@ -1229,7 +1232,7 @@ namespace fro_mod
         FoldObj gameplay_fold = new FoldObj(true, "Gameplay");
         FoldObj multi_all_fold = new FoldObj(true, "Multiplayer");
         FoldObj exp_fold = new FoldObj(true, "Experimental");
-        FoldObj walking_fold = new FoldObj(true, "Ghost walking");
+        FoldObj misc_fold = new FoldObj(true, "Misc");
         GUIStyle style = new GUIStyle();
         public Vector2 scrollPosition = Vector2.zero;
         string kickplayer = "";
@@ -1276,8 +1279,8 @@ namespace fro_mod
                 GUILayout.EndVertical();
             }
 
-            Fold(walking_fold, green);
-            if (!walking_fold.reference)
+            Fold(misc_fold, green);
+            if (!misc_fold.reference)
             {
                 if (RGUI.Button(Main.settings.walk_after_bail, "Ghost walking after bail"))
                 {
@@ -1294,6 +1297,23 @@ namespace fro_mod
                     GUILayout.EndVertical();
 
                     Main.settings.bails = true;
+                }
+
+                GUILayout.Space(12);
+
+                if (RGUI.Button(Main.settings.debug, "Debug"))
+                {
+                    Main.settings.debug = !Main.settings.debug;
+                    Main.controller.checkDebug();
+                    Main.controller.getDeck();
+                }
+
+                GUILayout.Space(12);
+
+                GUILayout.Label("Use this button to reload custom gear textures while the game is open");
+                if (GUILayout.Button("Update gear texture files", GUILayout.Height(28)))
+                {
+                    SaveManagerFocusPatch.HandleCustomGearChanges();
                 }
             }
 
@@ -1349,13 +1369,6 @@ namespace fro_mod
                 if (RGUI.Button(Main.settings.partial_gear, "Multiplayer load partial gear"))
                 {
                     Main.settings.partial_gear = !Main.settings.partial_gear;
-                }
-
-                GUILayout.Space(12);
-
-                if (GUILayout.Button("Update gear files", GUILayout.Height(28)))
-                {
-                    SaveManagerFocusPatch.HandleCustomGearChanges();
                 }
 
                 //GUILayout.Space(12);

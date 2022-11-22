@@ -220,6 +220,7 @@ namespace fro_mod
         public bool catch_acc_enabled = false;
         public float catch_lerp_speed = 30f;
         public int bounce_delay = 4;
+        public bool snappy_catch = true;
 
         public bool partial_gear = false;
 

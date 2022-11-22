@@ -191,7 +191,7 @@ namespace fro_mod
                 }
             }
 
-            bool left = PlayerController.Instance.inputController.player.GetButton("Left Stick Button"), right = PlayerController.Instance.inputController.player.GetButton("Right Stick Button");
+            bool left = PlayerController.Instance.inputController.player.GetButtonDown("Left Stick Button"), right = PlayerController.Instance.inputController.player.GetButtonDown("Right Stick Button");
 
             if (Main.settings.catch_acc_enabled) CatchAtAnyMoment(left, right);
 
