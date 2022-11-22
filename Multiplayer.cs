@@ -14,6 +14,32 @@ namespace fro_mod
 {
     public class Multiplayer : MonoBehaviour
     {
+        public class ClothWatcherObj
+        {
+            public ClothingGearObjet cgo;
+            public CharacterGearInfo characterGearInfo;
+            public CharacterCustomizer customizer;
+            public BoardGearObject bgo;
+            public BoardGearInfo gearInfo;
+
+            public ClothWatcherObj(ClothingGearObjet cgo, CharacterGearInfo characterGearInfo, CharacterCustomizer customizer)
+            {
+                this.cgo = cgo;
+                this.characterGearInfo = characterGearInfo;
+                this.customizer = customizer;
+            }
+
+            public ClothWatcherObj(BoardGearObject bgo, BoardGearInfo gearInfo, CharacterCustomizer customizer)
+            {
+                this.bgo = bgo;
+                this.gearInfo = gearInfo;
+                this.customizer = customizer;
+            }
+        }
+
+        public List<ClothWatcherObj> toCheck = new List<ClothWatcherObj>();
+        public List<ClothWatcherObj> toCheckBoardGear = new List<ClothWatcherObj>();        
+
         void Start()
         {
             last_visibility = Main.settings.show_colliders;
@@ -38,6 +64,38 @@ namespace fro_mod
                     CheckCustomData();
 
                     time = Time.unscaledTime;
+                }
+
+                foreach (ClothWatcherObj cwo in toCheck)
+                {
+                    if (cwo.cgo.State != GearObject.GearObjectState.Loading)
+                    {
+                        if (cwo.cgo.State == GearObject.GearObjectState.Finished || cwo.cgo.State == GearObject.GearObjectState.Initialized)
+                        {
+                            cwo.customizer.EquipCharacterGear(cwo.characterGearInfo);
+                            toCheck.Remove(cwo);
+                        }
+                        if (cwo.cgo.State == GearObject.GearObjectState.Failed || cwo.cgo.State == GearObject.GearObjectState.Canceled || cwo.cgo.State == GearObject.GearObjectState.Disposed)
+                        {
+                            toCheck.Remove(cwo);
+                        }
+                    }
+
+                    foreach (ClothWatcherObj cwobg in toCheckBoardGear)
+                    {
+                        if (cwobg.bgo.State != GearObject.GearObjectState.Loading)
+                        {
+                            if (cwobg.bgo.State == GearObject.GearObjectState.Finished || cwobg.bgo.State == GearObject.GearObjectState.Initialized)
+                            {
+                                cwobg.customizer.EquipBoardGear(cwobg.gearInfo);
+                                toCheckBoardGear.Remove(cwobg);
+                            }
+                            if (cwobg.bgo.State == GearObject.GearObjectState.Failed || cwobg.bgo.State == GearObject.GearObjectState.Canceled || cwobg.bgo.State == GearObject.GearObjectState.Disposed)
+                            {
+                                toCheckBoardGear.Remove(cwo);
+                            }
+                        }
+                    }
                 }
             }
 
@@ -236,7 +294,7 @@ namespace fro_mod
             PhotonNetwork.SetPlayerCustomProperties(hashtable);
         }
 
-        public void LogGear()
+            public void LogGear()
         {
             foreach (KeyValuePair<int, NetworkPlayerController> entry in MultiplayerManager.Instance.networkPlayers)
             {
