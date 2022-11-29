@@ -21,6 +21,9 @@ namespace fro_mod
             if (!Main.settings.trick_customization) return;
 
             bool run = PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pop || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Release || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.InAir || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Impact;
+            run = !run ? PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Grinding && Main.controller.last_state != PlayerController.CurrentState.Grinding.ToString() : run;
+            run = !run ? PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Manual && Main.controller.last_state != PlayerController.CurrentState.Manual.ToString() : run;
+
             List<string> type_of_input = getTypeOfInput();
 
             if (type_of_input.Count == 0) run = false;

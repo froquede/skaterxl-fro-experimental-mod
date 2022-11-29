@@ -121,9 +121,9 @@ namespace fro_mod
         public bool powerslide_velocitybased = true;
         public bool alternative_powerslide = false;
         public float powerslide_animation_length = 24f;
-        public float powerslide_maxangle = 15f;
+        public float powerslide_maxangle = 20f;
         public float powerslide_minimum_velocity = 0f;
-        public float powerslide_max_velocity = 10f;
+        public float powerslide_max_velocity = 15f;
 
         public string keyframe_target = "Head";
 
@@ -213,14 +213,17 @@ namespace fro_mod
         public bool walk_after_bail = false;
         public bool haunting_arms = false;
         public bool bump_anim = false;
+        public bool bump_anim_pop = true;
 
         public float bump_pop_delay = .15f;
 
         public float catch_acc = 10f;
         public bool catch_acc_enabled = false;
+        public bool catch_acc_onflick = false;
         public float catch_lerp_speed = 30f;
         public int bounce_delay = 4;
         public bool snappy_catch = true;
+        public float FlickThreshold = 0.6f;
 
         public bool partial_gear = false;
 
