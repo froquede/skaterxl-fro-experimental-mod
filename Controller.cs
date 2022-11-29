@@ -36,7 +36,7 @@ namespace fro_mod
         Transform center_collider;
         Transform tail_collider;
         Transform nose_collider;
-        string last_state;
+        public string last_state;
         int count = 0;
         bool was_leaning = false;
         Cinemachine.CinemachineCollider cinemachine_collider;
@@ -180,43 +180,69 @@ namespace fro_mod
             if (Main.settings.alternative_powerslide && PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Powerslide)
             {
                 if (powerslide_anim < 24) powerslide_anim++;
-                CustomPowerSlide();
             }
             else
             {
                 if (powerslide_anim > 0)
                 {
                     powerslide_anim -= 4;
-                    if (Main.settings.alternative_powerslide) CustomPowerSlide();
                 }
+                powerslide_anim = powerslide_anim < 0 ? 0 : powerslide_anim;
             }
+
+            /*if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.InAir)
+            {
+                PlayerController.Instance.ikController.ForceLeftLerpValue(1);
+                PlayerController.Instance.ikController.ForceRightLerpValue(1);
+            }
+
+            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Impact)
+            {
+                PlayerController.Instance.ikController.ForceLeftLerpValue(0);
+                PlayerController.Instance.ikController.ForceRightLerpValue(0);
+            }*/
 
             bool left = PlayerController.Instance.inputController.player.GetButtonDown("Left Stick Button"), right = PlayerController.Instance.inputController.player.GetButtonDown("Right Stick Button");
 
-            if (Main.settings.catch_acc_enabled) CatchAtAnyMoment(left, right);
-
-            if (Main.settings.bump_anim)
+            if ((last_state == PlayerController.CurrentState.Grinding.ToString() || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.ExitCoping) && PlayerController.Instance.currentStateEnum != PlayerController.CurrentState.Impact)
             {
-                if ((last_state == PlayerController.CurrentState.Grinding.ToString() || last_state == PlayerController.CurrentState.EnterCoping.ToString() || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.ExitCoping) && PlayerController.Instance.currentStateEnum != PlayerController.CurrentState.Impact)
+                if ((right || left) && !IsBumping)
                 {
-                    if ((right || left) && !IsBumping)
+                    if (Main.settings.bump_anim)
                     {
+                        PlayerController.Instance.ScaleDisplacementCurve(Vector3.ProjectOnPlane(PlayerController.Instance.skaterController.skaterTransform.position - PlayerController.Instance.boardController.boardTransform.position, PlayerController.Instance.skaterController.skaterTransform.forward).magnitude * .75f);
                         PlayerController.Instance.ikController.ResetIKOffsets();
                         PlayerController.Instance.boardController.ResetAll();
                         PlayerController.Instance.AnimSetGrinding(false);
                         PlayerController.Instance.animationController.ikAnim.SetFloat("Nollie", PlayerController.Instance.inputController.RightStick.rawInput.pos.y > .1f || PlayerController.Instance.inputController.LeftStick.rawInput.pos.y >= .1f ? 1f : 0f);
                         PlayerController.Instance.animationController.skaterAnim.SetFloat("Nollie", PlayerController.Instance.inputController.RightStick.rawInput.pos.y > .1f || PlayerController.Instance.inputController.LeftStick.rawInput.pos.y >= .1f ? 1f : 0f);
+                        PlayerController.Instance.animationController.ikAnim.SetBool("Released", false);
+                        PlayerController.Instance.animationController.skaterAnim.SetBool("Released", false);
+                        /*PlayerController.Instance.animationController.SetTweakValues(0, 0);
+                        PlayerController.Instance.animationController.SetTweakMagnitude(0, 0);*/
+                        PlayerController.Instance.AnimSetFlip(0);
+                        PlayerController.Instance.AnimForceFlipValue(0);
+                        PlayerController.Instance.AnimSetScoop(0);
+
                         PlayerController.Instance.SetTurnMultiplier(3f);
-                        PlayerController.Instance.SetKneeBendWeightManually(1f);
+                        PlayerController.Instance.SetKneeBendWeightManually(0.5f);
                         PlayerController.Instance.respawn.behaviourPuppet.BoostImmunity(1000f);
                         MonoBehaviourSingleton<PlayerController>.Instance.cameraController.NeedToSlowLerpCamera = true;
                         MonoBehaviourSingleton<SoundManager>.Instance.PlayMovementFoleySound(0.3f, true);
                         MonoBehaviourSingleton<PlayerController>.Instance.SetIKLerpSpeed(4f);
                         MonoBehaviourSingleton<PlayerController>.Instance.boardController.SetBoardControllerUpVector(MonoBehaviourSingleton<PlayerController>.Instance.skaterController.skaterTransform.up);
-                        Traverse.Create(PlayerController.Instance.boardController).Field("_ikLeftLerpPosTarget").SetValue(1f);
-                        Traverse.Create(PlayerController.Instance.boardController).Field("_ikRightLerpPosTarget").SetValue(1f);
-                        MonoBehaviourSingleton<PlayerController>.Instance.animationController.ikAnim.CrossFadeInFixedTime("Pop", Main.settings.bump_pop_delay);
-                        MonoBehaviourSingleton<PlayerController>.Instance.animationController.skaterAnim.CrossFadeInFixedTime("Pop", Main.settings.bump_pop_delay);
+                        /*Traverse.Create(PlayerController.Instance.ikController).Field("_ikLeftLerpPosTarget").SetValue(0f);
+                        Traverse.Create(PlayerController.Instance.ikController).Field("_ikRightLerpPosTarget").SetValue(0f);*/
+                        MonoBehaviourSingleton<PlayerController>.Instance.ScalePlayerCollider();
+                        /*MonoBehaviourSingleton<PlayerController>.Instance.ToggleFlipColliders(false);*/
+                        MonoBehaviourSingleton<PlayerController>.Instance.SetLeftIKLerpTarget(0f);
+                        MonoBehaviourSingleton<PlayerController>.Instance.SetRightIKLerpTarget(0f);
+
+                        if (Main.settings.bump_anim_pop)
+                        {
+                            MonoBehaviourSingleton<PlayerController>.Instance.animationController.ikAnim.CrossFadeInFixedTime("Pop", Main.settings.bump_pop_delay);
+                            MonoBehaviourSingleton<PlayerController>.Instance.animationController.skaterAnim.CrossFadeInFixedTime("Pop", Main.settings.bump_pop_delay);
+                        }
 
                         MonoBehaviourSingleton<PlayerController>.Instance.boardController.ResetTweakValues();
                         MonoBehaviourSingleton<PlayerController>.Instance.boardController.CacheBoardUp();
@@ -226,25 +252,78 @@ namespace fro_mod
                         MonoBehaviourSingleton<PlayerController>.Instance.boardController.backTruckRigidbody.angularVelocity = Vector3.zero;
                         MonoBehaviourSingleton<PlayerController>.Instance.boardController.frontTruckRigidbody.angularVelocity = Vector3.zero;
                         MonoBehaviourSingleton<PlayerController>.Instance.skaterController.skaterRigidbody.angularVelocity = Vector3.zero;
-
-                        //MonoBehaviourSingleton<EventManager>.Instance.EnterAir(PlayerController.Instance.inputController.RightStick.rawInput.pos.y > .1f || PlayerController.Instance.inputController.LeftStick.rawInput.pos.y >= .1f ? PlayerController.Instance.IsSwitch ? PlayerController.Instance.animationController.skaterAnim.GetFloat("Nollie") == 0f ? PopType.Fakie : PopType.Switch : PopType.Nollie : PopType.Ollie, 0f);
-                        IsBumping = true;
                     }
-                }
-                else
-                {
-                    IsBumping = false;
+
+                    //MonoBehaviourSingleton<EventManager>.Instance.EnterAir(PlayerController.Instance.inputController.RightStick.rawInput.pos.y > .1f || PlayerController.Instance.inputController.LeftStick.rawInput.pos.y >= .1f ? PlayerController.Instance.IsSwitch ? PlayerController.Instance.animationController.skaterAnim.GetFloat("Nollie") == 0f ? PopType.Fakie : PopType.Switch : PopType.Nollie : PopType.Ollie, 0f);
+                    IsBumping = true;
                 }
 
                 if (IsGroundedNoGrind()) IsBumping = false;
             }
             else IsBumping = false;
+
+            if (Main.settings.catch_acc_enabled)
+            {
+                if (Main.settings.catch_acc_onflick)
+                {
+                    if (SettingsManager.Instance.stance == Stance.Goofy) CatchAtAnyMoment(CanFlickCatchWithRightStick(), CanFlickCatchWithLeftStick());
+                    else CatchAtAnyMoment(CanFlickCatchWithLeftStick(), CanFlickCatchWithRightStick());
+                }
+                else CatchAtAnyMoment(left, right);
+            }
+
+            if ((Main.settings.alternative_powerslide && PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Powerslide) || powerslide_anim > 0)
+            {
+                CustomPowerSlideBoard();
+            }
         }
 
+        RaycastHit rayCastOut;
         void CustomPowerSlide()
         {
             if (!Main.settings.alternative_powerslide) return;
 
+            if (Physics.Raycast(PlayerController.Instance.boardController.boardTransform.position, -PlayerController.Instance.boardController.boardTransform.up, out rayCastOut, 0.4f, LayerUtility.GroundMask))
+            {
+                int multiplier = PlayerController.Instance.GetBoardBackwards() ? -1 : 1;
+                multiplier *= PlayerController.Instance.IsSwitch ? -1 : 1;
+                int side_multiplier = Main.tc.getTypeOfInput().Contains("both-inside") ? -1 : 1;
+
+                if (SettingsManager.Instance.stance == Stance.Goofy) side_multiplier *= -1;
+
+                float vel_map = map01(PlayerController.Instance.skaterController.skaterRigidbody.velocity.magnitude, Main.settings.powerslide_minimum_velocity, Main.settings.powerslide_max_velocity);
+                vel_map = vel_map > 1 ? 1 : vel_map;
+                float anim_length = map01(powerslide_anim, 0, Main.settings.powerslide_animation_length);
+                anim_length = anim_length > 1 ? 1 : anim_length;
+
+                PlayerController.Instance.SetKneeBendWeightManually(anim_length);
+                GameObject pelvis_copy = new GameObject();
+                pelvis_copy.transform.position = pelvis.transform.position;
+                pelvis_copy.transform.rotation = pelvis.transform.rotation;
+                /*Quaternion rothit = Quaternion.LookRotation(rayCastOut.normal);
+                pelvis.transform.rotation = Quaternion.Lerp(pelvis.transform.rotation, Quaternion.Euler(pelvis.transform.rotation.eulerAngles.x, pelvis.transform.rotation.eulerAngles.y, -90 - (270 - rothit.eulerAngles.x)), anim_length);*/
+                pelvis_copy.transform.Rotate(0, side_multiplier == -1 ? -Mathf.Lerp(0, (vel_map * 20f), anim_length) : 0, Mathf.Lerp(0, (vel_map * (side_multiplier == -1 ? 10f : 15f)), anim_length) * side_multiplier, Space.Self);
+                if (side_multiplier == -1)
+                {
+                    pelvis_copy.transform.Translate(Mathf.Lerp(0, (vel_map * -.15f), anim_length), Mathf.Lerp(0, (vel_map * .125f), anim_length), Mathf.Lerp(0, (vel_map * -.3f), anim_length), Space.Self);
+                }
+                else
+                {
+                    pelvis_copy.transform.Translate(Mathf.Lerp(0, (vel_map * .02f), anim_length) * side_multiplier, -Mathf.Lerp(0, (vel_map * .15f), anim_length) * side_multiplier, 0, Space.Self);
+                }
+
+                /*pelvis.transform.position = pelvis_copy.transform.position;
+                pelvis.transform.rotation = pelvis_copy.transform.rotation;*/
+
+                PlayerController.Instance.animationController.ScaleAnimSpeed(anim_length);
+
+                Destroy(pelvis_copy);
+            }
+        }
+
+        float last_hit_ps = 0;
+        void CustomPowerSlideBoard()
+        {
             int multiplier = PlayerController.Instance.GetBoardBackwards() ? -1 : 1;
             multiplier *= PlayerController.Instance.IsSwitch ? -1 : 1;
             int side_multiplier = Main.tc.getTypeOfInput().Contains("both-inside") ? -1 : 1;
@@ -256,23 +335,31 @@ namespace fro_mod
             float anim_length = map01(powerslide_anim, 0, Main.settings.powerslide_animation_length);
             anim_length = anim_length > 1 ? 1 : anim_length;
 
-            PlayerController.Instance.SetKneeBendWeightManually(anim_length);
-            pelvis.transform.Rotate(0, side_multiplier == -1 ? -Mathf.Lerp(0, (vel_map * 20f), anim_length) : 0, Mathf.Lerp(0, (vel_map * (side_multiplier == -1 ? 10f : 15f)), anim_length) * side_multiplier, Space.Self);
-            if (side_multiplier == -1)
-            {
-                pelvis.transform.Translate(Mathf.Lerp(0, (vel_map * -.15f), anim_length), Mathf.Lerp(0, (vel_map * .125f), anim_length), Mathf.Lerp(0, (vel_map * -.3f), anim_length), Space.Self);
-            }
-            else
-            {
-                pelvis.transform.Translate(Mathf.Lerp(0, (vel_map * .02f), anim_length) * side_multiplier, -Mathf.Lerp(0, (vel_map * .15f), anim_length) * side_multiplier, 0, Space.Self);
-            }
+            Quaternion rothit = Quaternion.LookRotation(rayCastOut.normal);
 
-            Vector3 rot = PlayerController.Instance.boardController.boardRigidbody.transform.rotation.eulerAngles;
+            GameObject boardCopy = new GameObject();
+            boardCopy.transform.position = PlayerController.Instance.boardController.boardRigidbody.transform.position;
+            boardCopy.transform.rotation = PlayerController.Instance.boardController.boardRigidbody.transform.rotation;
 
-            PlayerController.Instance.boardController.boardRigidbody.transform.rotation = Quaternion.Euler(rot.x, rot.y, Mathf.Lerp(rot.z, rot.z + (vel_map * (Main.settings.powerslide_maxangle * multiplier * side_multiplier)), anim_length));
+            float angle = Vector3.Angle(rayCastOut.normal, Vector3.up);
+            Vector3 temp = Vector3.Cross(rayCastOut.normal, Vector3.down);
+            Vector3 cross = Vector3.Cross(temp, rayCastOut.normal);
+
+
+            float crossZ = last_hit_ps - rayCastOut.point.y >= 0 ? 1 : -1;
+            if (side_multiplier < 0) crossZ = last_hit_ps - rayCastOut.point.y < 0 ? 1 : -1;
+            float extra_powerslide = Mathf.Lerp(0, (vel_map * Main.settings.powerslide_maxangle * multiplier * side_multiplier), anim_length);
+            boardCopy.transform.rotation = Quaternion.Euler(boardCopy.transform.rotation.eulerAngles.x, boardCopy.transform.rotation.eulerAngles.y, (multiplier * crossZ * -angle) + extra_powerslide);
+            last_hit_ps = rayCastOut.point.y;
+            /*Vector3 rot = PlayerController.Instance.boardController.boardRigidbody.transform.rotation.eulerAngles;
+            PlayerController.Instance.boardController.boardRigidbody.transform.rotation = Quaternion.Euler(rot.x, rot.y, Mathf.Lerp(rothit.eulerAngles.z, rothit.eulerAngles.z + (vel_map * (Main.settings.powerslide_maxangle * multiplier * side_multiplier)), anim_length));*/
+
+            PlayerController.Instance.boardController.boardRigidbody.transform.rotation = boardCopy.transform.rotation;
+
+            Destroy(boardCopy);
+
             PlayerController.Instance.boardController.UpdateBoardPosition();
-
-            PlayerController.Instance.animationController.ScaleAnimSpeed(anim_length);
+            PlayerController.Instance.SetRotationTarget();
         }
 
         void PreventBail()
@@ -300,6 +387,11 @@ namespace fro_mod
         {
             if (!Main.settings.enabled) return;
             if (PlayerController.Instance.currentStateEnum != PlayerController.CurrentState.Pop && PlayerController.Instance.currentStateEnum != PlayerController.CurrentState.Release) PlayerController.Instance.animationController.ScaleAnimSpeed(1f);
+
+            if (Main.settings.alternative_powerslide)
+            {
+                Physics.Raycast(PlayerController.Instance.boardController.boardTransform.position, -PlayerController.Instance.boardController.boardTransform.up, out rayCastOut, 0.8f, LayerUtility.GroundMask);
+            }
 
             DoDebug();
 
@@ -383,21 +475,21 @@ namespace fro_mod
             if (IsBumping) return;
             if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.InAir || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Release)
             {
-//                Traverse.Create(PlayerController.Instance.boardController).Field("_rotDeltaThisFrame").SetValue(new Quaternion(3.14f, 3.14f, 3.14f, 3.14f));
-
                 if (left || right)
                 {
                     if (forced_caught) return;
                     //EventManager.Instance.OnCatched(true, true);
-                    MonoBehaviourSingleton<PlayerController>.Instance.boardController.SetCatchForwardRotation();
+                    //MonoBehaviourSingleton<PlayerController>.Instance.boardController.SetCatchForwardRotation();
                     MonoBehaviourSingleton<PlayerController>.Instance.skaterController.rightFootCollider.isTrigger = false;
                     MonoBehaviourSingleton<PlayerController>.Instance.skaterController.leftFootCollider.isTrigger = false;
                     MonoBehaviourSingleton<PlayerController>.Instance.AnimCaught(true);
                     PlayerController.Instance.animationController.ForceAnimation("Caught");
                     MonoBehaviourSingleton<PlayerController>.Instance.SetIKLerpSpeed(Main.settings.catch_lerp_speed);
                     PlayerController.Instance.animationController.ikAnim.speed = Main.settings.catch_acc;
-                    Traverse.Create(PlayerController.Instance.boardController).Field("_ikLeftLerpPosTarget").SetValue(left ? 0 : 1);
-                    Traverse.Create(PlayerController.Instance.boardController).Field("_ikRightLerpPosTarget").SetValue(right ? 0 : 1);
+                    float leftpos = (float)Traverse.Create(PlayerController.Instance.ikController).Field("_ikLeftLerpPosTarget").GetValue();
+                    Traverse.Create(PlayerController.Instance.ikController).Field("_ikLeftLerpPosTarget").SetValue(left ? leftpos : 1);
+                    float rightpos = (float)Traverse.Create(PlayerController.Instance.ikController).Field("_ikRightLerpPosTarget").GetValue();
+                    Traverse.Create(PlayerController.Instance.ikController).Field("_ikRightLerpPosTarget").SetValue(right ? rightpos : 1);
                     forced_caught = true;
                 }
             }
@@ -407,6 +499,18 @@ namespace fro_mod
                 forced_caught_count = 0;
             }
         }
+
+        public bool CanFlickCatchWithLeftStick()
+        {
+            return MonoBehaviourSingleton<PlayerController>.Instance.inputController.LeftStick.ForwardDir > Main.settings.FlickThreshold || MonoBehaviourSingleton<PlayerController>.Instance.inputController.LeftStick.ForwardDir < -Main.settings.FlickThreshold || MonoBehaviourSingleton<PlayerController>.Instance.inputController.LeftStick.ToeAxis > Main.settings.FlickThreshold || MonoBehaviourSingleton<PlayerController>.Instance.inputController.LeftStick.ToeAxis < -Main.settings.FlickThreshold;
+        }
+
+        // Token: 0x060001F9 RID: 505 RVA: 0x0002AB78 File Offset: 0x00028D78
+        public bool CanFlickCatchWithRightStick()
+        {
+            return MonoBehaviourSingleton<PlayerController>.Instance.inputController.RightStick.ForwardDir > Main.settings.FlickThreshold || MonoBehaviourSingleton<PlayerController>.Instance.inputController.RightStick.ForwardDir < -Main.settings.FlickThreshold || MonoBehaviourSingleton<PlayerController>.Instance.inputController.RightStick.ToeAxis > Main.settings.FlickThreshold || MonoBehaviourSingleton<PlayerController>.Instance.inputController.RightStick.ToeAxis < -Main.settings.FlickThreshold;
+        }
+
         void PreventBail_()
         {
             PlayerController.Instance.respawn.behaviourPuppet.StopAllCoroutines();
@@ -1373,7 +1477,7 @@ namespace fro_mod
 
             COMControllerValues();
 
-            if(Main.settings.custom_board_correction)
+            if (Main.settings.custom_board_correction)
             {
                 PlayerController.Instance.boardController.KRp = Main.settings.board_p;
                 PlayerController.Instance.boardController.KRi = Main.settings.board_i;
@@ -1391,6 +1495,11 @@ namespace fro_mod
                 SaveManagerFocusPatch.HandleCustomMapChanges();
                 // SaveManagerFocusPatch.HandleCustomGearChanges();
             }
+
+            /*if (Main.settings.alternative_powerslide && PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Powerslide)
+            {
+                CustomPowerSlide();
+            }*/
 
             UpdateLastState();
             LogState();
@@ -1638,21 +1747,24 @@ namespace fro_mod
                 {
                     float old_y = left_pos.rotation.eulerAngles.y;
                     float offset_setup = 0;
-                    if(Main.settings.jiggle_on_setup)
+                    if (Main.settings.jiggle_on_setup)
                     {
                         if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup)
                         {
                             float limit = Main.settings.jiggle_limit;
                             if (offset_frame <= limit && offset_delay >= Main.settings.jiggle_delay)
                             {
-                                offset_setup = -Mathf.Sin((limit - offset_frame) / 12f) * (limit - offset_frame);
+                                if (left_foot_setup_rand >= .5f)
+                                {
+                                    offset_setup = -Mathf.Sin((limit - offset_frame) / (12f + left_foot_setup_rand)) * (limit - offset_frame);
+                                }
                                 offset_frame++;
                             }
                             offset_delay++;
                         }
                         else
                         {
-                            left_foot_setup_rand = Main.settings.jiggle_randommax * (float)rd.NextDouble();
+                            left_foot_setup_rand = (float)rd.NextDouble();
                             offset_frame = 0;
                             offset_delay = 0;
                         }
@@ -1740,21 +1852,24 @@ namespace fro_mod
 
                     float offset_setup = 0;
 
-                    if(Main.settings.jiggle_on_setup)
+                    if (Main.settings.jiggle_on_setup)
                     {
                         if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup)
                         {
                             float limit = Main.settings.jiggle_limit;
                             if (offset_frame <= limit && offset_delay >= Main.settings.jiggle_delay)
                             {
-                                offset_setup = Mathf.Sin((limit - offset_frame) / 14f) * (limit - offset_frame);
+                                if (right_foot_setup_rand >= .5f)
+                                {
+                                    offset_setup = Mathf.Sin((limit - offset_frame) / (14f + right_foot_setup_rand)) * (limit - offset_frame);
+                                }
                                 offset_frame++;
                             }
                             offset_delay++;
                         }
                         else
                         {
-                            right_foot_setup_rand = Main.settings.jiggle_randommax * (float)rd.NextDouble();
+                            right_foot_setup_rand = (float)rd.NextDouble();
                             offset_frame = 0;
                             offset_delay = 0;
                         }

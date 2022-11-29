@@ -2,6 +2,7 @@
 using Cinemachine;
 using HarmonyLib;
 using SkaterXL.Data;
+using TMPro;
 using UnityEngine;
 
 namespace fro_mod
@@ -10,30 +11,34 @@ namespace fro_mod
 	public class WalkController : MonoBehaviour
 	{
 		// Token: 0x06000120 RID: 288 RVA: 0x00012C7C File Offset: 0x00010E7C
+
 		public void FixedUpdate()
 		{
 			if (Main.settings.bails && MonoBehaviourSingleton<PlayerController>.Instance.currentStateEnum == PlayerController.CurrentState.Bailed && MonoBehaviourSingleton<PlayerController>.Instance.respawn.bail.bailed)
 			{
-				if (Main.settings.walk_after_bail)
+				if (Main.settings.walk_after_bail || bail_count < 24)
 				{
 					MonoBehaviourSingleton<PlayerController>.Instance.respawn.behaviourPuppet.pinWeightThreshold = 1f;
 					MonoBehaviourSingleton<PlayerController>.Instance.respawn.behaviourPuppet.puppetMaster.pinWeight = 1f;
 					MonoBehaviourSingleton<PlayerController>.Instance.respawn.behaviourPuppet.puppetMaster.mappingWeight = 1f;
-					MonoBehaviourSingleton<PlayerController>.Instance.skaterController.rightFootCollider.isTrigger = true;
-					MonoBehaviourSingleton<PlayerController>.Instance.skaterController.leftFootCollider.isTrigger = true;
+					MonoBehaviourSingleton<PlayerController>.Instance.skaterController.rightFootCollider.isTrigger = Main.settings.walk_after_bail;
+					MonoBehaviourSingleton<PlayerController>.Instance.skaterController.leftFootCollider.isTrigger = Main.settings.walk_after_bail;
 					MonoBehaviourSingleton<PlayerController>.Instance.SetKneeBendWeightManually(1f);
 					if (this.bail_count == 0)
 					{
 						this.running = false;
 						this.attached = false;
 					}
-					if (MonoBehaviourSingleton<PlayerController>.Instance.inputController.player.GetButton("Left Stick Button"))
+
+					if (MonoBehaviourSingleton<PlayerController>.Instance.inputController.player.GetButtonDown("Left Stick Button") && Main.settings.walk_after_bail)
 					{
 						this.running = !this.running;
+						NotificationManager.Instance.ShowNotification((this.running ? "Running" : "Walking"), 1f, false, NotificationManager.NotificationType.Normal, TextAlignmentOptions.TopRight, 0f);
 					}
+
 					Main.controller.DisableCameraCollider(false);
 					float num = MonoBehaviourSingleton<PlayerController>.Instance.respawn.behaviourPuppet.puppetMaster.muscles[2].transform.position.y - this.last_muscle_pos;
-					MonoBehaviourSingleton<PlayerController>.Instance.respawn.behaviourPuppet.puppetMaster.muscles[2].rigidbody.AddForce(0f, ((num <= -0.01f) ? num : 0f) * -60f, 0f, ForceMode.Impulse);
+					MonoBehaviourSingleton<PlayerController>.Instance.respawn.behaviourPuppet.puppetMaster.muscles[2].rigidbody.AddForce(0f, ((num <= -0.01f) ? num : 0f) * -40f, 0f, ForceMode.Impulse);
 					MonoBehaviourSingleton<PlayerController>.Instance.respawn.behaviourPuppet.puppetMaster.muscles[0].rigidbody.transform.Rotate(-MonoBehaviourSingleton<PlayerController>.Instance.inputController.RightStick.rawInput.pos.x, 0f, 0f, Space.Self);
 					MonoBehaviourSingleton<PlayerController>.Instance.respawn.behaviourPuppet.puppetMaster.muscles[0].rigidbody.AddRelativeForce(0f, MonoBehaviourSingleton<PlayerController>.Instance.inputController.LeftStick.rawInput.pos.y * (this.running ? 300f : 200f), -MonoBehaviourSingleton<PlayerController>.Instance.inputController.LeftStick.rawInput.pos.x * 200f, ForceMode.Force);
 					Vector3 a = -MonoBehaviourSingleton<PlayerController>.Instance.respawn.behaviourPuppet.puppetMaster.muscles[0].rigidbody.velocity;

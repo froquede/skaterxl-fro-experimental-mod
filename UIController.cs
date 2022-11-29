@@ -145,7 +145,6 @@ namespace fro_mod
             "Bubble Gun",
             "Matt B",
             "Euan",
-            "Cameron Peixoto",
             "J'vonte Johnson",
             "loganhuntfilmm",
             "Foolie Surfin",
@@ -166,20 +165,23 @@ namespace fro_mod
             "Nathaniel Gardner",
             "Corey Populus",
             "countinsequence",
-            "Eigil Wayne",
-            "Gabriel Ortiz",
             "JdFilthyFree",
             "Ayden",
+            "Roko Kvesic",
             "nahkel skylar",
             "Justin S Reynolds",
             "Ross Hill",
             "Joel de Roll",
             "Temp",
             "Seth Bates",
-            "Neal Tate",
             "etown sk8r",
             "Alex Baker",
-            "JMCAutomatic"
+            "JMCAutomatic",
+            "bluewalgreens",
+            "Christian Joel",
+            "Zaheer",
+            "Mink",
+            "Wouter van Huis"
         };
 
         public void Start()
@@ -213,6 +215,7 @@ namespace fro_mod
             showMainMenu = true;
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
+            UISounds.Instance.PlayOneShotSelectMajor();
         }
 
         private void Close()
@@ -220,6 +223,7 @@ namespace fro_mod
             showMainMenu = false;
             Cursor.visible = false;
             Main.settings.Save(Main.modEntry);
+            UISounds.Instance.PlayOneShotExit();
         }
 
         bool style_applied = false, loaded = false;
@@ -262,6 +266,10 @@ namespace fro_mod
             if (GUILayout.Button($"<b><size=14><color={color}>" + (obj.reference ? "▶" : "▼") + "</color>" + obj.text + "</size></b>", "Label"))
             {
                 obj.reference = !obj.reference;
+
+                if (!obj.reference) UISounds.Instance.PlayOneShotSelectionChange();
+                else UISounds.Instance.PlayOneShotSelectMinor();
+
                 MainMenuRect.height = 20;
                 MainMenuRect.width = Screen.width / 6;
             }
@@ -275,10 +283,10 @@ namespace fro_mod
             if (!about_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b>fro's experimental mod v1.15.1 for XL v1.2.X.X (22/11/2022)</b>");
+                GUILayout.Label("<b>fro's experimental mod v1.15.3 for XL v1.2.X.X (29/11/2022)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This software is distributed 'as is', with no warranty expressed or implied, and no guarantee for accuracy or applicability to any purpose.");
-                GUILayout.Label("This mod is not intended to harm the game or its respective developer in any purposeful way, its online functionality, or the game economy.");
+                GUILayout.Label("This mod is not intended to harm the game or the respective developer, the online functionality, or the game economy in any purposeful way.");
                 GUILayout.Label("I, the author of the mod, repudiate any type of practice or conduct that involves or promotes racism or any type of discrimination.");
 
                 Fold(patreons_fold);
@@ -486,13 +494,18 @@ namespace fro_mod
 
                 GUILayout.Space(6);
 
-                if (RGUI.Button(Main.settings.bump_anim, "Bump animations"))
+                if (RGUI.Button(Main.settings.bump_anim, "Alternative bumps"))
                 {
                     Main.settings.bump_anim = !Main.settings.bump_anim;
                 }
                 if (Main.settings.bump_anim)
                 {
-                    Main.settings.bump_pop_delay = RGUI.SliderFloat(Main.settings.bump_pop_delay, 0f, 1f, .15f, "Animation delay");
+                    if (RGUI.Button(Main.settings.bump_anim_pop, "Play animation"))
+                    {
+                        Main.settings.bump_anim_pop = !Main.settings.bump_anim_pop;
+                    }
+
+                    if(Main.settings.bump_anim_pop) Main.settings.bump_pop_delay = RGUI.SliderFloat(Main.settings.bump_pop_delay, 0f, 1f, .15f, "Animation delay");
                 }
 
                 GUILayout.Space(6);
@@ -507,9 +520,18 @@ namespace fro_mod
                     Main.settings.catch_acc = RGUI.SliderFloat(Main.settings.catch_acc, 0f, 10f, 10f, "Animation speed");
                     Main.settings.catch_lerp_speed = RGUI.SliderFloat(Main.settings.catch_lerp_speed, 10f, 30f, 30f, "Feet lerp speed");
                     Main.settings.bounce_delay = (int)RGUI.SliderFloat(Main.settings.bounce_delay, 0f, 12f, 4f, "Catch correction delay");
+
                     if (RGUI.Button(Main.settings.snappy_catch, "Disable XXL3 catch correction"))
                     {
                         Main.settings.snappy_catch = !Main.settings.snappy_catch;
+                    }
+                    if (RGUI.Button(Main.settings.catch_acc_onflick, "Flick to catch support"))
+                    {
+                        Main.settings.catch_acc_onflick = !Main.settings.catch_acc_onflick;
+                    }
+                    if (Main.settings.catch_acc_onflick)
+                    {
+                        Main.settings.FlickThreshold = RGUI.SliderFloat(Main.settings.FlickThreshold, 0f, 1f, .6f, "Flick threshold");
                     }
                 }
 
@@ -839,9 +861,9 @@ namespace fro_mod
             {
                 GUILayout.BeginVertical("Box");
 
-                Main.settings.custom_scale.x = RGUI.SliderFloat(Main.settings.custom_scale.x, 0f, 2f, 1f, "Scale body x");
-                Main.settings.custom_scale.y = RGUI.SliderFloat(Main.settings.custom_scale.y, 0f, 2f, 1f, "Scale body y");
-                Main.settings.custom_scale.z = RGUI.SliderFloat(Main.settings.custom_scale.z, 0f, 2f, 1f, "Scale body z");
+                Main.settings.custom_scale.x = RGUI.SliderFloat(Main.settings.custom_scale.x, 0.01f, 2f, 1f, "Scale body x");
+                Main.settings.custom_scale.y = RGUI.SliderFloat(Main.settings.custom_scale.y, 0.01f, 2f, 1f, "Scale body y");
+                Main.settings.custom_scale.z = RGUI.SliderFloat(Main.settings.custom_scale.z, 0.01f, 2f, 1f, "Scale body z");
                 GUILayout.Space(6);
 
                 Main.settings.comOffset_y = RGUI.SliderFloat(Main.settings.comOffset_y, -1f, 1f, 0.07f, "Offset Y \n(use this to compensate the body customization)");
@@ -851,32 +873,32 @@ namespace fro_mod
                 Fold(muscle_fold, green);
                 if (!muscle_fold.reference)
                 {
-                    Main.settings.custom_scale_pelvis = RGUI.SliderFloat(Main.settings.custom_scale_pelvis, 0f, 4f, 1f, "Pelvis scale");
-                    Main.settings.custom_scale_spine = RGUI.SliderFloat(Main.settings.custom_scale_spine, 0f, 4f, 1f, "Spine scale");
-                    Main.settings.custom_scale_spine2 = RGUI.SliderFloat(Main.settings.custom_scale_spine2, 0f, 4f, 1f, "Spine2 scale");
+                    Main.settings.custom_scale_pelvis = RGUI.SliderFloat(Main.settings.custom_scale_pelvis, 0.01f, 4f, 1f, "Pelvis scale");
+                    Main.settings.custom_scale_spine = RGUI.SliderFloat(Main.settings.custom_scale_spine, 0.01f, 4f, 1f, "Spine scale");
+                    Main.settings.custom_scale_spine2 = RGUI.SliderFloat(Main.settings.custom_scale_spine2, 0.01f, 4f, 1f, "Spine2 scale");
 
-                    Main.settings.custom_scale_head = RGUI.SliderFloat(Main.settings.custom_scale_head, 0f, 4f, 1f, "Head scale");
-                    Main.settings.custom_scale_neck = RGUI.SliderFloat(Main.settings.custom_scale_neck, 0f, 4f, 1f, "Neck scale");
+                    Main.settings.custom_scale_head = RGUI.SliderFloat(Main.settings.custom_scale_head, 0.01f, 4f, 1f, "Head scale");
+                    Main.settings.custom_scale_neck = RGUI.SliderFloat(Main.settings.custom_scale_neck, 0.01f, 4f, 1f, "Neck scale");
 
-                    Main.settings.custom_scale_arm_l = RGUI.SliderFloat(Main.settings.custom_scale_arm_l, 0f, 4f, 1f, "Left arm scale");
-                    Main.settings.custom_scale_forearm_l = RGUI.SliderFloat(Main.settings.custom_scale_forearm_l, 0f, 4f, 1f, "Left forearm scale");
+                    Main.settings.custom_scale_arm_l = RGUI.SliderFloat(Main.settings.custom_scale_arm_l, 0.01f, 4f, 1f, "Left arm scale");
+                    Main.settings.custom_scale_forearm_l = RGUI.SliderFloat(Main.settings.custom_scale_forearm_l, 0.01f, 4f, 1f, "Left forearm scale");
 
-                    Main.settings.custom_scale_hand_l = RGUI.SliderFloat(Main.settings.custom_scale_hand_l, 0f, 4f, 1f, "Left hand scale");
+                    Main.settings.custom_scale_hand_l = RGUI.SliderFloat(Main.settings.custom_scale_hand_l, 0.01f, 4f, 1f, "Left hand scale");
 
-                    Main.settings.custom_scale_arm_r = RGUI.SliderFloat(Main.settings.custom_scale_arm_r, 0f, 4f, 1f, "Right arm scale");
-                    Main.settings.custom_scale_forearm_r = RGUI.SliderFloat(Main.settings.custom_scale_forearm_r, 0f, 4f, 1f, "Right forearm scale");
+                    Main.settings.custom_scale_arm_r = RGUI.SliderFloat(Main.settings.custom_scale_arm_r, 0.01f, 4f, 1f, "Right arm scale");
+                    Main.settings.custom_scale_forearm_r = RGUI.SliderFloat(Main.settings.custom_scale_forearm_r, 0.01f, 4f, 1f, "Right forearm scale");
 
-                    Main.settings.custom_scale_hand_r = RGUI.SliderFloat(Main.settings.custom_scale_hand_r, 0f, 4f, 1f, "Right hand scale");
+                    Main.settings.custom_scale_hand_r = RGUI.SliderFloat(Main.settings.custom_scale_hand_r, 0.01f, 4f, 1f, "Right hand scale");
 
-                    Main.settings.custom_scale_upleg_l = RGUI.SliderFloat(Main.settings.custom_scale_upleg_l, 0f, 4f, 1f, "Left upleg scale");
-                    Main.settings.custom_scale_leg_l = RGUI.SliderFloat(Main.settings.custom_scale_leg_l, 0f, 4f, 1f, "Left leg scale");
+                    Main.settings.custom_scale_upleg_l = RGUI.SliderFloat(Main.settings.custom_scale_upleg_l, 0.01f, 4f, 1f, "Left upleg scale");
+                    Main.settings.custom_scale_leg_l = RGUI.SliderFloat(Main.settings.custom_scale_leg_l, 0.01f, 4f, 1f, "Left leg scale");
 
-                    Main.settings.custom_scale_foot_l = RGUI.SliderFloat(Main.settings.custom_scale_foot_l, 0f, 4f, 1f, "Left foot scale");
+                    Main.settings.custom_scale_foot_l = RGUI.SliderFloat(Main.settings.custom_scale_foot_l, 0.01f, 4f, 1f, "Left foot scale");
 
-                    Main.settings.custom_scale_upleg_r = RGUI.SliderFloat(Main.settings.custom_scale_upleg_r, 0f, 4f, 1f, "Right upleg scale");
-                    Main.settings.custom_scale_leg_r = RGUI.SliderFloat(Main.settings.custom_scale_leg_r, 0f, 4f, 1f, "Right leg scale");
+                    Main.settings.custom_scale_upleg_r = RGUI.SliderFloat(Main.settings.custom_scale_upleg_r, 0.01f, 4f, 1f, "Right upleg scale");
+                    Main.settings.custom_scale_leg_r = RGUI.SliderFloat(Main.settings.custom_scale_leg_r, 0.01f, 4f, 1f, "Right leg scale");
 
-                    Main.settings.custom_scale_foot_r = RGUI.SliderFloat(Main.settings.custom_scale_foot_r, 0f, 4f, 1f, "Right foot scale");
+                    Main.settings.custom_scale_foot_r = RGUI.SliderFloat(Main.settings.custom_scale_foot_r, 0.01f, 4f, 1f, "Right foot scale");
                 }
 
                 GUILayout.EndVertical();
@@ -1137,6 +1159,11 @@ namespace fro_mod
                     Main.settings.forward_force = RGUI.SliderFloat(Main.settings.forward_force, -1f, 2f, .35f, "Forward force");
                 }
 
+                /*GUILayout.Space(6);
+
+                PlayerController.Instance.boardController.minManualAngle = RGUI.SliderFloat(PlayerController.Instance.boardController.minManualAngle, 0, 40f, 10f, "Min manual angle");
+                PlayerController.Instance.boardController.maxManualAngle = RGUI.SliderFloat(PlayerController.Instance.boardController.maxManualAngle, 0, 40f, 10f, "Max manual angle");*/
+
                 GUILayout.Space(6);
 
                 if (RGUI.Button(Main.settings.custom_board_correction, "Custom board correction"))
@@ -1339,8 +1366,8 @@ namespace fro_mod
                 {
                     Main.settings.powerslide_animation_length = RGUI.SliderFloat(Main.settings.powerslide_animation_length, 0f, 64f, 24f, "Powerslide animation length");
                     Main.settings.powerslide_minimum_velocity = RGUI.SliderFloat(Main.settings.powerslide_minimum_velocity, 0f, 20f, 0f, "Powerslide min velocity");
-                    Main.settings.powerslide_max_velocity = RGUI.SliderFloat(Main.settings.powerslide_max_velocity, 0f, 20f, 0f, "Powerslide max velocity");
-                    Main.settings.powerslide_maxangle = RGUI.SliderFloat(Main.settings.powerslide_maxangle, 0f, 45f, 15f, "Powerslide max angle");
+                    Main.settings.powerslide_max_velocity = RGUI.SliderFloat(Main.settings.powerslide_max_velocity, 0f, 20f, 15f, "Powerslide max velocity");
+                    Main.settings.powerslide_maxangle = RGUI.SliderFloat(Main.settings.powerslide_maxangle, 0f, 45f, 20f, "Powerslide max angle");
                 }
 
 
@@ -1361,7 +1388,7 @@ namespace fro_mod
                     if (!Main.settings.feet_rotation) RGUI.WarningLabel("You need to enable dynamic feet rotation for this feature to work (Gameplay > Dynamic feet)");
                     Main.settings.jiggle_delay = RGUI.SliderFloat(Main.settings.jiggle_delay, 0f, 60f, 24f, "Jiggle delay");
                     Main.settings.jiggle_limit = RGUI.SliderFloat(Main.settings.jiggle_limit, 0f, 90f, 40f, "Jiggle angle limit");
-                    Main.settings.jiggle_randommax = RGUI.SliderFloat(Main.settings.jiggle_randommax, 0f, 30f, 10f, "Jiggle max random angle");
+                    /*Main.settings.jiggle_randommax = RGUI.SliderFloat(Main.settings.jiggle_randommax, 0f, 30f, 10f, "Jiggle max random angle");*/
                 }
 
                 GUILayout.Space(12);
