@@ -30,9 +30,9 @@ namespace fro_mod
         RaycastHit right_hit;
         RaycastHit left_hit;
         GameObject debug_cube, debug_cube_2, debug_cube_3, debug_cube_4;
-        Transform left_foot;
-        Transform right_foot;
-        Transform head, neck, head_replay, spine, left_hand_replay, right_hand_replay;
+        public Transform left_foot;
+        public Transform right_foot;
+        public Transform head, neck, head_replay, spine, left_hand_replay, right_hand_replay;
         Transform center_collider;
         Transform tail_collider;
         Transform nose_collider;
@@ -2091,7 +2091,7 @@ namespace fro_mod
             catch { }
         }
 
-        Transform left_hand, right_hand, pelvis, spine1, spine2, left_arm, left_forearm, right_arm, right_forearm, left_upleg, left_leg, right_upleg, right_leg;
+        public Transform left_hand, right_hand, pelvis, spine1, spine2, left_arm, left_forearm, right_arm, right_forearm, left_upleg, left_leg, right_upleg, right_leg;
         void getFeet()
         {
             Transform parent = PlayerController.Instance.skaterController.gameObject.transform;

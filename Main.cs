@@ -21,8 +21,9 @@ namespace fro_mod
         public static Multiplayer multi;
         public static TrickCustomizer tc;
         public static CameraShake cs;
-        public static AnimationController am;
+        public static AnimController am;
         public static WalkController wc;
+        public static Assembly assembly;
 
         static bool Unload(UnityModManager.ModEntry modEntry)
         {
@@ -49,13 +50,15 @@ namespace fro_mod
             controller = manager.AddComponent<Controller>();
             tc = manager.AddComponent<TrickCustomizer>();
             cs = manager.AddComponent<CameraShake>();
-            am = manager.AddComponent<AnimationController>();
+            am = manager.AddComponent<AnimController>();
             wc = manager.AddComponent<WalkController>();
 
             UnityEngine.Object.DontDestroyOnLoad(manager);
             modEntry.OnUnload = Unload;
             Main.modEntry = modEntry;
             checkLists(modEntry);
+
+            assembly = Assembly.GetExecutingAssembly();
 
             harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
 

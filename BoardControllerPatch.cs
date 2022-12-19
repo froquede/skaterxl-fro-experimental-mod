@@ -43,6 +43,11 @@ namespace fro_mod
                         ___catchRotation.rotation = ____catchForwardRotation.rotation;
                         InvokeMethod(__instance, "PIDRotation", new object[] { ___catchRotation.rotation });
                     }
+                    else
+                    {
+                        if(Main.controller.forced_caught) PlayerController.Instance.animationController.ForceUpdateAnimators();
+                    }
+
                     return false;
                 }
             }
