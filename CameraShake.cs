@@ -1,4 +1,8 @@
 ﻿using Cinemachine;
+using GameManagement;
+using SkaterXL.Core;
+using SkaterXL.Data;
+using SkaterXL.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +11,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityModManagerNet;
 
-namespace fro_mod
+namespace xlperimental_mod
 {
     public class CameraShake : MonoBehaviour
     {
@@ -26,8 +30,8 @@ namespace fro_mod
         int zero_count = 0;
 
         void FixedUpdate()
-        {
-            if (PlayerController.Instance.skaterController.skaterRigidbody.velocity.magnitude <= 0.15f && !PlayerController.Instance.IsRespawning)
+        {            
+            if (GameStateMachine.Instance.MainPlayer.gameplay.transformReference.skaterRigidbody.velocity.magnitude <= 0.15f && !GameStateMachine.Instance.MainPlayer.gameplay.playerData.IsRespawning)
             {
                 if (zero_count >= 24f)
                 {
@@ -44,9 +48,10 @@ namespace fro_mod
 
         void LateUpdate()
         {
-            if (!Main.settings.camera_shake || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Bailed) return;
+            
+            if (!Main.settings.camera_shake || GameStateMachine.Instance.MainPlayer.gameplay.playerData.currentState == PlayerStateEnum.Bailed) return;
 
-            float velocity = PlayerController.Instance.skaterController.skaterRigidbody.velocity.magnitude - Main.settings.camera_shake_offset;
+            float velocity = GameStateMachine.Instance.MainPlayer.gameplay.transformReference.skaterRigidbody.velocity.magnitude - Main.settings.camera_shake_offset;
             if (velocity < 0) velocity = 0;
             if (velocity > 0)
             {
@@ -67,7 +72,7 @@ namespace fro_mod
                 count++;
             }
 
-            float velocity_fov = (PlayerController.Instance.skaterController.skaterRigidbody.velocity.magnitude / 2) - Main.settings.camera_fov_offset;
+            float velocity_fov = (GameStateMachine.Instance.MainPlayer.gameplay.transformReference.skaterRigidbody.velocity.magnitude / 2) - Main.settings.camera_fov_offset;
             if (velocity_fov < 0) velocity_fov = 0;
 
             if (last_fov >= 0 && velocity_fov > 0)
@@ -84,7 +89,7 @@ namespace fro_mod
 
         public void GetCamera()
         {
-            camera = MonoBehaviourSingleton<PlayerController>.Instance.cameraController._actualCam.GetComponent<CinemachineVirtualCamera>();
+            camera = GameStateMachine.Instance.MainPlayer.gameplay.cameraController.actualCamera.GetComponent<CinemachineVirtualCamera>();
         }
     }
 }

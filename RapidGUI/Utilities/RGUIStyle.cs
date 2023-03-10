@@ -95,7 +95,7 @@ namespace RapidGUI
             style.hover.textColor = toggle.hover.textColor;
 
             flatButtonTex = new Texture2D(1, 1);
-            flatButtonTex.SetPixels(new[] { new Color(1, 1, 1, 1f) });
+            flatButtonTex.SetPixels(new[] { new Color(1, 1, 1, 1) });
             flatButtonTex.Apply();
             style.hover.background = flatButtonTex;
             style.hover.textColor = Color.white;

@@ -6,11 +6,11 @@ using UnityModManagerNet;
 using System.Collections.Generic;
 using Photon.Realtime;
 using Photon.Pun;
-using ExitGames.Client.Photon;
 using System.Collections;
 using SkaterXL.Data;
+using GameManagement;
 
-namespace fro_mod
+namespace xlperimental_mod
 {
     public class Multiplayer : MonoBehaviour
     {
@@ -102,14 +102,11 @@ namespace fro_mod
             if (MultiplayerManager.Instance.InRoom && Main.settings.multiplayer_collision)
             {
                 destroyed = false;
-                if (PlayerController.Instance.IsRespawning)
-                {
-                    last_respawn_point = PlayerController.Instance.boardController.boardMesh.position;
-                }
+                last_respawn_point = GameStateMachine.Instance.MainPlayer.gameplay.respawnController.spawnPointData.board.lastFramePosition;
+                Vector3 board = GameStateMachine.Instance.MainPlayer.gameplay.transformReference.boardTransform.position;
 
-                Vector3 board = PlayerController.Instance.boardController.boardMesh.position;
-                bool isRespawning = FastApproximately(last_respawn_point.x, board.x, 1.05f) && FastApproximately(last_respawn_point.y, board.y, 1.05f) && FastApproximately(last_respawn_point.z, board.z, 1.05f);
-
+                bool isRespawning = FastApproximately(last_respawn_point.x, board.x, 1.05f) && FastApproximately(last_respawn_point.z, board.z, 1.05f);
+                
                 if (MultiplayerManager.Instance.GetMapOfCurrentRoom().name != last_scene)
                 {
                     last_scene = MultiplayerManager.Instance.GetMapOfCurrentRoom().name;
@@ -166,13 +163,17 @@ namespace fro_mod
                                 Collider collider = player.GetComponent<Collider>();
                                 if (isRespawning || entry.Value.transformSyncer.currentStateEnum != NetworkPlayerStateEnum.GamePlay)
                                 {
+                                    collider.isTrigger = true;
                                     collider.enabled = false;
                                     skate.GetComponent<Collider>().enabled = false;
+                                    skate.GetComponent<Collider>().isTrigger = true;
                                 }
                                 else if (!collider.enabled)
                                 {
+                                    collider.isTrigger = false;
                                     collider.enabled = true;
                                     skate.GetComponent<Collider>().enabled = true;
+                                    skate.GetComponent<Collider>().isTrigger = false;
                                 }
                             }
                         }

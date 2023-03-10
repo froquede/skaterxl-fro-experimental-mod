@@ -4,7 +4,7 @@ using SkaterXL.Data;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace fro_mod
+namespace xlperimental_mod
 {
     public class RecordedFrame
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityModManagerNet;
 
-namespace fro_mod
+namespace xlperimental_mod
 {
     [Serializable]
     public class Settings : UnityModManager.ModSettings
@@ -37,7 +37,7 @@ namespace fro_mod
 
         public bool reset_inactive = true;
         public bool disable_popup = false;
-        public int multiplayer_lobby_size = 20;
+        public int multiplayer_lobby_size = 10;
 
         public bool chat_messages = false;
         public int left_page = 0;
@@ -173,6 +173,25 @@ namespace fro_mod
         public List<float> ollie_customization_length_both2left = new List<float>();
         public List<Vector3> ollie_customization_rotation_both2right = new List<Vector3>();
         public List<float> ollie_customization_length_both2right = new List<float>();
+
+        public List<Vector3> ollie_customization_position = new List<Vector3>();
+        public List<Vector3> ollie_customization_position_backwards = new List<Vector3>();
+        public List<Vector3> ollie_customization_position_left_stick = new List<Vector3>();
+        public List<Vector3> ollie_customization_position_right_stick = new List<Vector3>();
+        public List<Vector3> ollie_customization_position_left_stick_backwards = new List<Vector3>();
+        public List<Vector3> ollie_customization_position_right_stick_backwards = new List<Vector3>();
+
+        public List<Vector3> ollie_customization_position_both_outside = new List<Vector3>();
+        public List<Vector3> ollie_customization_position_both_inside = new List<Vector3>();
+
+        public List<Vector3> ollie_customization_position_left2left = new List<Vector3>();
+        public List<Vector3> ollie_customization_position_left2right = new List<Vector3>();
+
+        public List<Vector3> ollie_customization_position_right2left = new List<Vector3>();
+        public List<Vector3> ollie_customization_position_right2right = new List<Vector3>();
+
+        public List<Vector3> ollie_customization_position_both2left = new List<Vector3>();
+        public List<Vector3> ollie_customization_position_both2right = new List<Vector3>();
         // Ollie customization end
 
         public bool force_stick_backwards = false;
@@ -237,12 +256,26 @@ namespace fro_mod
         public float jiggle_delay = 24f;
         public float jiggle_randommax = 10f;
 
+        public Vector3 map_scale = new Vector3(1f, 1f, 1f);
+
+        public float steez_anim_speed = 1f;
+
+        public int trick_customization_mode = 0;
+
+        public Vector3 board_size = new Vector3(1f, 1f, 1f);
+        public Vector3 truck_size = new Vector3(1f, 1f, 1f);
+
+        public Vector3 ridingCOM = new Vector3(5000f, 0f, 900f);
+        public Vector3 impactCOM = new Vector3(5000f, 0f, 1000f);
+        public Vector3 impactUpCOM = new Vector3(2000f, 0f, 900f);
+        public Vector3 setupCOM = new Vector3(20000f, 0f, 1500f);
+        public Vector3 grindCOM = new Vector3(2000f, 0f, 900f);
+
 #if DEBUG
         public bool debug = true;
 #else
         public bool debug = false;
 #endif
-
 
         public void OnChange()
         {
