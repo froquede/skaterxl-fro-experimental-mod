@@ -21,8 +21,9 @@ namespace fro_mod
         public static Multiplayer multi;
         public static TrickCustomizer tc;
         public static CameraShake cs;
-        public static AnimationController am;
+        public static AnimController am;
         public static WalkController wc;
+        public static Assembly assembly;
 
         static bool Unload(UnityModManager.ModEntry modEntry)
         {
@@ -49,13 +50,15 @@ namespace fro_mod
             controller = manager.AddComponent<Controller>();
             tc = manager.AddComponent<TrickCustomizer>();
             cs = manager.AddComponent<CameraShake>();
-            am = manager.AddComponent<AnimationController>();
+            //am = manager.AddComponent<AnimController>();
             wc = manager.AddComponent<WalkController>();
 
             UnityEngine.Object.DontDestroyOnLoad(manager);
             modEntry.OnUnload = Unload;
             Main.modEntry = modEntry;
             checkLists(modEntry);
+
+            assembly = Assembly.GetExecutingAssembly();
 
             harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
 
@@ -265,6 +268,21 @@ namespace fro_mod
             if (settings.ollie_customization_length_both2right.Count == 0)
             {
                 settings.ollie_customization_length_both2right = new List<float> { 24, 24, 24, 24 };
+                settings.Save(modEntry);
+            }
+
+            if (settings.body_rotations.Count == 0)
+            {
+                settings.body_rotations = new List<List<Vector3>> { };
+                for (int i = 0; i < Enums.StatesReal.Length; i++)
+                {
+                    List<Vector3> temp = new List<Vector3> { };
+                    for (int n = 0; n < Enums.BodyParts.Length; n++)
+                    {
+                        temp.Add(Enums.OriginalRotations[n]);
+                    }
+                    settings.body_rotations.Add(temp);
+                }
                 settings.Save(modEntry);
             }
         }

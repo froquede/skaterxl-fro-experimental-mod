@@ -13,10 +13,42 @@ namespace fro_mod
     [HarmonyPatch(typeof(BoardController), nameof(BoardController.CatchRotation), new Type[] { typeof(float) })]
     class BoardControllerPatch
     {
-        static bool Prefix(float p_mag) {
-            if(Main.settings.catch_acc_enabled)
+        static bool Prefix(float p_mag)
+        {
+            if (Main.settings.catch_acc_enabled)
             {
-                return Main.controller.forced_caught && Main.controller.forced_caught_count >= Main.settings.bounce_delay;
+                Traverse.Create(PlayerController.Instance.boardController).Field("_catchRotateSpeed").SetValue(0f);
+                return true;
+                //return Main.controller.forced_caught && Main.controller.forced_caught_count >= Main.settings.bounce_delay;
+            }
+            return true;
+        }
+    }
+
+    [HarmonyPatch(typeof(BoardController), nameof(BoardController.LeaveFlipMode), new Type[] { })]
+    class BoardControllerLeaveFlipModePatch
+    {
+        static bool Prefix()
+        {
+            if (Main.settings.catch_acc_enabled)
+            {
+                //PlayerController.Instance.boardController.boardRigidbody.angularVelocity = SkaterXL.Core.Mathd.GlobalAngularVelocityFromLocal(PlayerController.Instance.boardController.boardRigidbody, new Vector3(PlayerController.Instance.boardController.firstVel * PlayerController.Instance.boardController.angVelMult, PlayerController.Instance.boardController.secondVel * PlayerController.Instance.boardController.angVelMult, 10f));
+                return false;
+            }
+            return true;
+        }
+    }
+
+    
+
+    [HarmonyPatch(typeof(BoardController), nameof(BoardController.SetCatchForwardRotation), new Type[] { })]
+    class BoardControllerSetCatchForwardRotationPatch
+    {
+        static bool Prefix()
+        {
+            if (Main.settings.catch_acc_enabled)
+            {
+                return true;
             }
             return true;
         }
@@ -29,7 +61,9 @@ namespace fro_mod
         {
             if (Main.settings.catch_acc_enabled)
             {
-                if(!Main.settings.snappy_catch)
+                //if (Main.settings.experimental_dynamic_catch) return true;
+
+                if (!Main.settings.snappy_catch)
                 {
                     return Main.controller.forced_caught && Main.controller.forced_caught_count >= Main.settings.bounce_delay;
                 }
@@ -43,6 +77,11 @@ namespace fro_mod
                         ___catchRotation.rotation = ____catchForwardRotation.rotation;
                         InvokeMethod(__instance, "PIDRotation", new object[] { ___catchRotation.rotation });
                     }
+                    else
+                    {
+                        PlayerController.Instance.animationController.ForceUpdateAnimators();
+                    }
+
                     return false;
                 }
             }

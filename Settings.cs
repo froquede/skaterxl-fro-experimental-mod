@@ -237,6 +237,13 @@ namespace fro_mod
         public float jiggle_delay = 24f;
         public float jiggle_randommax = 10f;
 
+        public Vector3 map_scale = new Vector3(1f, 1f, 1f);
+
+        public bool experimental_dynamic_catch = false;
+
+        public bool body_rotation = false;
+        public List<List<Vector3>> body_rotations = new List<List<Vector3>>();
+
 #if DEBUG
         public bool debug = true;
 #else
