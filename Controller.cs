@@ -738,9 +738,9 @@ namespace fro_mod
         GameObject head_copy;
         void LookForward()
         {
+            string actual_state = "";
             if (!Main.settings.look_forward) return;
 
-            string actual_state = "";
             bool inState = false;
 
             int count = 0;
@@ -761,8 +761,6 @@ namespace fro_mod
 
             if (inState || head_frame > 0)
             {
-                Transform boneTransform = PlayerController.Instance.animationController.skaterAnim.GetBoneTransform(HumanBodyBones.Neck);
-
                 if (PlayerController.Instance.IsSwitch)
                 {
                     int state_id = (int)PlayerController.Instance.currentStateEnum;
@@ -779,23 +777,24 @@ namespace fro_mod
 
                     if (pclone == null)
                     {
-                        //pclone = new GameObject("HeadRotationTarget");
-                        pclone = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                        pclone = new GameObject("HeadRotationTarget");
+                        /*pclone = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                         pclone.GetComponent<SphereCollider>().enabled = false;
-                        pclone.transform.localScale = new Vector3(.1f, .1f, .1f);
+                        pclone.transform.localScale = new Vector3(.1f, .1f, .1f);*/
                     }
 
                     pclone.transform.rotation = PlayerController.Instance.skaterController.transform.rotation;
                     pclone.transform.position = PlayerController.Instance.skaterController.transform.position;
-                    pclone.transform.Translate(.3f, 0f, -1f + map01(PlayerController.Instance.boardController.boardRigidbody.velocity.magnitude, 0, 20f) * -2f, Space.Self);
+                    pclone.transform.Translate(0, -.4f, -1f, Space.Self);
                     //EA.LookAtSpecificThing(pclone.transform.position);
 
                     Vector3 target = pclone.transform.position;
 
                     //Destroy(pclone);
-
-                    if (!head_copy) head_copy = new GameObject();
-
+                    if (head_copy == null)
+                    {
+                        head_copy = new GameObject();
+                    }
                     head_copy.transform.rotation = neck.rotation;
                     head_copy.transform.position = neck.position;
                     head_copy.transform.LookAt(target);
@@ -806,10 +805,10 @@ namespace fro_mod
                         head_copy.transform.Rotate(0f, -18.5f, 0f, Space.Self);
                         head_copy.transform.Rotate(0f, 0f, 18.5f, Space.Self);
                         head_copy.transform.Rotate(0f, -13f, -10f, Space.Self);
+                        head_copy.transform.Rotate(14f, 9f, 0f, Space.Self);
 
                         if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup)
                         {
-                            head_copy.transform.Rotate(14f, 9f, 0f, Space.Self);
                             if (windup_side >= 0)
                             {
                                 head_copy.transform.Rotate(new Vector3(33f, 17.4f, 8.7f) * windup_side, Space.Self);
@@ -844,17 +843,28 @@ namespace fro_mod
                     }
                     head_copy.transform.Rotate(offset, Space.Self);
 
-                    boneTransform.rotation = Quaternion.Slerp(boneTransform.rotation, inState ? head_copy.transform.rotation : PlayerController.Instance.headIk.resetRot.rotation, Time.deltaTime * 64f);
-                    PlayerController.Instance.animationController.skaterAnim.SetBoneLocalRotation(HumanBodyBones.Neck, boneTransform.rotation);
+                    neck.rotation = Quaternion.Lerp(inState ? neck.rotation : PlayerController.Instance.headIk.resetRot.rotation, head_copy.transform.rotation, Mathf.Lerp(0, 1, map01(head_frame, 0, Main.settings.look_forward_length)));
 
-                    if (inState) head_frame++;
-                    else
+                    Destroy(head_copy);
+
+                    if (inState)
                     {
-                        if (head_frame > 32) head_frame = 32;
-                        head_frame--;
+                        if (delay_head >= Main.settings.look_forward_delay)
+                        {
+                            if (last_head == Quaternion.identity) last_head = neck.rotation;
+                            head_frame++;
+                        }
+                        delay_head++;
                     }
+
+                    head_frame = head_frame > Main.settings.look_forward_length ? Main.settings.look_forward_length : head_frame;
                 }
-                else head_frame = 0;
+            }
+            if (!inState && head_frame > 0)
+            {
+                head_frame = head_frame > Main.settings.look_forward_length ? Main.settings.look_forward_length : head_frame;
+                head_frame -= 1;
+                delay_head = 0;
             }
         }
         void LetsGoAnimHead()

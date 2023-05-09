@@ -12,9 +12,8 @@ namespace fro_mod
             if (!PlayerController.Instance.respawn.respawning && GameStateMachine.Instance.CurrentState.GetType() == typeof(PlayState))
             {
                 Time.timeScale = 1;
-                return false;
             }
-            return true;
+            return false;
         }
 
         public static void HandleCustomMapChanges()
