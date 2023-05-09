@@ -4,30 +4,30 @@
     <keyCode>F</keyCode>
     <modifiers>0</modifiers>
   </Hotkey>
-  <speed>300</speed>
+  <speed>370.629364</speed>
   <grind_speed>40</grind_speed>
-  <wallride_downforce>80</wallride_downforce>
+  <wallride_downforce>58.74126</wallride_downforce>
   <wait_threshold>10</wait_threshold>
   <enabled>true</enabled>
   <feet_rotation>true</feet_rotation>
   <lean>false</lean>
-  <hippie>false</hippie>
-  <HippieForce>1</HippieForce>
-  <HippieTime>0.3</HippieTime>
-  <left_foot_offset>1</left_foot_offset>
-  <right_foot_offset>1</right_foot_offset>
+  <hippie>true</hippie>
+  <HippieForce>0.4113475</HippieForce>
+  <HippieTime>0.243404269</HippieTime>
+  <left_foot_offset>0.521919966</left_foot_offset>
+  <right_foot_offset>0.655034542</right_foot_offset>
   <swap_lean>false</swap_lean>
-  <selected_player />
+  <selected_player>1:ball bag</selected_player>
   <follow_mode_left>false</follow_mode_left>
   <follow_mode_right>false</follow_mode_right>
   <follow_mode_head>false</follow_mode_head>
   <push_by_velocity>true</push_by_velocity>
-  <follow_target_offset>-0.3</follow_target_offset>
-  <camera_feet>false</camera_feet>
+  <follow_target_offset>-0.4</follow_target_offset>
+  <camera_feet>true</camera_feet>
   <reset_inactive>true</reset_inactive>
   <disable_popup>false</disable_popup>
   <multiplayer_lobby_size>20</multiplayer_lobby_size>
-  <chat_messages>false</chat_messages>
+  <chat_messages>true</chat_messages>
   <left_page>0</left_page>
   <right_page>1</right_page>
   <up_page>2</up_page>
@@ -37,12 +37,12 @@
   <feet_offset>true</feet_offset>
   <wave_on>Disabled</wave_on>
   <celebrate_on>Disabled</celebrate_on>
-  <camera_avoidance>true</camera_avoidance>
+  <camera_avoidance>false</camera_avoidance>
   <wobble>true</wobble>
-  <wobble_offset>4</wobble_offset>
+  <wobble_offset>8</wobble_offset>
   <bails>true</bails>
-  <GrindFlipVerticality>0</GrindFlipVerticality>
-  <ManualFlipVerticality>0</ManualFlipVerticality>
+  <GrindFlipVerticality>0.09929077</GrindFlipVerticality>
+  <ManualFlipVerticality>0.205673769</ManualFlipVerticality>
   <custom_scale>
     <x>1</x>
     <y>1</y>
@@ -668,10 +668,10 @@
     </Vector3>
   </ollie_customization_rotation>
   <ollie_customization_length>
-    <float>24</float>
-    <float>24</float>
-    <float>24</float>
-    <float>24</float>
+    <float>12</float>
+    <float>0.425531924</float>
+    <float>12</float>
+    <float>12</float>
   </ollie_customization_length>
   <ollie_customization_rotation_backwards>
     <Vector3>
@@ -1032,7 +1032,7 @@
     </Vector3>
   </ollie_customization_rotation_both2right>
   <ollie_customization_length_both2right>
-    <float>24</float>
+    <float>0.1</float>
     <float>24</float>
     <float>24</float>
     <float>24</float>
@@ -1040,7 +1040,7 @@
   <force_stick_backwards>false</force_stick_backwards>
   <force_stick_backwards_multiplier>0.125</force_stick_backwards_multiplier>
   <filmer_object>false</filmer_object>
-  <filmer_object_target>Target</filmer_object_target>
+  <filmer_object_target />
   <camera_shake>true</camera_shake>
   <camera_shake_offset>7</camera_shake_offset>
   <camera_shake_multiplier>1</camera_shake_multiplier>
@@ -1060,27 +1060,27 @@
   <comHeightRiding>1.06</comHeightRiding>
   <maxLegForce>5000</maxLegForce>
   <forward_force_onpop>false</forward_force_onpop>
-  <forward_force>0.35</forward_force>
-  <multi_filmer_activation>On pump input</multi_filmer_activation>
+  <forward_force>0.5</forward_force>
+  <multi_filmer_activation>Always on</multi_filmer_activation>
   <camera_shake_range>0.2</camera_shake_range>
   <camera_shake_length>4</camera_shake_length>
   <walk_after_bail>false</walk_after_bail>
   <haunting_arms>false</haunting_arms>
-  <bump_anim>false</bump_anim>
+  <bump_anim>true</bump_anim>
   <bump_anim_pop>true</bump_anim_pop>
   <bump_pop_delay>0.15</bump_pop_delay>
   <catch_acc>10</catch_acc>
-  <catch_acc_enabled>false</catch_acc_enabled>
+  <catch_acc_enabled>true</catch_acc_enabled>
   <catch_acc_onflick>false</catch_acc_onflick>
-  <catch_lerp_speed>30</catch_lerp_speed>
-  <bounce_delay>4</bounce_delay>
+  <catch_lerp_speed>7</catch_lerp_speed>
+  <bounce_delay>0</bounce_delay>
   <snappy_catch>true</snappy_catch>
   <FlickThreshold>0.6</FlickThreshold>
   <partial_gear>false</partial_gear>
-  <custom_board_correction>false</custom_board_correction>
-  <board_p>5000</board_p>
+  <custom_board_correction>true</custom_board_correction>
+  <board_p>2269.50342</board_p>
   <board_i>0</board_i>
-  <board_d>1</board_d>
+  <board_d>0.6666667</board_d>
   <jiggle_on_setup>false</jiggle_on_setup>
   <jiggle_limit>40</jiggle_limit>
   <jiggle_delay>24</jiggle_delay>

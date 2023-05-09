@@ -28,7 +28,7 @@ namespace fro_mod
 
         public override string ToString()
         {
-            return this.duration + " " + this.times.Length ;
+            return this.duration + " " + this.times.Length;
         }
     }
 
@@ -120,42 +120,11 @@ namespace fro_mod
     public class AnimController : MonoBehaviour
     {
         AnimationJSON walking;
-        List<GameObject> debug = new List<GameObject>(17);
-        string[] bones = new string[] { "Spine", "Spine1", "Spine2", "Neck", "Head", "LeftArm", "LeftForeArm", "LeftHand", "RightArm", "RightForeArm", "RightHand", "LeftUpLeg", "LeftLeg", "LeftFoot", "RightUpLeg", "RightLeg", "RightFoot" };
+        string[] bones = new string[] { "Hips", "Spine", "Spine1", "Spine2", "Neck", "Head", "LeftArm", "LeftForeArm", "LeftHand", "RightArm", "RightForeArm", "RightHand", "LeftUpLeg", "LeftLeg", "LeftFoot", "RightUpLeg", "RightLeg", "RightFoot" };
         GameObject fakeSkater;
 
         void Start()
         {
-            fakeSkater = Instantiate(PlayerController.Instance.skaterController.skaterTransform.gameObject);
-            Destroy(fakeSkater.GetComponent<Animator>());
-            Destroy(fakeSkater.GetComponent<Rigidbody>());
-            Destroy(fakeSkater.GetComponent<SkaterController>());
-            Destroy(fakeSkater.GetComponent<AnimationController>());
-            Destroy(fakeSkater.GetComponent<CoMDisplacement>());
-            Destroy(fakeSkater.GetComponent<Respawn>());
-            Destroy(fakeSkater.GetComponent<IKController>());
-            Destroy(fakeSkater.GetComponent<Bail>());
-            Destroy(fakeSkater.GetComponent<HeadIK>());
-            Destroy(fakeSkater.GetComponent<GestureAnimationController>());
-            Destroy(fakeSkater.GetComponent<FullBodyBipedIK>());
-            Destroy(fakeSkater.GetComponent<LookAtIK>());
-            Destroy(fakeSkater.GetComponent<EyeAndHeadAnimator>());
-            Destroy(fakeSkater.GetComponent<LookTargetController>());
-
-            getParts();
-
-            Material white = new Material(Shader.Find("HDRP/Lit"));
-
-            for (int i = 0; i < 17; i++)
-            {
-                GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                cube.transform.localScale = new Vector3(.075f, .075f, .075f);
-                cube.GetComponent<BoxCollider>().enabled = false;
-                cube.GetComponent<MeshRenderer>().material = white;
-                cube.transform.name = bones[i];
-                debug.Add(cube);
-            }
-
             string fileName = Path.Combine(Main.modEntry.Path, "walking.json");
             string json;
             if (File.Exists(fileName))
@@ -170,12 +139,12 @@ namespace fro_mod
             JObject animation = JObject.Parse(json);
             AnimationJSONParts parts = new AnimationJSONParts();
 
-            foreach(string part in bones)
+            foreach (string part in bones)
             {
                 try
                 {
                     Type type = typeof(AnimationJSONParts);
-                    var property = type.GetProperty(part);                
+                    var property = type.GetProperty(part);
                     AnimationJSONPart new_part = new AnimationJSONPart(JsonConvert.DeserializeObject<float[][]>(animation["parts"][part]["position"].ToString()), JsonConvert.DeserializeObject<float[][]>(animation["parts"][part]["quaternion"].ToString()));
                     property.SetValue(parts, new_part);
                 }
@@ -183,60 +152,74 @@ namespace fro_mod
             }
 
             walking = new AnimationJSON((float)animation["duration"], Newtonsoft.Json.JsonConvert.DeserializeObject<float[]>(animation["times"].ToString()), parts);
+            UnityModManager.Logger.Log(walking.ToString());
         }
 
         float animTime = 0f;
         void FixedUpdate()
         {
-            int index = 0;
-            /*PlayerController.Instance.ikController.SetIKRigidbodyKinematic(true);
-            PlayerController.Instance.ikController.OnOffIK(0);
-            PlayerController.Instance.ikController.enabled = false;
-            PlayerController.Instance.headIk.enabled = false;
-            PlayerController.Instance.AnimController.ikAnim.enabled = false;
-            PlayerController.Instance.AnimController.skaterAnim.enabled = false;*/
-
-            fakeSkater.transform.position = PlayerController.Instance.skaterController.skaterTransform.position;
-            fakeSkater.transform.rotation = Quaternion.identity;
-            fakeSkater.transform.Rotate(0, 90f, 0, Space.Self);
-
-            for (int i = 0; i < walking.times.Length; i++)
+            if (fakeSkater)
             {
-                index = i;
-                if (walking.times[i] >= animTime) break;
-            }
+                int index = 0;
+                PlayerController.Instance.ikController.SetIKRigidbodyKinematic(true);
+                PlayerController.Instance.ikController.OnOffIK(0);
+                PlayerController.Instance.ikController.enabled = false;
+                PlayerController.Instance.headIk.enabled = false;
+                PlayerController.Instance.animationController.ikAnim.enabled = false;
+                PlayerController.Instance.animationController.skaterAnim.enabled = false;
 
-            foreach (string part in bones)
-            {
-                Transform tpart = getPart(part);
-                if(tpart)
+                PlayerController.Instance.skaterController.gameObject.transform.position = PlayerController.Instance.skaterController.skaterTransform.position;
+                PlayerController.Instance.skaterController.gameObject.transform.rotation = PlayerController.Instance.boardController.boardTransform.rotation;
+                /*fakeSkater.transform.Rotate(0, 90f, 0, Space.Self);*/
+
+                for (int i = 0; i < walking.times.Length; i++)
                 {
-                    try
-                    {
-                        Type type = typeof(AnimationJSONParts);
-                        var property = type.GetProperty(part);
-                        AnimationJSONPart apart = (AnimationJSONPart)property.GetValue(walking.parts, null);
-
-                        GameObject copy = new GameObject();
-                        copy.transform.position = PlayerController.Instance.boardController.boardTransform.position;
-                        copy.transform.rotation = PlayerController.Instance.boardController.boardTransform.rotation;
-
-                        copy.transform.Translate(new Vector3(apart.position[index][0], apart.position[index][1], apart.position[index][2]));
-
-                        /*tpart.position = PlayerController.Instance.boardController.boardTransform.position + new Vector3(apart.position[index][0], apart.position[index][1], apart.position[index][2]);
-                        tpart.rotation = new Quaternion(apart.quaternion[index][0], apart.quaternion[index][1], apart.quaternion[index][2], apart.quaternion[index][3]);*/
-
-                        tpart.position = copy.transform.position;
-                        tpart.rotation = new Quaternion(-apart.quaternion[index][0], -apart.quaternion[index][1], -apart.quaternion[index][2], -apart.quaternion[index][3]); ;
-
-                        Destroy(copy);
-                    }
-                    catch { }
+                    index = i;
+                    if (walking.times[i] >= animTime) break;
                 }
-            }
-            animTime += Time.fixedDeltaTime;
 
-            if (animTime > walking.duration) animTime = 0;
+                foreach (string part in bones)
+                {
+                    Transform tpart = getPart(part);
+                    if (tpart)
+                    {
+                        try
+                        {
+                            Type type = typeof(AnimationJSONParts);
+                            var property = type.GetProperty(part);
+                            AnimationJSONPart apart = (AnimationJSONPart)property.GetValue(walking.parts, null);
+                            Vector3 offset = PlayerController.Instance.boardController.boardTransform.position - new Vector3(0f, -.1f, 0f);
+                            tpart.position = offset + new Vector3(apart.position[index][0], apart.position[index][1], apart.position[index][2]);
+                            tpart.rotation = new Quaternion(apart.quaternion[index][0], apart.quaternion[index][1], apart.quaternion[index][2], apart.quaternion[index][3]);
+                            tpart.Rotate(90, 0, 0, Space.Self);
+                            tpart.Rotate(0, -90, 0, Space.Self);
+                        }
+                        catch { }
+                    }
+                }
+                animTime += Time.smoothDeltaTime;
+
+                if (animTime > walking.duration) animTime = 0;
+            }
+            else
+            {
+                fakeSkater = Instantiate(PlayerController.Instance.skaterController.skaterTransform.gameObject);
+                Destroy(fakeSkater.GetComponent<Animator>());
+                Destroy(fakeSkater.GetComponent<Rigidbody>());
+                Destroy(fakeSkater.GetComponent<SkaterController>());
+                Destroy(fakeSkater.GetComponent<AnimationController>());
+                Destroy(fakeSkater.GetComponent<CoMDisplacement>());
+                Destroy(fakeSkater.GetComponent<Respawn>());
+                Destroy(fakeSkater.GetComponent<IKController>());
+                Destroy(fakeSkater.GetComponent<Bail>());
+                Destroy(fakeSkater.GetComponent<HeadIK>());
+                Destroy(fakeSkater.GetComponent<GestureAnimationController>());
+                Destroy(fakeSkater.GetComponent<FullBodyBipedIK>());
+                Destroy(fakeSkater.GetComponent<LookAtIK>());
+                Destroy(fakeSkater.GetComponent<EyeAndHeadAnimator>());
+                Destroy(fakeSkater.GetComponent<LookTargetController>());
+                getParts();
+            }
         }
 
         Transform getPart(string id)
@@ -245,8 +228,8 @@ namespace fro_mod
             if (id == "Spine") return spine;
             if (id == "Spine1") return spine1;
             if (id == "Spine2") return spine2;
-            if (id == "Neck") return neck;
-            if (id == "Head") return head;
+            if (id == "Head") return neck;
+            if (id == "HeadTop_End") return head;
             if (id == "LeftArm") return left_arm;
             if (id == "LeftForeArm") return left_forearm;
             if (id == "LeftHand") return left_hand;
@@ -255,41 +238,27 @@ namespace fro_mod
             if (id == "RightHand") return right_hand;
             if (id == "LeftUpLeg") return left_upleg;
             if (id == "LeftLeg") return left_leg;
-            if (id == "LeftFoot") return left_foot;
+            //if (id == "LeftFoot") return left_foot;
             if (id == "RightUpLeg") return right_upleg;
             if (id == "RightLeg") return right_leg;
-            if (id == "RightFoot") return right_foot;
+            //if (id == "RightFoot") return right_foot;
 
-            return null;
-        }
+            if (id == "RightShoulder") return right_shoulder;
+            if (id == "LeftShoulder") return left_shoulder;
 
-        Transform getPartDebug(string id)
-        {
-            if (id == "Spine") return debug[0].transform;
-            if (id == "Spine1") return debug[1].transform;
-            if (id == "Spine2") return debug[2].transform;
-            if (id == "Neck") return debug[3].transform;
-            if (id == "Head") return debug[4].transform;
-            if (id == "LeftArm") return debug[5].transform;
-            if (id == "LeftForeArm") return debug[6].transform;
-            if (id == "LeftHand") return debug[7].transform;
-            if (id == "RightArm") return debug[8].transform;
-            if (id == "RightForeArm") return debug[9].transform;
-            if (id == "RightHand") return debug[10].transform;
-            if (id == "LeftUpLeg") return debug[11].transform;
-            if (id == "LeftLeg") return debug[12].transform;
-            if (id == "LeftFoot") return debug[13].transform;
-            if (id == "RightUpLeg") return debug[14].transform;
-            if (id == "RightLeg") return debug[15].transform;
-            if (id == "RightFoot") return debug[16].transform;
+            if (id == "LeftToeBase") return left_foot;
+            if (id == "LeftToe_End") return left_toe_2;
+            if (id == "RightToeBase") return right_foot;
+            if (id == "RightToe_End") return right_toe_2;
 
             return null;
         }
 
         Transform pelvis, spine, spine1, spine2, neck, head, left_arm, left_forearm, left_hand, right_arm, right_forearm, right_hand, left_upleg, left_leg, left_foot, right_upleg, right_leg, right_foot;
+        Transform right_shoulder, left_shoulder, left_toe_1, left_toe_2, right_toe_1, right_toe_2;
         void getParts()
         {
-            Transform parent = fakeSkater.transform;
+            Transform parent = PlayerController.Instance.skaterController.gameObject.transform;
             Transform joints = parent.Find("Skater_Joints");
 
             pelvis = joints.FindChildRecursively("Skater_pelvis");
@@ -310,7 +279,15 @@ namespace fro_mod
             right_upleg = joints.FindChildRecursively("Skater_UpLeg_r");
             right_leg = joints.FindChildRecursively("Skater_Leg_r");
             right_foot = joints.FindChildRecursively("Skater_foot_r");
+
+            right_shoulder = joints.FindChildRecursively("Skater_Shoulder_r");
+            left_shoulder = joints.FindChildRecursively("Skater_Shoulder_l");
+
+            left_toe_1 = joints.FindChildRecursively("Skater_Toe1_l");
+            left_toe_2 = joints.FindChildRecursively("Skater_Toe2_l");
+            right_toe_1 = joints.FindChildRecursively("Skater_Toe1_r");
+            right_toe_2 = joints.FindChildRecursively("Skater_Toe2_r");
         }
-    }    
+    }
 }
 

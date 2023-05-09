@@ -57,8 +57,8 @@ namespace fro_mod
 						gameObject.transform.Rotate(90f, 0f, 0f, Space.Self);
 						gameObject.transform.Rotate(0f, 45f, 0f, Space.Self);
 						gameObject.transform.Translate(0f, -0.2f, 0f, Space.Self);
-						MonoBehaviourSingleton<PlayerController>.Instance.boardController.gameObject.transform.position = Vector3.Lerp(MonoBehaviourSingleton<PlayerController>.Instance.boardController.gameObject.transform.position, gameObject.transform.position, Time.deltaTime * 50f);
-						MonoBehaviourSingleton<PlayerController>.Instance.boardController.gameObject.transform.rotation = Quaternion.Lerp(MonoBehaviourSingleton<PlayerController>.Instance.boardController.gameObject.transform.rotation, gameObject.transform.rotation, Time.deltaTime * 25f);
+						MonoBehaviourSingleton<PlayerController>.Instance.boardController.gameObject.transform.position = Vector3.Lerp(MonoBehaviourSingleton<PlayerController>.Instance.boardController.gameObject.transform.position, gameObject.transform.position, Time.smoothDeltaTime * 50f);
+						MonoBehaviourSingleton<PlayerController>.Instance.boardController.gameObject.transform.rotation = Quaternion.Slerp(MonoBehaviourSingleton<PlayerController>.Instance.boardController.gameObject.transform.rotation, gameObject.transform.rotation, Time.smoothDeltaTime * 25f);
 						UnityEngine.Object.Destroy(gameObject);
 						MonoBehaviourSingleton<PlayerController>.Instance.boardController.boardRigidbody.isKinematic = true;
 						Collider[] boardColliders = MonoBehaviourSingleton<PlayerController>.Instance.boardController.boardColliders;
@@ -173,8 +173,8 @@ namespace fro_mod
 					gameObject.transform.Rotate(0f, 0f, 90f);
 					gameObject.transform.Rotate(0f, 90f, 0f);
 					gameObject.transform.Translate(0f, 0f, -1.35f);
-					Main.controller.mainCam.transform.rotation = Quaternion.Lerp(this.last_rot_camera, gameObject.transform.rotation, Time.deltaTime * (this.running ? 14f : 10f));
-					Main.controller.mainCam.transform.position = Vector3.Lerp(this.last_pos_camera, gameObject.transform.position, Time.deltaTime * (this.running ? 10f : 6f));
+					Main.controller.mainCam.transform.rotation = Quaternion.Slerp(this.last_rot_camera, gameObject.transform.rotation, Time.smoothDeltaTime * (this.running ? 14f : 10f));
+					Main.controller.mainCam.transform.position = Vector3.Lerp(this.last_pos_camera, gameObject.transform.position, Time.smoothDeltaTime * (this.running ? 10f : 6f));
 					this.last_rot_camera = Main.controller.mainCam.transform.rotation;
 					this.last_pos_camera = Main.controller.mainCam.transform.position;
 					UnityEngine.Object.Destroy(gameObject);

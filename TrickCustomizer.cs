@@ -16,6 +16,7 @@ namespace fro_mod
         string actual_stance;
         List<string> last_input = new List<string>(0);
         Vector3 origin;
+        GameObject copy;
         public void FixedUpdate()
         {
             if (!Main.settings.trick_customization) return;
@@ -36,24 +37,24 @@ namespace fro_mod
                 {
                     string input = type_of_input[i];
                     float multiplier = getMultiplier(input);
-                    Vector3 lerpedRotation;
+                    Quaternion lerpedRotation;
                     Vector3 offset = getCustomRotation(actual_stance, input) * multiplier;
                     offset /= 12;
 
                     float anim = Controller.map01(air_frame, 0, getAnimationlength(actual_stance, input));
                     anim = anim > 1 ? 1 : anim;
 
-                    Vector3 origin = PlayerController.Instance.boardController.boardRigidbody.transform.rotation.eulerAngles;
+                    Quaternion origin = PlayerController.Instance.boardController.boardRigidbody.transform.rotation;
                     if (PlayerController.Instance.GetBoardBackwards())
                     {
-                        lerpedRotation = Vector3.Lerp(origin, origin + new Vector3(-offset.x, offset.y, -offset.z), anim);
+                        lerpedRotation = Quaternion.Slerp(origin, Quaternion.Euler(origin.eulerAngles.x - offset.x, origin.eulerAngles.y + offset.y, origin.eulerAngles.z - offset.z), anim);
                     }
                     else
                     {
-                        lerpedRotation = Vector3.Lerp(origin, origin + new Vector3(offset.x, offset.y, offset.z), anim);
+                        lerpedRotation = Quaternion.Slerp(origin, Quaternion.Euler(origin.eulerAngles.x + offset.x, origin.eulerAngles.y + offset.y, origin.eulerAngles.z + offset.z), anim);
                     }
 
-                    PlayerController.Instance.boardController.gameObject.transform.rotation = Quaternion.Euler(lerpedRotation);
+                    PlayerController.Instance.boardController.gameObject.transform.rotation = lerpedRotation;
                     PlayerController.Instance.boardController.UpdateBoardPosition();
 
                     PlayerController.Instance.boardController.currentRotationTarget = PlayerController.Instance.boardController.gameObject.transform.rotation;
@@ -77,12 +78,11 @@ namespace fro_mod
                     string input = type_of_input[i];
                     if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular && input == "right-backwards" || SettingsManager.Instance.stance == SkaterXL.Core.Stance.Goofy && input == "left-backwards")
                     {
-                        GameObject copy = new GameObject();
+                        if(!copy) copy = new GameObject();
                         copy.transform.rotation = PlayerController.Instance.skaterController.skaterTransform.rotation;
                         copy.transform.position = PlayerController.Instance.skaterController.skaterTransform.position;
                         copy.transform.Translate(-2f, 0, 0, Space.Self);
                         PlayerController.Instance.skaterController.skaterRigidbody.AddForceAtPosition(-copy.transform.up * Main.settings.force_stick_backwards_multiplier, copy.transform.position, ForceMode.Impulse);
-                        Destroy(copy);
                     }
                 }
             }

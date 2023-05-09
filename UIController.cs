@@ -283,7 +283,7 @@ namespace fro_mod
             if (!about_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b>fro's experimental mod v1.15.3 for XL v1.2.X.X (29/11/2022)</b>");
+                GUILayout.Label("<b>fro's experimental mod v1.16.1 for public XL v1.2.2.X (04/05/2023)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This software is distributed 'as is', with no warranty expressed or implied, and no guarantee for accuracy or applicability to any purpose.");
                 GUILayout.Label("This mod is not intended to harm the game or the respective developer, the online functionality, or the game economy in any purposeful way.");
@@ -505,7 +505,7 @@ namespace fro_mod
                         Main.settings.bump_anim_pop = !Main.settings.bump_anim_pop;
                     }
 
-                    if(Main.settings.bump_anim_pop) Main.settings.bump_pop_delay = RGUI.SliderFloat(Main.settings.bump_pop_delay, 0f, 1f, .15f, "Animation delay");
+                    if (Main.settings.bump_anim_pop) Main.settings.bump_pop_delay = RGUI.SliderFloat(Main.settings.bump_pop_delay, 0f, 1f, .15f, "Animation delay");
                 }
 
                 GUILayout.Space(6);
@@ -853,6 +853,8 @@ namespace fro_mod
 
         FoldObj body_fold = new FoldObj(true, "Body customization");
         FoldObj muscle_fold = new FoldObj(true, "Body parts scale");
+        FoldObj body_rotation_fold = new FoldObj(true, "Body parts rotation");
+        int selected_state_bp = 0, selected_body_part = 0;
         void BodySection()
         {
             Fold(body_fold, green);
@@ -899,6 +901,35 @@ namespace fro_mod
                     Main.settings.custom_scale_leg_r = RGUI.SliderFloat(Main.settings.custom_scale_leg_r, 0.01f, 4f, 1f, "Right leg scale");
 
                     Main.settings.custom_scale_foot_r = RGUI.SliderFloat(Main.settings.custom_scale_foot_r, 0.01f, 4f, 1f, "Right foot scale");
+                }
+
+                Fold(body_rotation_fold, green);
+                if (!body_rotation_fold.reference)
+                {
+                    if (RGUI.Button(Main.settings.body_rotation, "Body rotations"))
+                    {
+                        Main.settings.body_rotation = !Main.settings.body_rotation;
+                    }
+
+                    if(Main.settings.body_rotation)
+                    {
+                        GUILayout.BeginHorizontal();
+                        GUILayout.Label("State:");
+                        selected_state_bp = RGUI.SelectionPopup(selected_state_bp, Enums.StatesReal, 0, 0);
+                        GUILayout.EndHorizontal();
+                        GUILayout.BeginHorizontal();
+                        GUILayout.Label("Body part:");
+                        selected_body_part = RGUI.SelectionPopup(selected_body_part, Enums.BodyParts, 1, 12);
+                        GUILayout.EndHorizontal();
+
+                        Vector3 rotation = Main.settings.body_rotations[selected_state_bp][selected_body_part];
+
+                        rotation.x = RGUI.SliderFloat(rotation.x, -360f, 360f, Enums.OriginalRotations[selected_body_part].x, "X");
+                        rotation.y = RGUI.SliderFloat(rotation.y, -360f, 360f, Enums.OriginalRotations[selected_body_part].y, "Y");
+                        rotation.z = RGUI.SliderFloat(rotation.z, -360f, 360f, Enums.OriginalRotations[selected_body_part].z, "Z");
+
+                        Main.settings.body_rotations[selected_state_bp][selected_body_part] = rotation;
+                    }
                 }
 
                 GUILayout.EndVertical();
@@ -1309,30 +1340,16 @@ namespace fro_mod
             Fold(misc_fold, green);
             if (!misc_fold.reference)
             {
-                if (RGUI.Button(Main.settings.walk_after_bail, "Ghost walking after bail"))
-                {
-                    Main.settings.walk_after_bail = !Main.settings.walk_after_bail;
-                }
-
-                if (Main.settings.walk_after_bail)
-                {
-                    GUILayout.BeginVertical("Box");
-                    GUILayout.Label("Circle / B for magnetizing the skate");
-                    GUILayout.Label("Square / X for dropping the skate");
-                    GUILayout.Label("Left stick click to toggle between walking / running");
-                    GUILayout.Label("If you jump into the skate the skater will respawn at that position");
-                    GUILayout.EndVertical();
-
-                    Main.settings.bails = true;
-                }
-
-                GUILayout.Space(12);
-
                 if (RGUI.Button(Main.settings.debug, "Debug"))
                 {
                     Main.settings.debug = !Main.settings.debug;
                     Main.controller.checkDebug();
                     Main.controller.getDeck();
+
+                    for (int i = 0; i < Main.controller.skater_parts.Length; i++)
+                    {
+                        UnityModManager.Logger.Log(Main.controller.skater_parts[i].gameObject.name + " " + Main.controller.skater_parts[i].localRotation.eulerAngles);
+                    }
                 }
 
                 GUILayout.Space(12);
@@ -1398,34 +1415,24 @@ namespace fro_mod
                     Main.settings.partial_gear = !Main.settings.partial_gear;
                 }
 
-                //GUILayout.Space(12);
+                GUILayout.Space(12);
 
-                /*GUILayout.BeginHorizontal();
-                GUILayout.Label("<b>Player username</b>");
-                kickplayer = RGUI.SelectionPopup(kickplayer, Main.controller.getListOfPlayers());
-                GUILayout.EndHorizontal();
-                if (Main.multi.isMaster())
+                Main.settings.map_scale.x = RGUI.SliderFloat(Main.settings.map_scale.x, 0.01f, 2f, 1f, "Map scale X");
+                Main.settings.map_scale.y = RGUI.SliderFloat(Main.settings.map_scale.y, 0.01f, 2f, 1f, "Map scale Y");
+                Main.settings.map_scale.z = RGUI.SliderFloat(Main.settings.map_scale.z, 0.01f, 2f, 1f, "Map scale Z");
+
+
+                if (GUILayout.Button("Scale map", GUILayout.Height(34)))
                 {
-                    if (GUILayout.Button("Kick " + kickplayer, GUILayout.Height(34)))
-                    {
-                        Main.multi.KickPlayer(kickplayer);
-                    }
+                    Main.controller.ScaleMap();
                 }
 
-                if (GUILayout.Button("Steal main", GUILayout.Height(34)))
-                {
-                    Main.multi.setMeAsMaster();
-                }
+                GUILayout.Space(12);
 
-                if (GUILayout.Button("Restore main", GUILayout.Height(34)))
+                if (RGUI.Button(Main.settings.experimental_dynamic_catch, "Dynamic catch really experimental proof of concept will be weird"))
                 {
-                    Main.multi.restoreMaster();
+                    Main.settings.experimental_dynamic_catch = !Main.settings.experimental_dynamic_catch;
                 }
-
-                if (GUILayout.Button("Master to " + kickplayer, GUILayout.Height(34)))
-                {
-                    Main.multi.MasterPlayer(kickplayer);
-                }*/
             }
 
             //GUI.EndScrollView();

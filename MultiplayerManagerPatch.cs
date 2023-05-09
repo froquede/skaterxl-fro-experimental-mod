@@ -7,9 +7,9 @@ using UnityModManagerNet;
 
 namespace fro_mod
 {
-	[HarmonyPatch(typeof(MultiplayerManager), nameof(MultiplayerManager.OnPlayerLeftRoom))]
 	class MultiplayerManagerPatch
 	{
+		[HarmonyPatch(typeof(MultiplayerManager), nameof(MultiplayerManager.OnPlayerLeftRoom))]
         static void OnPlayerLeftRoom(Player otherPlayer)
 		{
 			if (otherPlayer.IsLocal)

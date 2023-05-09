@@ -7,7 +7,7 @@ namespace RapidGUI
     public static partial class RGUI
     {
         static int popupControlId;
-        static readonly PopupWindow popupWindow = new PopupWindow();
+        static PopupWindow popupWindow = new PopupWindow();
 
         public static string SelectionPopup(string current, string[] displayOptions)
         {
@@ -29,18 +29,34 @@ namespace RapidGUI
             return PopupOnLastRect(selectionIndex, displayOptions);
         }
 
+        public static int SelectionPopup(int selectionIndex, string[] displayOptions, int _start, int _end)
+        {
+            popupWindow.pstart = _start;
+            popupWindow.pend = _end;
+
+            var label = (selectionIndex < 0 || displayOptions.Length <= selectionIndex) ? "" : displayOptions[selectionIndex];
+            GUI.backgroundColor = Color.black;
+            GUILayout.Box("<b>" + label + "</b>", RGUIStyle.alignLeftBox);
+
+            return Popup(GUILayoutUtility.GetLastRect(), -1, selectionIndex, displayOptions, "", _start, _end);
+        }
+
 
         public static int PopupOnLastRect(string[] displayOptions, string label = "") => PopupOnLastRect(-1, displayOptions, -1, label);
         public static int PopupOnLastRect(string[] displayOptions, int button, string label = "") => PopupOnLastRect(-1, displayOptions, button, label);
 
-        public static int PopupOnLastRect(int selectionIndex, string[] displayOptions, int mouseButton = -1, string label = "") => Popup(GUILayoutUtility.GetLastRect(), mouseButton, selectionIndex, displayOptions, label);
+        public static int PopupOnLastRect(int selectionIndex, string[] displayOptions, int mouseButton = -1, string label = "")
+        {
+            return Popup(GUILayoutUtility.GetLastRect(), mouseButton, selectionIndex, displayOptions, label);
+        }
 
-
-
-        public static int Popup(Rect launchRect, int mouseButton, int selectionIndex, string[] displayOptions, string label = "")
+        public static int Popup(Rect launchRect, int mouseButton, int selectionIndex, string[] displayOptions, string label = "", int start = 0, int end = 0)
         {
             var ret = selectionIndex;
             var controlId = GUIUtility.GetControlID(FocusType.Passive);
+
+            popupWindow.pstart = start;
+            popupWindow.pend = end;
 
             // not Popup Owner
             if (popupControlId != controlId)
@@ -126,6 +142,7 @@ namespace RapidGUI
             public Vector2 pos;
             public Vector2 size;
             public int? result;
+            public int pstart = 0, pend = 0;
             public string[] displayOptions;
             public Vector2 scrollPosition;
 
@@ -141,7 +158,7 @@ namespace RapidGUI
                     {
                         scrollPosition = sc.scrollPosition;
 
-                        for (var j = 0; j < displayOptions.Length; ++j)
+                        for (var j = 0; j < displayOptions.Length; j++)
                         {
                             if (GUILayout.Button(displayOptions[j], RGUIStyle.popupFlatButton))
                             {

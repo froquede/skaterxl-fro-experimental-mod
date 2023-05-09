@@ -9,6 +9,7 @@ using Photon.Pun;
 using ExitGames.Client.Photon;
 using System.Collections;
 using SkaterXL.Data;
+using System.Linq;
 
 namespace fro_mod
 {
@@ -38,7 +39,7 @@ namespace fro_mod
         }
 
         public List<ClothWatcherObj> toCheck = new List<ClothWatcherObj>();
-        public List<ClothWatcherObj> toCheckBoardGear = new List<ClothWatcherObj>();        
+        public List<ClothWatcherObj> toCheckBoardGear = new List<ClothWatcherObj>();
 
         void Start()
         {
@@ -57,6 +58,9 @@ namespace fro_mod
         {
             if (MultiplayerManager.Instance.InRoom)
             {
+                bool installed = false;
+                GetMapFrom(PhotonNetwork.CurrentRoom.CustomProperties, out installed);
+
                 if (Time.unscaledTime - time >= 20f)
                 {
                     // UnityModManager.Logger.Log("Updating custom scale");
@@ -294,7 +298,7 @@ namespace fro_mod
             PhotonNetwork.SetPlayerCustomProperties(hashtable);
         }
 
-            public void LogGear()
+        public void LogGear()
         {
             foreach (KeyValuePair<int, NetworkPlayerController> entry in MultiplayerManager.Instance.networkPlayers)
             {
@@ -432,6 +436,90 @@ namespace fro_mod
         public void OnPlayerLeft(Player player)
         {
             FindAndDestroy(player.UserId);
+        }
+
+        public void UpdateMapList()
+        {
+            LevelManager.Instance.IdToLevelDict.Clear();
+            using (IEnumerator<LevelInfo> enumerator = LevelManager.Instance.Levels.Union(LevelManager.Instance.CommunityLevels).Union(LevelManager.Instance.ModLevels).GetEnumerator())
+            {
+                while (enumerator.MoveNext())
+                {
+                    LevelInfo lvl = enumerator.Current;
+                    if (lvl.id != null)
+                    {
+                        if (!LevelManager.Instance.IdToLevelDict.ContainsKey(lvl.id))
+                        {
+                            LevelManager.Instance.IdToLevelDict.Add(lvl.id, lvl);
+                        }
+                        else
+                        {
+                            Debug.Log("Duplicate Level: " + lvl.name + " has same hash as " + LevelManager.Instance.IdToLevelDict[lvl.id].name);
+                        }
+                        string key;
+                        if (LevelManager.Instance.LevelIdMigration.TryGetValue(lvl.id, out key) && !LevelManager.Instance.IdToLevelDict.ContainsKey(key))
+                        {
+                            LevelManager.Instance.IdToLevelDict.Add(key, lvl);
+                        }
+                        foreach (KeyValuePair<string, string> keyValuePair in from kvp in LevelManager.Instance.LevelIdMigration
+                                                                              where kvp.Value == lvl.id
+                                                                              select kvp)
+                        {
+                            if (!LevelManager.Instance.IdToLevelDict.ContainsKey(keyValuePair.Key))
+                            {
+                                LevelManager.Instance.IdToLevelDict.Add(keyValuePair.Key, lvl);
+                            }
+                        }
+                    }
+                }
+            }
+
+            UnityModManager.Logger.Log(LevelManager.Instance.IdToLevelDict.Count.ToString());
+            bool installed = false;
+            GetMapFrom(PhotonNetwork.CurrentRoom.CustomProperties, out installed);
+        }
+
+        public LevelInfo GetMapFrom(ExitGames.Client.Photon.Hashtable roomProperties, out bool isInstalled)
+        {
+            isInstalled = false;
+            object obj;
+            if (!roomProperties.TryGetValue(MultiplayerManager.MAPID_PROP_KEY, out obj))
+            {
+                UnityModManager.Logger.Log("Room Properties don't contain mapId: " + string.Join("\n", from kvp in roomProperties
+                                                                                      select kvp.Key + " : " + kvp.Value));
+                return null;
+            }
+            string text = roomProperties[MultiplayerManager.MAPNAME_PROP_KEY] as string;
+            if (!(obj is string))
+            {
+                UnityModManager.Logger.Log("MP Room Property MapID Property is set but not a string");
+                return null;
+            }
+            string text2 = (string)obj;
+            if (MonoBehaviourSingleton<LevelManager>.Instance.IsCurrentLevel(text2))
+            {
+                isInstalled = true;
+                return MonoBehaviourSingleton<LevelManager>.Instance.currentLevel;
+            }
+            if (MonoBehaviourSingleton<LevelManager>.Instance.IdToLevelDict.ContainsKey(text2))
+            {
+                isInstalled = true;
+                return MonoBehaviourSingleton<LevelManager>.Instance.IdToLevelDict[text2];
+            }
+
+            UnityModManager.Logger.Log(string.Concat(new string[]
+            {
+            "Map: ",
+            text,
+            "(id: ",
+            text2,
+            ") not installed!"
+            }));
+            return new LevelInfo
+            {
+                name = text,
+                id = text2
+            };
         }
     }
 }
