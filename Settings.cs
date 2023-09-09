@@ -249,6 +249,8 @@ namespace fro_mod
 
         public Vector3 reset_head = new Vector3(-19f, 0f, -15.5f);
 
+        public bool trick_customizer_grinds = false;
+
 #if DEBUG
         public bool debug = true;
 #else

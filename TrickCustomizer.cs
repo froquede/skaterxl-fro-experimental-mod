@@ -18,13 +18,21 @@ namespace fro_mod
         List<string> last_input = new List<string>(0);
         Vector3 customVelocity = Vector3.zero;
 
-        public void FixedUpdate()
+        public void Update()
         {
             if (!Main.settings.trick_customization || !Main.settings.enabled) return;
 
-            run = !Main.controller.IsGrounded() && PlayerController.Instance.currentStateEnum != PlayerController.CurrentState.Manual && PlayerController.Instance.currentStateEnum != PlayerController.CurrentState.BeginPop && !(!PlayerController.Instance.cameraController.IsInGrindState && Main.controller.last_state == PlayerController.CurrentState.Grinding.ToString());
-            //run = !run ? PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Grinding && Main.controller.last_state != PlayerController.CurrentState.Grinding.ToString() : run;
-            //run = !run ? PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Manual && Main.controller.last_state != PlayerController.CurrentState.Manual.ToString() : run;
+            run = true;
+
+            if (Main.controller.IsGrounded()) run = false;
+            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Manual || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.BeginPop) run = false;
+            if (Main.controller.last_state == PlayerController.CurrentState.Grinding.ToString() && !PlayerController.Instance.cameraController.IsInGrindState) run = false;
+
+            if (Main.settings.trick_customizer_grinds && Main.controller.IsGrinding())
+            {
+                run = true;
+                Utils.Log(PlayerController.Instance.GetLastTweakAxis());
+            }
 
             List<string> type_of_input = getTypeOfInput();
 
@@ -58,7 +66,6 @@ namespace fro_mod
                         lerpedRotation = Quaternion.Slerp(origin, Quaternion.Euler(origin.eulerAngles.x + offset.x, origin.eulerAngles.y + offset.y, origin.eulerAngles.z + offset.z), anim);
                     }
 
-
                     PlayerController.Instance.boardController.gameObject.transform.rotation = lerpedRotation;
                     PlayerController.Instance.boardController.SetRotationTarget(lerpedRotation);
                     //PlayerController.Instance.boardController.UpdateBoardPosition();
@@ -70,7 +77,14 @@ namespace fro_mod
                     last_input = type_of_input;*/
                 }
 
-                if (!run && air_frame > 0) air_frame--;
+                if (!run && air_frame > 0)
+                {
+                    if(!Main.settings.trick_customizer_grinds && Main.controller.IsGrounded())
+                    {
+                        air_frame = 0;
+                    }
+                    else air_frame--;
+                }
             }
 
             if (Main.settings.force_stick_backwards && (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.InAir || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pop || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Release))

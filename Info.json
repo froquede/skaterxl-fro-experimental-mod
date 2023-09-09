@@ -2,7 +2,7 @@
   "Id": "fro-mod",
   "DisplayName": "Fro's Experimental Mod",
   "Author": "froquede",
-  "Version": "1.17.0",
+  "Version": "1.17.1",
   "ManagerVersion": "0.22.5.0",
   "Requirements": [],
   "LoadAfter": [ "XXLMod3" ],

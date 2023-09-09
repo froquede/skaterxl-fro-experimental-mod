@@ -473,13 +473,6 @@ namespace fro_mod
                 return;
             }
 
-            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pop)
-            {
-                Utils.Log(Utils.getDeltas());
-                /*MonoBehaviourSingleton<PlayerController>.Instance.SetIKLerpSpeed(.1f);
-                PlayerController.Instance.animationController.ScaleAnimSpeed(1.1f);*/
-            }
-
             if ((PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.InAir || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Release) && !Utils.isOllie())
             {
                 MonoBehaviourSingleton<PlayerController>.Instance.ScalePlayerCollider();
@@ -489,8 +482,9 @@ namespace fro_mod
                 Vector3 from = Vector3.ProjectOnPlane(PlayerController.Instance.skaterController.skaterTransform.up, PlayerController.Instance.boardController.boardTransform.forward);
                 float angle = Vector3.Angle(from, PlayerController.Instance.boardController.boardTransform.up);
                 float relative_rot = 1.05f - Mathf.Clamp01(Utils.map01(angle, 0, 70f));
-                PlayerController.Instance.ikController._finalIk.solver.leftFootEffector.rotationWeight = forced_caught && left_caught ? relative_rot : 0;
-                PlayerController.Instance.ikController._finalIk.solver.rightFootEffector.rotationWeight = forced_caught && right_caught ? relative_rot : 0;
+                float step_rot = Time.fixedDeltaTime * 24f;
+                PlayerController.Instance.ikController._finalIk.solver.leftFootEffector.rotationWeight = Mathf.SmoothStep(PlayerController.Instance.ikController._finalIk.solver.leftFootEffector.rotationWeight, forced_caught && left_caught ? relative_rot : 0, step_rot);
+                PlayerController.Instance.ikController._finalIk.solver.rightFootEffector.rotationWeight = Mathf.SmoothStep(PlayerController.Instance.ikController._finalIk.solver.rightFootEffector.rotationWeight, forced_caught && right_caught ? relative_rot : 0, step_rot);
 
                 if (forced_caught) forced_caught_count++;
 
@@ -578,8 +572,8 @@ namespace fro_mod
             MonoBehaviourSingleton<PlayerController>.Instance.SetIKLerpSpeed(8f);
             MonoBehaviourSingleton<PlayerController>.Instance.AnimSetNoComply(false);
             MonoBehaviourSingleton<PlayerController>.Instance.SetMaxSteeze(0f);
-            MonoBehaviourSingleton<PlayerController>.Instance.SetLeftIKLerpTarget(0f);
-            MonoBehaviourSingleton<PlayerController>.Instance.SetRightIKLerpTarget(0f);
+            /*MonoBehaviourSingleton<PlayerController>.Instance.SetLeftIKLerpTarget(0f);
+            MonoBehaviourSingleton<PlayerController>.Instance.SetRightIKLerpTarget(0f);*/
             MonoBehaviourSingleton<PlayerController>.Instance.ScalePlayerCollider();
             MonoBehaviourSingleton<PlayerController>.Instance.ToggleFlipColliders(false);
             MonoBehaviourSingleton<PlayerController>.Instance.animationController.ScaleAnimSpeed(1f);
@@ -902,7 +896,6 @@ namespace fro_mod
                     Quaternion origin_rot = inState ? neck.rotation : spine2.transform.rotation * Quaternion.Euler(Main.settings.reset_head);
                     Quaternion target_rot = inState ? Quaternion.Lerp(spine2.transform.rotation, neck_copy.transform.rotation, .75f) : neck.rotation;
 
-                    Utils.Log(inState + " " + step_head);
                     neck.rotation = Quaternion.Lerp(origin_rot, target_rot, step_head);
 
                     Destroy(neck_copy);
@@ -1995,6 +1988,11 @@ namespace fro_mod
         public bool IsGrounded()
         {
             return PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Impact || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Riding || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Manual || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Powerslide || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pushing || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Braking || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Grinding || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.EnterCoping || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.ExitCoping;
+        }
+
+        public bool IsGrinding()
+        {
+            return PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Grinding || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.EnterCoping || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.ExitCoping;
         }
 
         public bool IsPopping()

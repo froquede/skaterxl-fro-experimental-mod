@@ -690,11 +690,11 @@ namespace fro_mod
             if (!grinds_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("Grind:");
-                selected_grind_vert = RGUI.SelectionPopup(selected_grind_vert, Enums.GrindType);
-                GUILayout.EndHorizontal();
-                Main.settings.GrindFlipVerticality = RGUI.SliderFloat(Main.settings.GrindFlipVerticality, -1f, 1f, 0f, "Out of grinds");
+                    /*GUILayout.BeginHorizontal();
+                    GUILayout.Label("Grind:");
+                    selected_grind_vert = RGUI.SelectionPopup(selected_grind_vert, Enums.GrindType);
+                    GUILayout.EndHorizontal();*/
+                    Main.settings.GrindFlipVerticality = RGUI.SliderFloat(Main.settings.GrindFlipVerticality, -1f, 1f, 0f, "Out of grinds");
                 GUILayout.EndVertical();
 
                 GUILayout.BeginVertical("Box");
@@ -1083,68 +1083,79 @@ namespace fro_mod
                     Main.settings.trick_customization = !Main.settings.trick_customization;
                 }
 
-                GUILayout.BeginHorizontal();        
+                if (Main.settings.trick_customization)
+                {
+                    if (RGUI.Button(Main.settings.trick_customizer_grinds, "Apply on grinds"))
+                    {
+                        Main.settings.trick_customizer_grinds = !Main.settings.trick_customizer_grinds;
+                    }                    
 
-                GUILayout.Label("Stance:");
-                selected_stance_customizer = RGUI.SelectionPopup(selected_stance_customizer, Enums.StancesCustomizer);
-                GUILayout.EndHorizontal();
+                    GUILayout.Space(12);
 
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("Input:");
-                selected_input = RGUI.SelectionPopup(selected_input, input_types);
-                GUILayout.EndHorizontal();
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Stance:");
+                    selected_stance_customizer = RGUI.SelectionPopup(selected_stance_customizer, Enums.StancesCustomizer);
+                    GUILayout.EndHorizontal();
 
-                // this is not ideal but letsgo
-                Vector3 rotation = Main.settings.ollie_customization_rotation[selected_stance_customizer];
-                if (selected_input == 1) rotation = Main.settings.ollie_customization_rotation_backwards[selected_stance_customizer];
-                if (selected_input == 2) rotation = Main.settings.ollie_customization_rotation_left_stick[selected_stance_customizer];
-                if (selected_input == 3) rotation = Main.settings.ollie_customization_rotation_right_stick[selected_stance_customizer];
-                if (selected_input == 4) rotation = Main.settings.ollie_customization_rotation_left_stick_backwards[selected_stance_customizer];
-                if (selected_input == 5) rotation = Main.settings.ollie_customization_rotation_right_stick_backwards[selected_stance_customizer];
-                if (selected_input == 6) rotation = Main.settings.ollie_customization_rotation_both_outside[selected_stance_customizer];
-                if (selected_input == 7) rotation = Main.settings.ollie_customization_rotation_both_inside[selected_stance_customizer];
-                if (selected_input == 8) rotation = Main.settings.ollie_customization_rotation_left2left[selected_stance_customizer];
-                if (selected_input == 9) rotation = Main.settings.ollie_customization_rotation_left2right[selected_stance_customizer];
-                if (selected_input == 10) rotation = Main.settings.ollie_customization_rotation_right2left[selected_stance_customizer];
-                if (selected_input == 11) rotation = Main.settings.ollie_customization_rotation_right2right[selected_stance_customizer];
-                if (selected_input == 12) rotation = Main.settings.ollie_customization_rotation_both2left[selected_stance_customizer];
-                if (selected_input == 13) rotation = Main.settings.ollie_customization_rotation_both2right[selected_stance_customizer];
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Input:");
+                    selected_input = RGUI.SelectionPopup(selected_input, input_types);
+                    GUILayout.EndHorizontal();
 
-                rotation.z = RGUI.SliderFloat(rotation.z, -180f, 180f, 0f, "Roll");
-                rotation.x = RGUI.SliderFloat(rotation.x, -180f, 180f, 0f, "Pitch");
-                rotation.y = RGUI.SliderFloat(rotation.y, -180f, 180f, 0f, "Yaw");
+                    // this is not ideal but letsgo
+                    Vector3 rotation = Main.settings.ollie_customization_rotation[selected_stance_customizer];
+                    if (selected_input == 1) rotation = Main.settings.ollie_customization_rotation_backwards[selected_stance_customizer];
+                    if (selected_input == 2) rotation = Main.settings.ollie_customization_rotation_left_stick[selected_stance_customizer];
+                    if (selected_input == 3) rotation = Main.settings.ollie_customization_rotation_right_stick[selected_stance_customizer];
+                    if (selected_input == 4) rotation = Main.settings.ollie_customization_rotation_left_stick_backwards[selected_stance_customizer];
+                    if (selected_input == 5) rotation = Main.settings.ollie_customization_rotation_right_stick_backwards[selected_stance_customizer];
+                    if (selected_input == 6) rotation = Main.settings.ollie_customization_rotation_both_outside[selected_stance_customizer];
+                    if (selected_input == 7) rotation = Main.settings.ollie_customization_rotation_both_inside[selected_stance_customizer];
+                    if (selected_input == 8) rotation = Main.settings.ollie_customization_rotation_left2left[selected_stance_customizer];
+                    if (selected_input == 9) rotation = Main.settings.ollie_customization_rotation_left2right[selected_stance_customizer];
+                    if (selected_input == 10) rotation = Main.settings.ollie_customization_rotation_right2left[selected_stance_customizer];
+                    if (selected_input == 11) rotation = Main.settings.ollie_customization_rotation_right2right[selected_stance_customizer];
+                    if (selected_input == 12) rotation = Main.settings.ollie_customization_rotation_both2left[selected_stance_customizer];
+                    if (selected_input == 13) rotation = Main.settings.ollie_customization_rotation_both2right[selected_stance_customizer];
 
-                if (selected_input == 0) Main.settings.ollie_customization_rotation[selected_stance_customizer] = rotation;
-                if (selected_input == 1) Main.settings.ollie_customization_rotation_backwards[selected_stance_customizer] = rotation;
-                if (selected_input == 2) Main.settings.ollie_customization_rotation_left_stick[selected_stance_customizer] = rotation;
-                if (selected_input == 3) Main.settings.ollie_customization_rotation_right_stick[selected_stance_customizer] = rotation;
-                if (selected_input == 4) Main.settings.ollie_customization_rotation_left_stick_backwards[selected_stance_customizer] = rotation;
-                if (selected_input == 5) Main.settings.ollie_customization_rotation_right_stick_backwards[selected_stance_customizer] = rotation;
-                if (selected_input == 6) Main.settings.ollie_customization_rotation_both_outside[selected_stance_customizer] = rotation;
-                if (selected_input == 7) Main.settings.ollie_customization_rotation_both_inside[selected_stance_customizer] = rotation;
-                if (selected_input == 8) Main.settings.ollie_customization_rotation_left2left[selected_stance_customizer] = rotation;
-                if (selected_input == 9) Main.settings.ollie_customization_rotation_left2right[selected_stance_customizer] = rotation;
-                if (selected_input == 10) Main.settings.ollie_customization_rotation_right2left[selected_stance_customizer] = rotation;
-                if (selected_input == 11) Main.settings.ollie_customization_rotation_right2right[selected_stance_customizer] = rotation;
-                if (selected_input == 12) Main.settings.ollie_customization_rotation_both2left[selected_stance_customizer] = rotation;
-                if (selected_input == 13) Main.settings.ollie_customization_rotation_both2right[selected_stance_customizer] = rotation;
+                    rotation.z = RGUI.SliderFloat(rotation.z, -180f, 180f, 0f, "Roll");
+                    rotation.x = RGUI.SliderFloat(rotation.x, -180f, 180f, 0f, "Pitch");
+                    rotation.y = RGUI.SliderFloat(rotation.y, -180f, 180f, 0f, "Yaw");
 
-                if (selected_input == 0) Main.settings.ollie_customization_length[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                if (selected_input == 1) Main.settings.ollie_customization_length_backwards[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_backwards[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                if (selected_input == 2) Main.settings.ollie_customization_length_left_stick[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_left_stick[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                if (selected_input == 3) Main.settings.ollie_customization_length_right_stick[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_right_stick[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                if (selected_input == 4) Main.settings.ollie_customization_length_left_stick_backwards[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_left_stick_backwards[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                if (selected_input == 5) Main.settings.ollie_customization_length_right_stick_backwards[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_right_stick_backwards[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                if (selected_input == 6) Main.settings.ollie_customization_length_both_outside[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_both_outside[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                if (selected_input == 7) Main.settings.ollie_customization_length_both_inside[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_both_inside[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                if (selected_input == 8) Main.settings.ollie_customization_length_left2left[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_left2left[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                if (selected_input == 9) Main.settings.ollie_customization_length_left2right[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_left2right[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                if (selected_input == 10) Main.settings.ollie_customization_length_right2left[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_right2left[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                if (selected_input == 11) Main.settings.ollie_customization_length_right2right[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_right2right[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                if (selected_input == 12) Main.settings.ollie_customization_length_both2left[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_both2left[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-                if (selected_input == 13) Main.settings.ollie_customization_length_both2right[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_both2right[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                    if (selected_input == 0) Main.settings.ollie_customization_rotation[selected_stance_customizer] = rotation;
+                    if (selected_input == 1) Main.settings.ollie_customization_rotation_backwards[selected_stance_customizer] = rotation;
+                    if (selected_input == 2) Main.settings.ollie_customization_rotation_left_stick[selected_stance_customizer] = rotation;
+                    if (selected_input == 3) Main.settings.ollie_customization_rotation_right_stick[selected_stance_customizer] = rotation;
+                    if (selected_input == 4) Main.settings.ollie_customization_rotation_left_stick_backwards[selected_stance_customizer] = rotation;
+                    if (selected_input == 5) Main.settings.ollie_customization_rotation_right_stick_backwards[selected_stance_customizer] = rotation;
+                    if (selected_input == 6) Main.settings.ollie_customization_rotation_both_outside[selected_stance_customizer] = rotation;
+                    if (selected_input == 7) Main.settings.ollie_customization_rotation_both_inside[selected_stance_customizer] = rotation;
+                    if (selected_input == 8) Main.settings.ollie_customization_rotation_left2left[selected_stance_customizer] = rotation;
+                    if (selected_input == 9) Main.settings.ollie_customization_rotation_left2right[selected_stance_customizer] = rotation;
+                    if (selected_input == 10) Main.settings.ollie_customization_rotation_right2left[selected_stance_customizer] = rotation;
+                    if (selected_input == 11) Main.settings.ollie_customization_rotation_right2right[selected_stance_customizer] = rotation;
+                    if (selected_input == 12) Main.settings.ollie_customization_rotation_both2left[selected_stance_customizer] = rotation;
+                    if (selected_input == 13) Main.settings.ollie_customization_rotation_both2right[selected_stance_customizer] = rotation;
 
-                GUILayout.EndVertical();
+                    GUILayout.Space(6);
+
+                    if (selected_input == 0) Main.settings.ollie_customization_length[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                    if (selected_input == 1) Main.settings.ollie_customization_length_backwards[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_backwards[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                    if (selected_input == 2) Main.settings.ollie_customization_length_left_stick[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_left_stick[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                    if (selected_input == 3) Main.settings.ollie_customization_length_right_stick[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_right_stick[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                    if (selected_input == 4) Main.settings.ollie_customization_length_left_stick_backwards[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_left_stick_backwards[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                    if (selected_input == 5) Main.settings.ollie_customization_length_right_stick_backwards[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_right_stick_backwards[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                    if (selected_input == 6) Main.settings.ollie_customization_length_both_outside[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_both_outside[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                    if (selected_input == 7) Main.settings.ollie_customization_length_both_inside[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_both_inside[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                    if (selected_input == 8) Main.settings.ollie_customization_length_left2left[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_left2left[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                    if (selected_input == 9) Main.settings.ollie_customization_length_left2right[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_left2right[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                    if (selected_input == 10) Main.settings.ollie_customization_length_right2left[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_right2left[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                    if (selected_input == 11) Main.settings.ollie_customization_length_right2right[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_right2right[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                    if (selected_input == 12) Main.settings.ollie_customization_length_both2left[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_both2left[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+                    if (selected_input == 13) Main.settings.ollie_customization_length_both2right[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_both2right[selected_stance_customizer], 0, 60f, 24f, "Animation length");
+
+                    GUILayout.EndVertical();
+                }
             }
         }
 
