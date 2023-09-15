@@ -251,6 +251,14 @@ namespace fro_mod
 
         public bool trick_customizer_grinds = false;
 
+        public bool alternative_coping = false;
+        public float coping_detection_distance = .5f;
+        public float coping_part_speed = .1f;
+        public float coping_part_distance = 5f;
+        public float coping_max_velocity = 5f;
+
+        public bool shuv_fix = false;
+
 #if DEBUG
         public bool debug = true;
 #else

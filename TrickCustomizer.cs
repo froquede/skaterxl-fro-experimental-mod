@@ -31,7 +31,6 @@ namespace fro_mod
             if (Main.settings.trick_customizer_grinds && Main.controller.IsGrinding())
             {
                 run = true;
-                Utils.Log(PlayerController.Instance.GetLastTweakAxis());
             }
 
             List<string> type_of_input = getTypeOfInput();

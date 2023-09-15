@@ -4,103 +4,107 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityModManagerNet;
 
-public static class Utils
+namespace fro_mod
 {
-    public static float map01(float value, float min, float max)
+    public static class Utils
     {
-        return (value - min) * 1f / (max - min);
-    }
-
-    public static float map(float value, float leftMin, float leftMax, float rightMin, float rightMax)
-    {
-        return rightMin + (value - leftMin) * (rightMax - rightMin) / (leftMax - leftMin);
-    }
-
-    public static Quaternion GetLocalRotationRelativeToRootParent(Transform transform)
-    {
-        if (transform.parent == null)
+        public static float map01(float value, float min, float max)
         {
-            return transform.localRotation;
+            return (value - min) * 1f / (max - min);
         }
-        else
+
+        public static float map(float value, float leftMin, float leftMax, float rightMin, float rightMax)
         {
-            Quaternion rootParentRotation = Quaternion.identity;
-            Transform currentParent = transform.parent;
-            while (currentParent.parent != null)
+            return rightMin + (value - leftMin) * (rightMax - rightMin) / (leftMax - leftMin);
+        }
+
+        public static Quaternion GetLocalRotationRelativeToRootParent(Transform transform)
+        {
+            if (transform.parent == null)
             {
-                rootParentRotation = currentParent.rotation * rootParentRotation;
-                currentParent = currentParent.parent;
+                return transform.localRotation;
             }
-            return Quaternion.Inverse(rootParentRotation) * transform.rotation;
+            else
+            {
+                Quaternion rootParentRotation = Quaternion.identity;
+                Transform currentParent = transform.parent;
+                while (currentParent.parent != null)
+                {
+                    rootParentRotation = currentParent.rotation * rootParentRotation;
+                    currentParent = currentParent.parent;
+                }
+                return Quaternion.Inverse(rootParentRotation) * transform.rotation;
+            }
         }
-    }
 
-    public static float WrapAngle(float angle)
-    {
-        angle %= 360;
-        if (angle > 180)
-            return angle - 360;
+        public static float WrapAngle(float angle)
+        {
+            angle %= 360;
+            if (angle > 180)
+                return angle - 360;
 
-        return angle;
-    }
-
-    public static float UnwrapAngle(float angle)
-    {
-        if (angle >= 0)
             return angle;
+        }
 
-        angle = -angle % 360;
+        public static float UnwrapAngle(float angle)
+        {
+            if (angle >= 0)
+                return angle;
 
-        return 360 - angle;
-    }
+            angle = -angle % 360;
 
-    public static Vector3 TranslateWithRotation(Vector3 input, Vector3 translation, Quaternion rotation)
-    {
-        Vector3 rotatedTranslation = rotation * translation;
-        Vector3 output = input + rotatedTranslation;
-        return output;
-    }
+            return 360 - angle;
+        }
 
-    public static Quaternion SmoothDampQuaternion(Quaternion current, Quaternion target, ref Vector3 currentVelocity, float smoothTime)
-    {
-        Vector3 c = current.eulerAngles;
-        Vector3 t = target.eulerAngles;
-        return Quaternion.Euler(
-          Mathf.SmoothDampAngle(c.x, t.x, ref currentVelocity.x, smoothTime),
-          Mathf.SmoothDampAngle(c.y, t.y, ref currentVelocity.y, smoothTime),
-          Mathf.SmoothDampAngle(c.z, t.z, ref currentVelocity.z, smoothTime)
-        );
-    }
+        public static Vector3 TranslateWithRotation(Vector3 input, Vector3 translation, Quaternion rotation)
+        {
+            Vector3 rotatedTranslation = rotation * translation;
+            Vector3 output = input + rotatedTranslation;
+            return output;
+        }
 
-    public static bool AlmostEquals(this float double1, float double2, float precision)
-    {
-        return (Mathf.Abs(double1 - double2) <= precision);
-    }
+        public static Quaternion SmoothDampQuaternion(Quaternion current, Quaternion target, ref Vector3 currentVelocity, float smoothTime)
+        {
+            Vector3 c = current.eulerAngles;
+            Vector3 t = target.eulerAngles;
+            return Quaternion.Euler(
+              Mathf.SmoothDampAngle(c.x, t.x, ref currentVelocity.x, smoothTime),
+              Mathf.SmoothDampAngle(c.y, t.y, ref currentVelocity.y, smoothTime),
+              Mathf.SmoothDampAngle(c.z, t.z, ref currentVelocity.z, smoothTime)
+            );
+        }
 
-    public static bool IsGrabbing()
-    {
-        return PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Grabs || EventManager.Instance.IsGrabbing;
-    }
+        public static bool AlmostEquals(this float double1, float double2, float precision)
+        {
+            return (Mathf.Abs(double1 - double2) <= precision);
+        }
 
-    public static void Log(object arg)
-    {
-        UnityModManager.Logger.Log(arg.ToString());
-    }
+        public static bool IsGrabbing()
+        {
+            return PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Grabs || EventManager.Instance.IsGrabbing;
+        }
 
-    public static bool isOllie()
-    {
-        bool x = PlayerController.Instance.boardController.firstVel >= -2f && PlayerController.Instance.boardController.firstVel <= 2f;
-        bool y = PlayerController.Instance.boardController.secondVel >= -5f && PlayerController.Instance.boardController.secondVel <= 5f;
-        bool z = PlayerController.Instance.boardController.thirdVel >= -2f && PlayerController.Instance.boardController.thirdVel <= 2f;
-        return x && y && z;
-    }
+        public static void Log(object arg)
+        {
+            UnityModManager.Logger.Log(arg.ToString());
+        }
 
-    public static Vector3 getDeltas()
-    {
-        float first = PlayerController.Instance.boardController.firstVel;
-        float second = PlayerController.Instance.boardController.secondVel;
-        float third = PlayerController.Instance.boardController.thirdVel;
+        public static bool isOllie()
+        {
+            if (PlayerController.Instance.boardController.firstVel <= -1.7f || PlayerController.Instance.boardController.firstVel >= 1.7f) return false;
+            if (PlayerController.Instance.boardController.thirdVel <= -1f || PlayerController.Instance.boardController.thirdVel >= 1f) return false;
 
-        return new Vector3(first, second, third);
+            if (Main.controller.target_left <= .01f && Main.controller.target_right <= .01f) return true;
+            else return false;
+        }
+
+        public static Vector3 getDeltas()
+        {
+            float first = PlayerController.Instance.boardController.firstVel;
+            float second = PlayerController.Instance.boardController.secondVel;
+            float third = PlayerController.Instance.boardController.thirdVel;
+
+            return new Vector3(first, second, third);
+        }
     }
 }

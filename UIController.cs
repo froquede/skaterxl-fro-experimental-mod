@@ -41,6 +41,12 @@ namespace fro_mod
         bool showMainMenu = false;
         private Rect MainMenuRect = new Rect(20, 20, Screen.width / 6, 20);
 
+        public void updateMainWindow()
+        {
+            MainMenuRect.height = 0;
+            MainMenuRect.width = Screen.width / 6;
+        }
+
         public void Start()
         {
             style.margin = new RectOffset(20, 0, 0, 0);
@@ -342,6 +348,12 @@ namespace fro_mod
                 Main.settings.celebrate_on = RGUI.SelectionPopup(Main.settings.celebrate_on, Enums.States);
                 GUILayout.EndHorizontal();
 
+                GUILayout.Space(12);
+
+                if (RGUI.Button(Main.settings.shuv_fix, "Shuv leg fix"))
+                {
+                    Main.settings.shuv_fix = !Main.settings.shuv_fix;
+                }
                 GUILayout.Space(12);
 
                 if (RGUI.Button(Main.settings.bump_anim, "Alternative bumps"))
@@ -690,11 +702,11 @@ namespace fro_mod
             if (!grinds_fold.reference)
             {
                 GUILayout.BeginVertical("Box");
-                    /*GUILayout.BeginHorizontal();
-                    GUILayout.Label("Grind:");
-                    selected_grind_vert = RGUI.SelectionPopup(selected_grind_vert, Enums.GrindType);
-                    GUILayout.EndHorizontal();*/
-                    Main.settings.GrindFlipVerticality = RGUI.SliderFloat(Main.settings.GrindFlipVerticality, -1f, 1f, 0f, "Out of grinds");
+                /*GUILayout.BeginHorizontal();
+                GUILayout.Label("Grind:");
+                selected_grind_vert = RGUI.SelectionPopup(selected_grind_vert, Enums.GrindType);
+                GUILayout.EndHorizontal();*/
+                Main.settings.GrindFlipVerticality = RGUI.SliderFloat(Main.settings.GrindFlipVerticality, -1f, 1f, 0f, "Out of grinds");
                 GUILayout.EndVertical();
 
                 GUILayout.BeginVertical("Box");
@@ -950,6 +962,7 @@ namespace fro_mod
 
         FoldObj skate_fold = new FoldObj(true, "Skate");
         FoldObj skate_settings_fold = new FoldObj(true, "Settings");
+        UIFold coping_fold = new UIFold("Coping");
         FoldObj customizer_fold = new FoldObj(true, "Trick customizer");
         // string selected_stance_customizer = "Regular";
         int selected_stance_customizer = 0;
@@ -1088,7 +1101,7 @@ namespace fro_mod
                     if (RGUI.Button(Main.settings.trick_customizer_grinds, "Apply on grinds"))
                     {
                         Main.settings.trick_customizer_grinds = !Main.settings.trick_customizer_grinds;
-                    }                    
+                    }
 
                     GUILayout.Space(12);
 
@@ -1153,9 +1166,37 @@ namespace fro_mod
                     if (selected_input == 11) Main.settings.ollie_customization_length_right2right[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_right2right[selected_stance_customizer], 0, 60f, 24f, "Animation length");
                     if (selected_input == 12) Main.settings.ollie_customization_length_both2left[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_both2left[selected_stance_customizer], 0, 60f, 24f, "Animation length");
                     if (selected_input == 13) Main.settings.ollie_customization_length_both2right[selected_stance_customizer] = RGUI.SliderFloat(Main.settings.ollie_customization_length_both2right[selected_stance_customizer], 0, 60f, 24f, "Animation length");
-
-                    GUILayout.EndVertical();
                 }
+
+                GUILayout.EndVertical();
+            }
+        }
+
+        void CopingSection()
+        {
+            coping_fold.Fold();
+
+            if (coping_fold.active)
+            {
+                GUILayout.BeginVertical(boxpadded);
+                {
+                    if (RGUI.Button(Main.settings.alternative_coping, "Enabled"))
+                    {
+                        Main.settings.alternative_coping = !Main.settings.alternative_coping;
+                    }
+
+                    if(Main.settings.alternative_coping)
+                    {
+                        Main.settings.coping_detection_distance = RGUI.SliderFloat(Main.settings.coping_detection_distance, 0, 1f, .5f, "Minimum distance to enter coping");
+                        Main.settings.coping_max_velocity = RGUI.SliderFloat(Main.settings.coping_max_velocity, 0, 20f, 5f, "Velocity limit to enter coping");                    
+
+                        GUILayout.Space(6);
+                        Main.settings.coping_part_speed = RGUI.SliderFloat(Main.settings.coping_part_speed, 0, 1f, .1f, "Board part transition speed (0 is instant)");
+                        Main.settings.coping_part_distance = RGUI.SliderFloat(Main.settings.coping_part_distance, 0, 5f, 5f, "Board part minimum distance (the less, the more precise you need to be)");
+                        GUILayout.Label("'Board part' is the piece of the board (front truck, tail, ...) making contact while you move the sticks when grinding coping");
+                    }
+                }
+                GUILayout.EndVertical();
             }
         }
 
@@ -1194,6 +1235,7 @@ namespace fro_mod
                 LeanWallrideSection();
                 HippieSection();
                 GrindsSection();
+                CopingSection();
                 SkateSection();
                 ReallyExperimental();
                 GUILayout.EndVertical();
