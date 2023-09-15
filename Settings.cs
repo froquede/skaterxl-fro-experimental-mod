@@ -221,7 +221,7 @@ namespace fro_mod
         public bool catch_acc_enabled = false;
         public bool catch_acc_onflick = false;
         public float catch_lerp_speed = 30f;
-        public int bounce_delay = 4;
+        public int bounce_delay = 1;
         public bool snappy_catch = true;
         public float FlickThreshold = 0.6f;
 
@@ -243,6 +243,21 @@ namespace fro_mod
 
         public bool body_rotation = false;
         public List<List<Vector3>> body_rotations = new List<List<Vector3>>();
+
+        public float catch_left_time = 0.04f;
+        public float catch_right_time = 0.04f;
+
+        public Vector3 reset_head = new Vector3(-19f, 0f, -15.5f);
+
+        public bool trick_customizer_grinds = false;
+
+        public bool alternative_coping = false;
+        public float coping_detection_distance = .5f;
+        public float coping_part_speed = .1f;
+        public float coping_part_distance = 5f;
+        public float coping_max_velocity = 5f;
+
+        public bool shuv_fix = false;
 
 #if DEBUG
         public bool debug = true;

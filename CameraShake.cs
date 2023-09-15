@@ -42,6 +42,7 @@ namespace fro_mod
             }
         }
 
+        float fov_vel = 0f;
         void LateUpdate()
         {
             if (!Main.settings.camera_shake || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Bailed) return;
@@ -73,7 +74,8 @@ namespace fro_mod
             if (last_fov >= 0 && velocity_fov > 0)
             {
                 float target_fov = last_fov + (velocity_fov * Main.settings.camera_shake_fov_multiplier);
-                camera.m_Lens.FieldOfView = target_fov;
+                target_fov = target_fov < 0 ? 0 : target_fov > 180 ? 180 : target_fov;
+                camera.m_Lens.FieldOfView = Mathf.SmoothDamp(camera.m_Lens.FieldOfView, target_fov, ref fov_vel, .1f);
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using ModIO.UI;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -60,7 +61,15 @@ namespace fro_mod
 
             assembly = Assembly.GetExecutingAssembly();
 
-            harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
+            try
+            {
+                harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
+            }
+            catch(Exception e)
+            {
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Error, "Experimental mod failed to patch the game, are you using SkaterXL v1.2.2.x?", 5f);
+                Utils.Log(e.Message);
+            }
 
             UnityModManager.Logger.Log("Loaded " + modEntry.Info.Id);
             return true;

@@ -14,24 +14,35 @@ namespace fro_mod
     {
         public int air_frame = 0;
         string actual_stance;
+        public bool run = false;
         List<string> last_input = new List<string>(0);
-        Vector3 origin;
-        GameObject copy;
-        public void FixedUpdate()
-        {
-            if (!Main.settings.trick_customization) return;
+        Vector3 customVelocity = Vector3.zero;
 
-            bool run = PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pop || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Release || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.InAir || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Impact;
-            run = !run ? PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Grinding && Main.controller.last_state != PlayerController.CurrentState.Grinding.ToString() : run;
-            run = !run ? PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Manual && Main.controller.last_state != PlayerController.CurrentState.Manual.ToString() : run;
+        public void Update()
+        {
+            if (!Main.settings.trick_customization || !Main.settings.enabled) return;
+
+            run = true;
+
+            if (Main.controller.IsGrounded()) run = false;
+            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Manual || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.BeginPop) run = false;
+            if (Main.controller.last_state == PlayerController.CurrentState.Grinding.ToString() && !PlayerController.Instance.cameraController.IsInGrindState) run = false;
+
+            if (Main.settings.trick_customizer_grinds && Main.controller.IsGrinding())
+            {
+                run = true;
+            }
 
             List<string> type_of_input = getTypeOfInput();
 
-            if (type_of_input.Count == 0) run = false;
+            if (type_of_input.Count == 0)
+            {
+                run = false;
+            }
 
             if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.BeginPop) actual_stance = getActualStance();
 
-            if (run)
+            if (air_frame > 0 || run)
             {
                 for (int i = 0; i < type_of_input.Count; i++)
                 {
@@ -55,20 +66,24 @@ namespace fro_mod
                     }
 
                     PlayerController.Instance.boardController.gameObject.transform.rotation = lerpedRotation;
-                    PlayerController.Instance.boardController.UpdateBoardPosition();
+                    PlayerController.Instance.boardController.SetRotationTarget(lerpedRotation);
+                    //PlayerController.Instance.boardController.UpdateBoardPosition();
+                    PlayerController.Instance.boardController.SetRotationTarget();
 
-                    PlayerController.Instance.boardController.currentRotationTarget = PlayerController.Instance.boardController.gameObject.transform.rotation;
+                    if (run) air_frame++;
 
-                    air_frame++;
-
-                    if (!last_input.SequenceEqual(type_of_input)) air_frame = 0;
-                    last_input = type_of_input;
+                    /*if (!last_input.SequenceEqual(type_of_input)) air_frame = 0;
+                    last_input = type_of_input;*/
                 }
-            }
-            else
-            {
-                origin = PlayerController.Instance.boardController.boardRigidbody.transform.rotation.eulerAngles;
-                air_frame = 0;
+
+                if (!run && air_frame > 0)
+                {
+                    if(!Main.settings.trick_customizer_grinds && Main.controller.IsGrounded())
+                    {
+                        air_frame = 0;
+                    }
+                    else air_frame--;
+                }
             }
 
             if (Main.settings.force_stick_backwards && (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.InAir || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pop || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Release))
@@ -78,11 +93,8 @@ namespace fro_mod
                     string input = type_of_input[i];
                     if (SettingsManager.Instance.stance == SkaterXL.Core.Stance.Regular && input == "right-backwards" || SettingsManager.Instance.stance == SkaterXL.Core.Stance.Goofy && input == "left-backwards")
                     {
-                        if(!copy) copy = new GameObject();
-                        copy.transform.rotation = PlayerController.Instance.skaterController.skaterTransform.rotation;
-                        copy.transform.position = PlayerController.Instance.skaterController.skaterTransform.position;
-                        copy.transform.Translate(-2f, 0, 0, Space.Self);
-                        PlayerController.Instance.skaterController.skaterRigidbody.AddForceAtPosition(-copy.transform.up * Main.settings.force_stick_backwards_multiplier, copy.transform.position, ForceMode.Impulse);
+                        Vector3 forcePos = Utils.TranslateWithRotation(PlayerController.Instance.skaterController.skaterTransform.position, new Vector3(-2f, 0, 0), PlayerController.Instance.skaterController.skaterTransform.rotation);
+                        PlayerController.Instance.skaterController.skaterRigidbody.AddForceAtPosition(-PlayerController.Instance.skaterController.skaterTransform.up * Main.settings.force_stick_backwards_multiplier, forcePos, ForceMode.Impulse);
                     }
                 }
             }
@@ -90,6 +102,8 @@ namespace fro_mod
 
         public void LateUpdate()
         {
+            if (!Main.settings.enabled) return;
+
             if (GameStateMachine.Instance.CurrentState.GetType() == typeof(PlayState))
             {
                 if ((PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pushing || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Riding || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Impact) && PlayerController.Instance.inputController.player.GetButtonDoublePressDown("Right Stick Button"))
@@ -145,9 +159,9 @@ namespace fro_mod
             stance = stance == null ? getActualStance() : stance;
             int index = 0;
 
-            for (int i = 0; i < Main.ui.StancesCustomizer.Length; i++)
+            for (int i = 0; i < Enums.StancesCustomizer.Length; i++)
             {
-                if (Main.ui.StancesCustomizer[i] == stance) index = i;
+                if (Enums.StancesCustomizer[i] == stance) index = i;
             }
             return index;
         }
