@@ -1264,7 +1264,7 @@ namespace fro_mod
 
                     for (int i = 0; i < Main.controller.skater_parts.Length; i++)
                     {
-                        UnityModManager.Logger.Log(Main.controller.skater_parts[i].gameObject.name + " " + Main.controller.skater_parts[i].localRotation.eulerAngles);
+                        Utils.Log(Main.controller.skater_parts[i].gameObject.name + " " + Main.controller.skater_parts[i].localRotation.eulerAngles);
                     }
                 }
 # endif
