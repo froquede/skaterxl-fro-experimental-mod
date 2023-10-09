@@ -488,7 +488,13 @@ namespace fro_mod
 
             if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Riding && last_state == PlayerController.CurrentState.Pushing.ToString()) PlayerController.Instance.animationController.ScaleAnimSpeed(0f);
             if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Grinding || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.ExitCoping) GrindVerticalFlip();
-            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Manual) ManualVerticalFlip();
+            else {
+                if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Manual) ManualVerticalFlip();
+                else
+                {
+                    if (IsGrounded()) PlayerController.Instance.boardController.firstVel = 0f;
+                }
+            }
             if (Main.settings.lean) Lean();
             if (Main.settings.BetterDecay) PlayerController.Instance.boardController.ApplyFrictionTowardsVelocity(1 - (Main.settings.decay / 1000));
 
@@ -519,6 +525,7 @@ namespace fro_mod
         public float leftpos = 0, rightpos = 0;
         bool left_caught = false, right_caught = false;
         float left_foot_velocity = 0f, right_foot_velocity = 0f;
+        bool need_to_reset_weights = false;
 
         void CatchAtAnyMoment()
         {
@@ -578,8 +585,11 @@ namespace fro_mod
                 float relative_rot = 1.05f - Mathf.Clamp01(Utils.map01(angle, 0, 70f));
                 float step_rot = Time.fixedDeltaTime * 24f;
 
-                PlayerController.Instance.ikController._finalIk.solver.leftFootEffector.rotationWeight = Mathf.SmoothStep(PlayerController.Instance.ikController._finalIk.solver.leftFootEffector.rotationWeight, forced_caught && left_caught ? relative_rot : 0, step_rot);
-                PlayerController.Instance.ikController._finalIk.solver.rightFootEffector.rotationWeight = Mathf.SmoothStep(PlayerController.Instance.ikController._finalIk.solver.rightFootEffector.rotationWeight, forced_caught && right_caught ? relative_rot : 0, step_rot);
+                if (!bumpOverride)
+                {
+                    PlayerController.Instance.ikController._finalIk.solver.leftFootEffector.rotationWeight = Mathf.SmoothStep(PlayerController.Instance.ikController._finalIk.solver.leftFootEffector.rotationWeight, forced_caught && left_caught ? relative_rot : 0, step_rot);
+                    PlayerController.Instance.ikController._finalIk.solver.rightFootEffector.rotationWeight = Mathf.SmoothStep(PlayerController.Instance.ikController._finalIk.solver.rightFootEffector.rotationWeight, forced_caught && right_caught ? relative_rot : 0, step_rot);
+                }
 
                 if (forced_caught) forced_caught_count++;
 
@@ -632,6 +642,19 @@ namespace fro_mod
                     PlayerController.Instance.AnimCaught(false);
                     PlayerController.Instance.ToggleFlipColliders(false);
                 }
+
+                need_to_reset_weights = true;
+            }
+
+            if ((IsGrounded() && need_to_reset_weights) || ((last_state == PlayerController.CurrentState.Grinding.ToString() || last_state == PlayerController.CurrentState.ExitCoping.ToString()) && PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.InAir))
+            {
+                PlayerController.Instance.SetLeftIKLerpTarget(0f);
+                PlayerController.Instance.SetRightIKLerpTarget(0f);
+                PlayerController.Instance.ikController._finalIk.solver.leftFootEffector.positionWeight = PlayerController.Instance.ikController._finalIk.solver.leftFootEffector.rotationWeight = 1f;
+                PlayerController.Instance.ikController._finalIk.solver.rightFootEffector.positionWeight = PlayerController.Instance.ikController._finalIk.solver.rightFootEffector.rotationWeight = 1f;
+                need_to_reset_weights = false;
+                left_foot_velocity = right_foot_velocity = 0f;
+                leftpos = rightpos = 1f;
             }
         }
 
@@ -1273,7 +1296,7 @@ namespace fro_mod
         public void ManualVerticalFlip()
         {
             int multiplier = 1;
-            if (PlayerController.Instance.inputController.RightStick.rawInput.pos.y > 0f || PlayerController.Instance.inputController.LeftStick.rawInput.pos.y > 0f) multiplier = -1;
+            if (PlayerController.Instance.inputController.RightStick.rawInput.pos.y >= .15f || PlayerController.Instance.inputController.LeftStick.rawInput.pos.y >= .15f) multiplier = -1;
             if (PlayerController.Instance.GetBoardBackwards()) multiplier *= -1;
             PlayerController.Instance.boardController.firstVel = Main.settings.ManualFlipVerticality * multiplier;
         }
@@ -1281,7 +1304,7 @@ namespace fro_mod
         public void GrindVerticalFlip()
         {
             int multiplier = 1;
-            if (PlayerController.Instance.inputController.RightStick.rawInput.pos.y > 0f || PlayerController.Instance.inputController.LeftStick.rawInput.pos.y > 0f) multiplier = -1;
+            if (PlayerController.Instance.inputController.RightStick.rawInput.pos.y >= .15f || PlayerController.Instance.inputController.LeftStick.rawInput.pos.y >= .15f) multiplier = -1;
             if (PlayerController.Instance.GetBoardBackwards()) multiplier *= -1;
             PlayerController.Instance.boardController.firstVel = Main.settings.GrindFlipVerticality * multiplier;
         }
@@ -1776,6 +1799,12 @@ namespace fro_mod
         int grinding_count = 0, offset_frame = 0, offset_delay = 0;
         float left_foot_setup_rand = 0;
         GameObject temp_go_left, temp_go_right;
+        float jiggle_vel_left = 0f;
+        float jiggle_vel_right = 0f;
+
+        float offset_setup_left = 0;
+        float offset_setup_right = 0;
+
         void LeftFootRaycast(int multiplier)
         {
             if (!temp_go_left) temp_go_left = new GameObject("Left foot raycast dynamic feet");
@@ -1838,7 +1867,6 @@ namespace fro_mod
                 if (Main.settings.feet_rotation)
                 {
                     float old_y = left_pos.rotation.eulerAngles.y;
-                    float offset_setup = 0;
                     if (Main.settings.jiggle_on_setup)
                     {
                         if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup)
@@ -1848,7 +1876,7 @@ namespace fro_mod
                             {
                                 if (left_foot_setup_rand >= .5f)
                                 {
-                                    offset_setup = -Mathf.Sin((limit - offset_frame) / (12f + left_foot_setup_rand)) * (limit - offset_frame);
+                                    offset_setup_left = Mathf.SmoothDamp(offset_setup_left, -Mathf.Sin((limit - offset_frame) / (12f + left_foot_setup_rand)) * (limit - offset_frame), ref jiggle_vel_left, .025f);
                                 }
                                 offset_frame++;
                             }
@@ -1864,7 +1892,7 @@ namespace fro_mod
 
                     left_pos.rotation = Quaternion.LookRotation(left_pos.transform.forward, left_hit.normal);
                     left_pos.transform.Rotate(new Vector3(0, 0, PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Riding ? 90f : 93f), Space.Self);
-                    left_pos.rotation = Quaternion.Euler(left_pos.rotation.eulerAngles.x, old_y + offset_setup, left_pos.rotation.eulerAngles.z);
+                    left_pos.rotation = Quaternion.Euler(left_pos.rotation.eulerAngles.x, old_y + offset_setup_left, left_pos.rotation.eulerAngles.z);
                 }
 
                 if (Main.settings.feet_offset && !Main.settings.camera_feet)
@@ -1940,8 +1968,6 @@ namespace fro_mod
                 {
                     float old_y = right_pos.rotation.eulerAngles.y;
 
-                    float offset_setup = 0;
-
                     if (Main.settings.jiggle_on_setup)
                     {
                         if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Setup)
@@ -1951,7 +1977,7 @@ namespace fro_mod
                             {
                                 if (right_foot_setup_rand >= .5f)
                                 {
-                                    offset_setup = Mathf.Sin((limit - offset_frame) / (14f + right_foot_setup_rand)) * (limit - offset_frame);
+                                    offset_setup_right = Mathf.SmoothDamp(offset_setup_right, Mathf.Sin((limit - offset_frame) / (14f + right_foot_setup_rand)) * (limit - offset_frame), ref jiggle_vel_right, .025f);
                                 }
                                 offset_frame++;
                             }
@@ -1967,7 +1993,7 @@ namespace fro_mod
 
                     right_pos.rotation = Quaternion.LookRotation(right_pos.transform.forward, right_hit.normal);
                     right_pos.transform.Rotate(new Vector3(0, 0, PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Riding ? 90f : 92f), Space.Self);
-                    right_pos.rotation = Quaternion.Euler(right_pos.rotation.eulerAngles.x, old_y + offset_setup, right_pos.rotation.eulerAngles.z);
+                    right_pos.rotation = Quaternion.Euler(right_pos.rotation.eulerAngles.x, old_y + offset_setup_right, right_pos.rotation.eulerAngles.z);
                 }
 
                 if (Main.settings.feet_offset && !Main.settings.camera_feet)

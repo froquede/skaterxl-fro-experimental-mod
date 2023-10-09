@@ -427,7 +427,7 @@ namespace fro_mod
 
         public void CreateRoom()
         {
-            MultiplayerManager.Instance.CreateRoom(false, "YKTFV");
+            MultiplayerManager.Instance.CreateRoom(false);
         }
 
         public void OnPlayerLeft(Player player)

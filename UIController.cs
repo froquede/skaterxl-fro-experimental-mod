@@ -115,7 +115,7 @@ namespace fro_mod
 
         void MainSection()
         {
-            //GUILayout.BeginVertical("Box");
+            //GUILayout.BeginVertical(boxpadded);
 
             if (RGUI.Button(Main.settings.enabled, "Enabled"))
             {
@@ -146,8 +146,8 @@ namespace fro_mod
             Fold(about_fold, white);
             if (!about_fold.reference)
             {
-                GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b>fro's experimental mod v1.17.0 for alpha branch XL v1.2.2.X (06/09/2023)</b>");
+                GUILayout.BeginVertical(boxpadded);
+                GUILayout.Label("<b>fro's experimental mod v1.18.2 for alpha branch XL v1.2.2.X (09/10/2023)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This mod is not intended to harm the game or the respective developer, the online functionality, or the game economy in any purposeful way.");
                 GUILayout.Label("I repudiate any type of practice or conduct that involves or promotes racism or any kind of discrimination.");
@@ -182,7 +182,7 @@ namespace fro_mod
 
             if (!lean_fold.reference)
             {
-                GUILayout.BeginVertical("Box");
+                GUILayout.BeginVertical(boxpadded);
                 if (RGUI.Button(Main.settings.lean, "Lean on double stick to the side"))
                 {
                     Main.settings.lean = !Main.settings.lean;
@@ -213,9 +213,8 @@ namespace fro_mod
 
             if (!feet_fold.reference)
             {
-                GUILayout.BeginVertical("Box");
-                GUILayout.Label("<b><color=#f9ca24>This feature tries to place your feet on board dynamically so no stances are needed for floaty feet</color></b>", GUILayout.Width(420));
-                GUILayout.Label("<b><color=#f9ca24>If you already use a stance you can try combining it with rotation / position separately</color></b>", GUILayout.Width(420));
+                GUILayout.BeginVertical(boxpadded);
+                GUILayout.Label("<b><color=#f9ca24>Dynamically places the skater's feet on the board in the selected states, this feature mainly prevents floaty feet</color></b>", GUILayout.Width(420));
                 GUILayout.Label("v1.1.0");
                 if (RGUI.Button(Main.settings.feet_rotation, "Follow board rotation"))
                 {
@@ -232,6 +231,21 @@ namespace fro_mod
                     Main.settings.left_foot_offset = RGUI.SliderFloat(Main.settings.left_foot_offset, 0.01f, 2f, 1f, "Left shoe height offset");
                     Main.settings.right_foot_offset = RGUI.SliderFloat(Main.settings.right_foot_offset, 0.01f, 2f, 1f, "Right shoe height offset");
                 }
+
+                GUILayout.Space(12);
+
+                if (RGUI.Button(Main.settings.jiggle_on_setup, "Jiggle feet on setup"))
+                {
+                    Main.settings.jiggle_on_setup = !Main.settings.jiggle_on_setup;
+                }
+
+                if (Main.settings.jiggle_on_setup)
+                {
+                    Main.settings.jiggle_delay = RGUI.SliderFloat(Main.settings.jiggle_delay, 0f, 60f, 24f, "Jiggle delay");
+                    Main.settings.jiggle_limit = RGUI.SliderFloat(Main.settings.jiggle_limit, 0f, 90f, 40f, "Jiggle angle limit");
+                }
+
+                GUILayout.Space(12);
 
                 if (Main.settings.feet_rotation || Main.settings.feet_offset)
                 {
@@ -273,7 +287,7 @@ namespace fro_mod
                         GUILayout.EndHorizontal();
                     }
                 }
-
+                GUILayout.Space(6);
                 GUILayout.EndVertical();
             }
         }
@@ -285,7 +299,7 @@ namespace fro_mod
 
             if (!hippie_fold.reference)
             {
-                GUILayout.BeginVertical("Box");
+                GUILayout.BeginVertical(boxpadded);
                 if (RGUI.Button(Main.settings.hippie, "Hippie jump (B)"))
                 {
                     Main.settings.hippie = !Main.settings.hippie;
@@ -407,7 +421,7 @@ namespace fro_mod
 
             if (!filmer_fold.reference)
             {
-                GUILayout.BeginVertical("Box");
+                GUILayout.BeginVertical(boxpadded);
 
                 if (RGUI.Button(Main.settings.follow_mode_left, "Follow player with left hand"))
                 {
@@ -470,7 +484,7 @@ namespace fro_mod
 
             if (!multi_fold.reference)
             {
-                GUILayout.BeginVertical("Box");
+                GUILayout.BeginVertical(boxpadded);
                 if (RGUI.Button(Main.settings.reset_inactive, "Disable multiplayer AFK timeout"))
                 {
                     Main.settings.reset_inactive = !Main.settings.reset_inactive;
@@ -499,12 +513,13 @@ namespace fro_mod
 
                 // Main.settings.RoomIDlength = (int)RGUI.SliderFloat(Main.settings.RoomIDlength, 1f, 5f, 5f, "Multiplayer code size");
 
-#if DEBUG
-                if (GUILayout.Button("Create multi room"))
+                if (!MultiplayerManager.Instance.InRoom)
                 {
-                    Main.multi.CreateRoom();
+                    if (GUILayout.Button("Create public room", GUILayout.Height(42)))
+                    {
+                        Main.multi.CreateRoom();
+                    }
                 }
-#endif
 
                 GUILayout.EndVertical();
             }
@@ -517,7 +532,7 @@ namespace fro_mod
 
             if (!multichat_fold.reference)
             {
-                GUILayout.BeginVertical("Box");
+                GUILayout.BeginVertical(boxpadded);
                 if (RGUI.Button(Main.settings.chat_messages, "Enable chat messages"))
                 {
                     Main.settings.chat_messages = !Main.settings.chat_messages;
@@ -581,7 +596,7 @@ namespace fro_mod
 
             if (!camera_fold.reference)
             {
-                GUILayout.BeginVertical("Box");
+                GUILayout.BeginVertical(boxpadded);
                 Fold(camera_settings_fold, green);
                 if (!camera_settings_fold.reference)
                 {
@@ -611,27 +626,6 @@ namespace fro_mod
 
                         GUILayout.Label("Object " + (Main.controller.object_found != null ? "found" : "not found, check the object name"));
                     }
-
-                    GUILayout.BeginHorizontal();
-                    GUILayout.BeginVertical();
-                    GUILayout.Label("<b>Force LOD 0 in all objects</b>");
-                    GUILayout.Label("<color=#f9ca24>After toggling this feature your game can freeze for some seconds</color>");
-                    GUILayout.Label("<color=#f9ca24>Enabling this feature will <b>for sure</b> cap some frames</color>");
-                    GUILayout.EndVertical();
-                    GUILayout.BeginVertical(GUILayout.Width(64f));
-                    GUILayout.Space(8);
-                    if (GUILayout.Button("Enable", RGUIStyle.button, GUILayout.Width(64f)))
-                    {
-                        Main.controller.ForceLODs();
-                    }
-
-                    if (GUILayout.Button("Disable", RGUIStyle.button, GUILayout.Width(64f)))
-                    {
-                        Main.controller.ResetLODs();
-                    }
-                    GUILayout.EndVertical();
-                    GUILayout.EndHorizontal();
-                    GUILayout.Space(6);
                 }
 
                 Fold(camera_shake_fold, green);
@@ -701,7 +695,7 @@ namespace fro_mod
 
             if (!grinds_fold.reference)
             {
-                GUILayout.BeginVertical("Box");
+                GUILayout.BeginVertical(boxpadded);
                 /*GUILayout.BeginHorizontal();
                 GUILayout.Label("Grind:");
                 selected_grind_vert = RGUI.SelectionPopup(selected_grind_vert, Enums.GrindType);
@@ -709,7 +703,7 @@ namespace fro_mod
                 Main.settings.GrindFlipVerticality = RGUI.SliderFloat(Main.settings.GrindFlipVerticality, -1f, 1f, 0f, "Out of grinds");
                 GUILayout.EndVertical();
 
-                GUILayout.BeginVertical("Box");
+                GUILayout.BeginVertical(boxpadded);
                 Main.settings.ManualFlipVerticality = RGUI.SliderFloat(Main.settings.ManualFlipVerticality, -1f, 1f, 0f, "Out of manuals");
                 GUILayout.EndVertical();
             }
@@ -936,7 +930,7 @@ namespace fro_mod
 
             if (!experimental_fold.reference)
             {
-                GUILayout.BeginVertical("Box");
+                GUILayout.BeginVertical(boxpadded);
                 Main.settings.Kp = RGUI.SliderFloat(Main.settings.Kp, 0f, 10000f, 5000f, "Kp");
                 Main.settings.Ki = RGUI.SliderFloat(Main.settings.Ki, 0f, 10000f, 0f, "Ki");
                 Main.settings.Kd = RGUI.SliderFloat(Main.settings.Kd, 0f, 2000f, 900f, "Kd");
@@ -946,11 +940,8 @@ namespace fro_mod
                 Main.settings.KdSetup = RGUI.SliderFloat(Main.settings.KdSetup, 0f, 3000f, 1500f, "KdSetup");
                 /*Main.settings.KpGrind = RGUI.SliderFloat(Main.settings.KpGrind, 0f, 4000f, 2000f, "KpGrind");
                 Main.settings.KdGrind = RGUI.SliderFloat(Main.settings.KdGrind, 0f, 2000f, 900f, "KdGrind");*/
-                GUILayout.Space(8);
                 Main.settings.comHeightRiding = RGUI.SliderFloat(Main.settings.comHeightRiding, -1f, 2f, 1.06f, "Height Riding");
                 Main.settings.maxLegForce = RGUI.SliderFloat(Main.settings.maxLegForce, 0f, 10000f, 5000f, "Max Leg Force");
-
-                GUILayout.Space(8);
 
                 /*PlayerController.Instance.boardController.Kp = RGUI.SliderFloat(PlayerController.Instance.boardController.Kp, 0f, 10000f, 5000f, "Board KP");
                 PlayerController.Instance.boardController.Ki = RGUI.SliderFloat(PlayerController.Instance.boardController.Ki, 0f, 10000f, 5000f, "Board KI");
@@ -963,6 +954,7 @@ namespace fro_mod
         FoldObj skate_fold = new FoldObj(true, "Skate");
         FoldObj skate_settings_fold = new FoldObj(true, "Settings");
         UIFold coping_fold = new UIFold("Coping");
+        UIFold map_fold = new UIFold("Map");
         FoldObj customizer_fold = new FoldObj(true, "Trick customizer");
         // string selected_stance_customizer = "Regular";
         int selected_stance_customizer = 0;
@@ -998,7 +990,7 @@ namespace fro_mod
 
             if (!skate_fold.reference)
             {
-                GUILayout.BeginVertical("Box");
+                GUILayout.BeginVertical(boxpadded);
                 /*Fold(skate_settings_fold, green);
 
                 if (!skate_settings_fold.reference)
@@ -1090,7 +1082,7 @@ namespace fro_mod
 
             if (!customizer_fold.reference)
             {
-                GUILayout.BeginVertical("Box");
+                GUILayout.BeginVertical(boxpadded);
                 if (RGUI.Button(Main.settings.trick_customization, "Enabled"))
                 {
                     Main.settings.trick_customization = !Main.settings.trick_customization;
@@ -1185,10 +1177,10 @@ namespace fro_mod
                         Main.settings.alternative_coping = !Main.settings.alternative_coping;
                     }
 
-                    if(Main.settings.alternative_coping)
+                    if (Main.settings.alternative_coping)
                     {
                         Main.settings.coping_detection_distance = RGUI.SliderFloat(Main.settings.coping_detection_distance, 0, 1f, .5f, "Minimum distance to enter coping");
-                        Main.settings.coping_max_velocity = RGUI.SliderFloat(Main.settings.coping_max_velocity, 0, 20f, 5f, "Velocity limit to enter coping");                    
+                        Main.settings.coping_max_velocity = RGUI.SliderFloat(Main.settings.coping_max_velocity, 0, 20f, 5f, "Velocity limit to enter coping");
 
                         GUILayout.Space(6);
                         Main.settings.coping_part_speed = RGUI.SliderFloat(Main.settings.coping_part_speed, 0, 1f, .1f, "Board part transition speed (0 is instant)");
@@ -1269,40 +1261,85 @@ namespace fro_mod
                 }
 # endif
 
-                GUILayout.Space(12);
 
-                GUILayout.Label("Use this button to reload custom gear textures while the game is open");
-                if (GUILayout.Button("Update gear texture files", GUILayout.Height(28)))
+                GUILayout.BeginVertical(boxpadded);
                 {
-                    SaveManagerFocusPatch.HandleCustomGearChanges();
+                    GUILayout.Label("Use this button to reload custom gear textures while the game is open");
+                    if (GUILayout.Button("Update gear texture files", GUILayout.Height(28)))
+                    {
+                        SaveManagerFocusPatch.HandleCustomGearChanges();
+                    }
                 }
+                GUILayout.EndVertical();
+            }
+
+            map_fold.Fold(green);
+            if (map_fold.active)
+            {
+                GUILayout.BeginVertical(boxpadded);
+                {
+                    Main.settings.map_scale.y = RGUI.SliderFloat(Main.settings.map_scale.y, -2f, 2f, 1f, "Map scale height");
+                    Main.settings.map_scale.x = RGUI.SliderFloat(Main.settings.map_scale.x, -2f, 2f, 1f, "Map scale X");
+                    Main.settings.map_scale.z = RGUI.SliderFloat(Main.settings.map_scale.z, -2f, 2f, 1f, "Map scale Z");
+
+
+                    if (GUILayout.Button("Scale map", GUILayout.Height(34)))
+                    {
+                        Main.controller.ScaleMap();
+                    }
+
+                    GUILayout.Space(12);
+
+                    GUILayout.BeginHorizontal();
+                    GUILayout.BeginVertical();
+                    GUILayout.Label("<b>Force maximum detail in all objects (LOD0)</b>");
+                    GUILayout.Label("<color=#f9ca24>After toggling this feature your game can freeze for some seconds</color>");
+                    GUILayout.Label("<color=#f9ca24>Enabling this feature will <b>for sure</b> cap some frames</color>");
+                    GUILayout.EndVertical();
+                    GUILayout.BeginVertical(GUILayout.Width(64f));
+                    GUILayout.Space(8);
+                    if (GUILayout.Button("Enable", RGUIStyle.button, GUILayout.Width(64f)))
+                    {
+                        Main.controller.ForceLODs();
+                    }
+
+                    if (GUILayout.Button("Disable", RGUIStyle.button, GUILayout.Width(64f)))
+                    {
+                        Main.controller.ResetLODs();
+                    }
+                    GUILayout.EndVertical();
+                    GUILayout.EndHorizontal();
+                }
+                GUILayout.EndVertical();
             }
 
             Fold(exp_fold, red);
             if (!exp_fold.reference)
             {
-                /*if(Main.settings.walk_after_bail)
+                GUILayout.BeginVertical(boxpadded);
                 {
-                    if (RGUI.Button(Main.settings.haunting_arms, "Haunting arms"))
+                    /*if(Main.settings.walk_after_bail)
                     {
-                        Main.settings.haunting_arms = !Main.settings.haunting_arms;
+                        if (RGUI.Button(Main.settings.haunting_arms, "Haunting arms"))
+                        {
+                            Main.settings.haunting_arms = !Main.settings.haunting_arms;
+                        }
+                    }*/
+
+                    if (RGUI.Button(Main.settings.alternative_powerslide, "Alternative powerslides"))
+                    {
+                        Main.settings.alternative_powerslide = !Main.settings.alternative_powerslide;
                     }
-                }*/
 
-                GUILayout.Space(6);
-
-                if (RGUI.Button(Main.settings.alternative_powerslide, "Alternative powerslides"))
-                {
-                    Main.settings.alternative_powerslide = !Main.settings.alternative_powerslide;
+                    if (Main.settings.alternative_powerslide)
+                    {
+                        Main.settings.powerslide_animation_length = RGUI.SliderFloat(Main.settings.powerslide_animation_length, 0f, 64f, 24f, "Powerslide animation length");
+                        Main.settings.powerslide_minimum_velocity = RGUI.SliderFloat(Main.settings.powerslide_minimum_velocity, 0f, 20f, 0f, "Powerslide min velocity");
+                        Main.settings.powerslide_max_velocity = RGUI.SliderFloat(Main.settings.powerslide_max_velocity, 0f, 20f, 15f, "Powerslide max velocity");
+                        Main.settings.powerslide_maxangle = RGUI.SliderFloat(Main.settings.powerslide_maxangle, 0f, 45f, 20f, "Powerslide max angle");
+                    }
                 }
-
-                if (Main.settings.alternative_powerslide)
-                {
-                    Main.settings.powerslide_animation_length = RGUI.SliderFloat(Main.settings.powerslide_animation_length, 0f, 64f, 24f, "Powerslide animation length");
-                    Main.settings.powerslide_minimum_velocity = RGUI.SliderFloat(Main.settings.powerslide_minimum_velocity, 0f, 20f, 0f, "Powerslide min velocity");
-                    Main.settings.powerslide_max_velocity = RGUI.SliderFloat(Main.settings.powerslide_max_velocity, 0f, 20f, 15f, "Powerslide max velocity");
-                    Main.settings.powerslide_maxangle = RGUI.SliderFloat(Main.settings.powerslide_maxangle, 0f, 45f, 20f, "Powerslide max angle");
-                }
+                GUILayout.EndVertical();
 
 
                 /*if (GUILayout.Button("Change Cloth Colliders to legs, torso, and hands", GUILayout.Height(34)))
@@ -1310,41 +1347,12 @@ namespace fro_mod
                     ClothColliders();
                 }*/
 
-                GUILayout.Space(12);
-
-                if (RGUI.Button(Main.settings.jiggle_on_setup, "Jiggle feet on setup"))
-                {
-                    Main.settings.jiggle_on_setup = !Main.settings.jiggle_on_setup;
-                }
-
-                if (Main.settings.jiggle_on_setup)
-                {
-                    if (!Main.settings.feet_rotation) RGUI.WarningLabel("You need to enable dynamic feet rotation for this feature to work (Gameplay > Dynamic feet)");
-                    Main.settings.jiggle_delay = RGUI.SliderFloat(Main.settings.jiggle_delay, 0f, 60f, 24f, "Jiggle delay");
-                    Main.settings.jiggle_limit = RGUI.SliderFloat(Main.settings.jiggle_limit, 0f, 90f, 40f, "Jiggle angle limit");
-                    /*Main.settings.jiggle_randommax = RGUI.SliderFloat(Main.settings.jiggle_randommax, 0f, 30f, 10f, "Jiggle max random angle");*/
-                }
-
-                GUILayout.Space(12);
+                /*GUILayout.Space(12);
 
                 if (RGUI.Button(Main.settings.partial_gear, "Multiplayer load partial gear"))
                 {
                     Main.settings.partial_gear = !Main.settings.partial_gear;
-                }
-
-                GUILayout.Space(12);
-
-                Main.settings.map_scale.y = RGUI.SliderFloat(Main.settings.map_scale.y, -2f, 2f, 1f, "Map scale height");
-                Main.settings.map_scale.x = RGUI.SliderFloat(Main.settings.map_scale.x, -2f, 2f, 1f, "Map scale X");
-                Main.settings.map_scale.z = RGUI.SliderFloat(Main.settings.map_scale.z, -2f, 2f, 1f, "Map scale Z");
-
-
-                if (GUILayout.Button("Scale map", GUILayout.Height(34)))
-                {
-                    Main.controller.ScaleMap();
-                }
-
-                GUILayout.Space(12);
+                }*/
 
                 /*if (RGUI.Button(Main.settings.experimental_dynamic_catch, "Dynamic catch really experimental proof of concept will be weird"))
                 {
