@@ -954,6 +954,7 @@ namespace fro_mod
         FoldObj skate_fold = new FoldObj(true, "Skate");
         FoldObj skate_settings_fold = new FoldObj(true, "Settings");
         UIFold coping_fold = new UIFold("Coping");
+        UIFold manual_fold = new UIFold("Manual");
         UIFold map_fold = new UIFold("Map");
         FoldObj customizer_fold = new FoldObj(true, "Trick customizer");
         // string selected_stance_customizer = "Regular";
@@ -1192,6 +1193,23 @@ namespace fro_mod
             }
         }
 
+        void ManualSection()
+        {
+            manual_fold.Fold(green);
+
+            if (manual_fold.active)
+            {
+                GUILayout.BeginVertical(boxpadded);
+                {
+                    if (RGUI.Button(Main.settings.nudge_manual, "Nudge manual on stick click"))
+                    {
+                        Main.settings.nudge_manual = !Main.settings.nudge_manual;
+                    }
+                }
+                GUILayout.EndVertical();
+            }
+        }
+
         FoldObj gameplay_fold = new FoldObj(true, "Gameplay");
         FoldObj multi_all_fold = new FoldObj(true, "Multiplayer");
         FoldObj exp_fold = new FoldObj(true, "Experimental");
@@ -1228,6 +1246,7 @@ namespace fro_mod
                 HippieSection();
                 GrindsSection();
                 CopingSection();
+                //ManualSection();
                 SkateSection();
                 ReallyExperimental();
                 GUILayout.EndVertical();

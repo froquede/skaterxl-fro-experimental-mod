@@ -32,10 +32,10 @@ namespace fro_mod
                     GameObject levelSelectionObject = instance.LevelSelectionObject;
                     levelSelectionController = ((levelSelectionObject != null) ? levelSelectionObject.GetComponent<LevelSelectionController>() : null);
                 }
-                LevelSelectionController levelSelectionController2 = levelSelectionController;
-                if (levelSelectionController2 != null && levelSelectionController2.enabled && MonoBehaviourSingleton<GameStateMachine>.Instance.CurrentState is LevelSelectionState && levelSelectionController2 != null && levelSelectionController2.enabled)
+
+                if (levelSelectionController != null && levelSelectionController.enabled && MonoBehaviourSingleton<GameStateMachine>.Instance.CurrentState is LevelSelectionState && levelSelectionController != null && levelSelectionController.enabled)
                 {
-                    levelSelectionController2.UpdateList();
+                    levelSelectionController.UpdateList();
                 }
             }
         }
