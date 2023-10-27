@@ -53,6 +53,38 @@ namespace fro_mod
         }
     }
 
+    /*[HarmonyPatch(typeof(PlayerController), nameof(PlayerController.GetNollie), new Type[] { typeof(bool) })]
+    class GetNolliePatch
+    {
+        static void Postfix(bool p_isRight, ref float __result)
+        {
+            if (MonoBehaviourSingleton<SettingsManager>.Instance.stance == Stance.Regular)
+            {
+                if (p_isRight)
+                {
+                    if (PlayerController.Instance.inputController.RightStick.rawInput.pos.y <= -0.1f) __result = 0f;
+                }
+                else
+                {
+                    if (PlayerController.Instance.inputController.LeftStick.rawInput.pos.y >= 0.1f) __result = 1f;
+                }
+            }
+            else
+            {
+                if (!p_isRight)
+                {
+                    if (PlayerController.Instance.inputController.LeftStick.rawInput.pos.y <= -0.1f) __result = 0f;
+                }
+                else
+                {
+                    if (PlayerController.Instance.inputController.RightStick.rawInput.pos.y >= 0.1f) __result = 1f;
+                }
+            }
+
+            Utils.Log(p_isRight + " " + PlayerController.Instance.inputController.LeftStick.rawInput.pos.y.ToString("N2") + " " + PlayerController.Instance.inputController.RightStick.rawInput.pos.y.ToString("N2") + " " + __result);
+        }
+    }*/
+
     [HarmonyPatch(typeof(BoardController), nameof(BoardController.LerpCopingTarget), new Type[] { })]
     class LerpCopingTargetPatch
     {

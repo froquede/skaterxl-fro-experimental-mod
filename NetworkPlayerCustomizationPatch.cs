@@ -54,7 +54,7 @@ namespace fro_mod
                     {
                         pushToCheckBoardGear(bgo, customizations.boardGear[i], __instance.customizer);
                     }
-                    // else UnityModManager.Logger.Log("Not init: " + customizations.boardGear[i].name + " " + bgo.State);
+                    // else Utils.Log("Not init: " + customizations.boardGear[i].name + " " + bgo.State);
                 }
 
                 //__instance.customizer.LoadCustomizations(customizations);

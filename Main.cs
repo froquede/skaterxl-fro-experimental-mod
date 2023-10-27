@@ -22,7 +22,6 @@ namespace fro_mod
         public static Multiplayer multi;
         public static TrickCustomizer tc;
         public static CameraShake cs;
-        public static AnimController am;
         public static WalkController wc;
         public static Assembly assembly;
 
@@ -51,7 +50,6 @@ namespace fro_mod
             controller = manager.AddComponent<Controller>();
             tc = manager.AddComponent<TrickCustomizer>();
             cs = manager.AddComponent<CameraShake>();
-            //am = manager.AddComponent<AnimController>();
             wc = manager.AddComponent<WalkController>();
 
             UnityEngine.Object.DontDestroyOnLoad(manager);
@@ -68,10 +66,10 @@ namespace fro_mod
             catch(Exception e)
             {
                 MessageSystem.QueueMessage(MessageDisplayData.Type.Error, "Experimental mod failed to patch the game, are you using SkaterXL v1.2.2.x?", 5f);
-                Utils.Log(e.Message);
+                Utils.Log("Error message: " + e.Message);
             }
 
-            UnityModManager.Logger.Log("Loaded " + modEntry.Info.Id);
+            Utils.Log("Loaded " + modEntry.Info.Id);
             return true;
         }
 
@@ -308,7 +306,7 @@ namespace fro_mod
 
         private static bool OnToggle(UnityModManager.ModEntry modEntry, bool value)
         {
-            UnityModManager.Logger.Log("Toggled " + modEntry.Info.Id);
+            Utils.Log("Toggled " + modEntry.Info.Id);
 
             if (value)
             {

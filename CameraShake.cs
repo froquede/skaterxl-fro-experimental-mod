@@ -1,4 +1,5 @@
 ﻿using Cinemachine;
+using GameManagement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +28,8 @@ namespace fro_mod
 
         void FixedUpdate()
         {
+            if (GameStateMachine.Instance.CurrentState.GetType() != typeof(PlayState)) return;
+
             if (PlayerController.Instance.skaterController.skaterRigidbody.velocity.magnitude <= 0.15f && !PlayerController.Instance.IsRespawning)
             {
                 if (zero_count >= 24f)
@@ -45,6 +48,8 @@ namespace fro_mod
         float fov_vel = 0f;
         void LateUpdate()
         {
+            if (GameStateMachine.Instance.CurrentState.GetType() != typeof(PlayState)) return;
+
             if (!Main.settings.camera_shake || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Bailed) return;
 
             float velocity = PlayerController.Instance.skaterController.skaterRigidbody.velocity.magnitude - Main.settings.camera_shake_offset;
@@ -86,7 +91,7 @@ namespace fro_mod
 
         public void GetCamera()
         {
-            camera = MonoBehaviourSingleton<PlayerController>.Instance.cameraController._actualCam.GetComponent<CinemachineVirtualCamera>();
+            camera = PlayerController.Instance.cameraController._actualCam.GetComponent<CinemachineVirtualCamera>();
         }
     }
 }

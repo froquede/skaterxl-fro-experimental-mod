@@ -63,7 +63,7 @@ namespace fro_mod
 
                 if (Time.unscaledTime - time >= 20f)
                 {
-                    // UnityModManager.Logger.Log("Updating custom scale");
+                    // Utils.Log("Updating custom scale");
 
                     CheckCustomData();
 
@@ -309,10 +309,10 @@ namespace fro_mod
                         Dictionary<int, GearObject> gearCache = (Dictionary<int, GearObject>)Traverse.Create(entry.Value.customizationSyncer.customizer).Field("gearCache").GetValue();
                         List<GearInfo> gear = entry.Value.customizationSyncer.customizer.CurrentCustomizations.GetAllGearInfos();
 
-                        UnityModManager.Logger.Log(entry.Value.NickName);
+                        Utils.Log(entry.Value.NickName);
                         foreach (var obj in gearCache)
                         {
-                            UnityModManager.Logger.Log(obj.Key + " " + obj.Value.gearInfo.ToString());
+                            Utils.Log(obj.Key + " " + obj.Value.gearInfo.ToString());
                         }
                     }
                 }
@@ -342,7 +342,6 @@ namespace fro_mod
                 if (entry.Value)
                 {
                     string id = entry.Value.NickName;
-                    UnityModManager.Logger.Log(id);
                     if (id == index)
                     {
                         PhotonNetwork.CloseConnection(entry.Value.GetPlayer());
@@ -362,7 +361,6 @@ namespace fro_mod
                     if (entry.Value.GetPlayer().IsMasterClient)
                     {
                         lastMaster = entry.Value.GetPlayer();
-                        UnityModManager.Logger.Log(lastMaster.NickName);
                     }
                 }
             }
@@ -384,7 +382,6 @@ namespace fro_mod
                 if (entry.Value)
                 {
                     string id = entry.Value.NickName;
-                    UnityModManager.Logger.Log(id);
                     if (id == index)
                     {
                         PhotonNetwork.SetMasterClient(entry.Value.GetPlayer());
@@ -430,7 +427,7 @@ namespace fro_mod
 
         public void CreateRoom()
         {
-            MultiplayerManager.Instance.CreateRoom(false, "YKTFV");
+            MultiplayerManager.Instance.CreateRoom(false);
         }
 
         public void OnPlayerLeft(Player player)
@@ -474,7 +471,6 @@ namespace fro_mod
                 }
             }
 
-            UnityModManager.Logger.Log(LevelManager.Instance.IdToLevelDict.Count.ToString());
             bool installed = false;
             GetMapFrom(PhotonNetwork.CurrentRoom.CustomProperties, out installed);
         }
@@ -485,14 +481,14 @@ namespace fro_mod
             object obj;
             if (!roomProperties.TryGetValue(MultiplayerManager.MAPID_PROP_KEY, out obj))
             {
-                UnityModManager.Logger.Log("Room Properties don't contain mapId: " + string.Join("\n", from kvp in roomProperties
+                Utils.Log("Room Properties don't contain mapId: " + string.Join("\n", from kvp in roomProperties
                                                                                       select kvp.Key + " : " + kvp.Value));
                 return null;
             }
             string text = roomProperties[MultiplayerManager.MAPNAME_PROP_KEY] as string;
             if (!(obj is string))
             {
-                UnityModManager.Logger.Log("MP Room Property MapID Property is set but not a string");
+                Utils.Log("MP Room Property MapID Property is set but not a string");
                 return null;
             }
             string text2 = (string)obj;
@@ -507,7 +503,7 @@ namespace fro_mod
                 return MonoBehaviourSingleton<LevelManager>.Instance.IdToLevelDict[text2];
             }
 
-            UnityModManager.Logger.Log(string.Concat(new string[]
+            Utils.Log(string.Concat(new string[]
             {
             "Map: ",
             text,

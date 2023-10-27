@@ -98,6 +98,13 @@ namespace fro_mod
             else return false;
         }
 
+        public static bool isOneFootOllie()
+        {
+            bool flip = PlayerController.Instance.boardController.thirdVel <= -1f || PlayerController.Instance.boardController.thirdVel >= 1f;
+            bool oneFootOff = (Main.controller.target_left <= .01f && Main.controller.target_right >= .99f) || (Main.controller.target_left >= .99f && Main.controller.target_right <= .01f);
+            return !flip && oneFootOff;
+        }
+
         public static Vector3 getDeltas()
         {
             float first = PlayerController.Instance.boardController.firstVel;

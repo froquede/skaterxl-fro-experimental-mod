@@ -28,14 +28,12 @@ namespace fro_mod
             CM = MultiplayerManager.Instance.chatManager;
             CM.messageDuration = 6f;
             gameObject.name = "ChatBubbleTest";
-            UnityModManager.Logger.Log("CBT initialized: " + gameObject.name + " " + CM.isActiveAndEnabled);
             MultiplayerInteractionDatabase.Instance.UpdateChatMessages();
             lastChatOpenTime = Time.unscaledTime;
 
             for (int i = 0; i < MultiplayerInteractionDatabase.Instance.availableChatMessages.Length; i++)
             {
                 MultiplayerInteractionDatabase.ChatMessageTemplate message = MultiplayerInteractionDatabase.Instance.availableChatMessages[i];
-                //UnityModManager.Logger.Log(message.ToString() + " " + message.message + " " + message.animationName + " " + message.emoteGifAnim + " " + message.emoteImage);
             }
 
         }
@@ -142,7 +140,6 @@ namespace fro_mod
         {
             chatBubbles = (List<ChatSpeechBubble>)Traverse.Create(CM).Field("chatBubbles").GetValue();
             CM.fadeOutSpeed = .75f;
-            // UnityModManager.Logger.Log("Updating speech bubbles " + chatBubbles.Count);
 
             for (int i = 0; i < chatBubbles.Count; i++)
             {

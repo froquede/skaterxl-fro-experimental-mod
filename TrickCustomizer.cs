@@ -218,7 +218,7 @@ namespace fro_mod
             {
                 for (int i = 0; i < type_of_input.Count; i++)
                 {
-                    UnityModManager.Logger.Log(type_of_input[i]);
+                    Utils.Log(type_of_input[i]);
                 }
             }
 

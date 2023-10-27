@@ -259,6 +259,8 @@ namespace fro_mod
 
         public bool shuv_fix = false;
 
+        public bool nudge_manual = false;
+
 #if DEBUG
         public bool debug = true;
 #else
