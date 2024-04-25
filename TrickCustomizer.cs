@@ -106,7 +106,7 @@ namespace fro_mod
 
             if (GameStateMachine.Instance.CurrentState.GetType() == typeof(PlayState))
             {
-                if ((PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pushing || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Riding || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Impact) && PlayerController.Instance.inputController.player.GetButtonDoublePressDown("Right Stick Button"))
+                if (Utils.CanConfig() && PlayerController.Instance.inputController.player.GetButtonDoublePressDown("Right Stick Button"))
                 {
                     Main.settings.trick_customization = !Main.settings.trick_customization;
                     NotificationManager.Instance.ShowNotification($"Trick customization { (Main.settings.trick_customization ? "enabled" : "disabled") }", 1f, false, NotificationManager.NotificationType.Normal, TextAlignmentOptions.TopRight, 0.1f);

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using RapidGUI;
 using ReplayEditor;
+using TMPro;
 using UnityEngine;
 using UnityModManagerNet;
 
@@ -147,7 +148,7 @@ namespace fro_mod
             if (!about_fold.reference)
             {
                 GUILayout.BeginVertical(boxpadded);
-                GUILayout.Label("<b>fro's experimental mod v1.18.2 for alpha branch XL v1.2.2.X (09/10/2023)</b>");
+                GUILayout.Label("<b>fro's experimental mod v1.19.0 for alpha branch XL v1.2.2.X (25/04/2024)</b>");
                 GUILayout.Label("Disclaimer: I'm not related to Easy Days Studios and i'm not responsible for any of your actions, use this mod at your own risk.");
                 GUILayout.Label("This mod is not intended to harm the game or the respective developer, the online functionality, or the game economy in any purposeful way.");
                 GUILayout.Label("I repudiate any type of practice or conduct that involves or promotes racism or any kind of discrimination.");
@@ -344,6 +345,11 @@ namespace fro_mod
                     Main.settings.sonic_mode = !Main.settings.sonic_mode;
                     if (Main.settings.sonic_mode) Main.settings.push_by_velocity = false;
                 }
+
+                if (RGUI.Button(Main.settings.push2push, "Push repeatedly"))
+                {
+                    Main.settings.push2push = !Main.settings.push2push;
+                }
                 GUILayout.Space(12);
 
                 if (RGUI.Button(Main.settings.bails, "Alternative bails"))
@@ -398,14 +404,17 @@ namespace fro_mod
                     Main.settings.catch_left_time = RGUI.SliderFloat(Main.settings.catch_left_time, 0.01f, .1f, .04f, "Left foot catch time");
                     Main.settings.catch_right_time = RGUI.SliderFloat(Main.settings.catch_right_time, 0.01f, .1f, .04f, "Right foot catch time");
 
-                    if (RGUI.Button(Main.settings.catch_acc_onflick, "Flick to catch support"))
+                    if (RGUI.Button(Main.settings.catch_acc_onflick, "Flick to catch"))
                     {
                         Main.settings.catch_acc_onflick = !Main.settings.catch_acc_onflick;
                     }
+
                     if (Main.settings.catch_acc_onflick)
                     {
                         Main.settings.FlickThreshold = RGUI.SliderFloat(Main.settings.FlickThreshold, 0f, 1f, .6f, "Flick threshold");
                     }
+
+                    if(Main.settings.catch_acc_onflick) GUILayout.Label("<b><color=#f9ca24>XXL3 (F7) Catch > Flick to Catch needs to be disabled</color></b>", GUILayout.Width(380));
                 }
 
                 GUILayout.EndVertical();
@@ -651,7 +660,7 @@ namespace fro_mod
                 Fold(keyframe_fold);
                 if (!keyframe_fold.reference)
                 {
-                    GUILayout.Label("<b><color=#f9ca24>Use this feature for creating filmer mode or first person keyframes on the replay editor</color></b>", GUILayout.Width(420));
+                    GUILayout.Label("<b><color=#f9ca24>Use this feature for creating filmer mode or first person keyframes on the replay editor</color></b>", GUILayout.Width(380));
 
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("<b>Target:</b>");
@@ -931,17 +940,16 @@ namespace fro_mod
             if (!experimental_fold.reference)
             {
                 GUILayout.BeginVertical(boxpadded);
-                Main.settings.Kp = RGUI.SliderFloat(Main.settings.Kp, 0f, 10000f, 5000f, "Kp");
-                Main.settings.Ki = RGUI.SliderFloat(Main.settings.Ki, 0f, 10000f, 0f, "Ki");
-                Main.settings.Kd = RGUI.SliderFloat(Main.settings.Kd, 0f, 2000f, 900f, "Kd");
-                Main.settings.KpImpact = RGUI.SliderFloat(Main.settings.KpImpact, 0f, 10000f, 5000f, "KpImpact");
-                Main.settings.KdImpact = RGUI.SliderFloat(Main.settings.KdImpact, 0f, 2000f, 1000f, "KdImpact");
-                Main.settings.KpSetup = RGUI.SliderFloat(Main.settings.KpSetup, 0f, 40000f, 20000f, "KpSetup");
-                Main.settings.KdSetup = RGUI.SliderFloat(Main.settings.KdSetup, 0f, 3000f, 1500f, "KdSetup");
+                Main.settings.Kp = RGUI.SliderFloat(Main.settings.Kp, 0f, 10000f, 5000f, "Riding force");
+                Main.settings.Kd = RGUI.SliderFloat(Main.settings.Kd, 0f, 2000f, 900f, "Riding smoothness");
+                Main.settings.KpImpact = RGUI.SliderFloat(Main.settings.KpImpact, 0f, 10000f, 5000f, "Impact force");
+                Main.settings.KdImpact = RGUI.SliderFloat(Main.settings.KdImpact, 0f, 2000f, 1000f, "Impact smoothness");
+                Main.settings.KpSetup = RGUI.SliderFloat(Main.settings.KpSetup, 0f, 40000f, 20000f, "Setup force");
+                Main.settings.KdSetup = RGUI.SliderFloat(Main.settings.KdSetup, 0f, 3000f, 1500f, "Setup smoothness");
                 /*Main.settings.KpGrind = RGUI.SliderFloat(Main.settings.KpGrind, 0f, 4000f, 2000f, "KpGrind");
                 Main.settings.KdGrind = RGUI.SliderFloat(Main.settings.KdGrind, 0f, 2000f, 900f, "KdGrind");*/
-                Main.settings.comHeightRiding = RGUI.SliderFloat(Main.settings.comHeightRiding, -1f, 2f, 1.06f, "Height Riding");
-                Main.settings.maxLegForce = RGUI.SliderFloat(Main.settings.maxLegForce, 0f, 10000f, 5000f, "Max Leg Force");
+                Main.settings.comHeightRiding = RGUI.SliderFloat(Main.settings.comHeightRiding, -1f, 2f, 1.06f, "Skater height riding");
+                Main.settings.maxLegForce = RGUI.SliderFloat(Main.settings.maxLegForce, 0f, 10000f, 5000f, "Max force");
 
                 /*PlayerController.Instance.boardController.Kp = RGUI.SliderFloat(PlayerController.Instance.boardController.Kp, 0f, 10000f, 5000f, "Board KP");
                 PlayerController.Instance.boardController.Ki = RGUI.SliderFloat(PlayerController.Instance.boardController.Ki, 0f, 10000f, 5000f, "Board KI");
@@ -1056,6 +1064,19 @@ namespace fro_mod
                     Main.settings.forward_force = RGUI.SliderFloat(Main.settings.forward_force, -1f, 2f, .35f, "Forward force");
                 }
 
+                GUILayout.Space(6);
+
+                if (RGUI.Button(Main.settings.customGravityWhileRiding, "Custom gravity modifiers"))
+                {
+                    Main.settings.customGravityWhileRiding = !Main.settings.customGravityWhileRiding;
+                }
+                if (Main.settings.customGravityWhileRiding)
+                {
+                    Main.settings.customGravityMultiplier = RGUI.SliderFloat(Main.settings.customGravityMultiplier, 0f, 10f, 1f, "Riding multiplier");
+                }
+
+                GUILayout.Space(6);
+
                 /*GUILayout.Space(6);
 
                 PlayerController.Instance.boardController.minManualAngle = RGUI.SliderFloat(PlayerController.Instance.boardController.minManualAngle, 0, 40f, 10f, "Min manual angle");
@@ -1078,6 +1099,8 @@ namespace fro_mod
 
                 GUILayout.EndVertical();
             }
+
+            TurnSection();
 
             Fold(customizer_fold, red);
 
@@ -1193,6 +1216,64 @@ namespace fro_mod
             }
         }
 
+        void BankLeanSection()
+        {
+            Fold(banklean_fold);
+            if (!banklean_fold.reference)
+            {
+                GUILayout.BeginVertical(boxpadded);
+                GUILayout.Label("<b><color=#f9ca24>These options affect normal and alternative banklean</color></b>");
+                Main.settings.bankLeanSpeed = RGUI.SliderFloat(Main.settings.bankLeanSpeed, 0f, 20f, 10f, "Banklean body rotation speed");
+                Main.settings.bankLeanMultiplier = RGUI.SliderFloat(Main.settings.bankLeanMultiplier, 0f, 2f, 1f, "Banklean speed multiplier");
+
+                GUILayout.Space(12);
+
+                if (RGUI.Button(Main.settings.alternativeBankLean, "Alternative bank lean (experimental)"))
+                {
+                    Main.settings.alternativeBankLean = !Main.settings.alternativeBankLean;
+                    if (Main.settings.alternativeBankLean)
+                    {
+                        Main.controller.alternativeBankLean = true;
+                        NotificationManager.Instance.ShowNotification($"Alternative bank lean { (Main.controller.alternativeBankLean ? "enabled" : "disabled") }", 1f, false, NotificationManager.NotificationType.Normal, TextAlignmentOptions.TopRight, 0.1f);
+                    }
+                }
+                if (Main.settings.alternativeBankLean)
+                {
+                    GUILayout.Label($"<b><color=#f9ca24>(Hold L1 / LB to { (Main.controller.alternativeBankLean ? "disable" : "enable") } while riding)</color></b>");
+                    GUILayout.Space(6);
+
+                    Main.settings.alternativeBankLeanStrength = Mathf.Clamp01(RGUI.SliderFloat(Main.settings.alternativeBankLeanStrength, 0f, 1f, 1f, "Alternative bank lean strength"));
+                }
+                GUILayout.EndVertical();
+            }
+        }
+
+        FoldObj turn_fold = new FoldObj(true, "Turning");
+        void TurnSection()
+        {
+            Fold(turn_fold);
+            if (!turn_fold.reference)
+            {
+                GUILayout.BeginVertical(boxpadded);
+                if (RGUI.Button(Main.settings.customTurn, "Custom turn"))
+                {
+                    Main.settings.customTurn = !Main.settings.customTurn;
+                }
+                if (Main.settings.customTurn)
+                {
+                    Main.settings.customSkateTurnMultiplier = RGUI.SliderFloat(Main.settings.customSkateTurnMultiplier, 0f, 10f, 1f, "Skate turn multiplier");
+                    Main.settings.customSkateTurnSpeed = RGUI.SliderFloat(Main.settings.customSkateTurnSpeed, 0f, 32f, 16f, "Skate turn speed");
+                    Main.settings.maxAngleClamp = RGUI.SliderFloat(Main.settings.maxAngleClamp, 0f, 6f, 3f, "Skate max turn angle");
+
+                    GUILayout.Space(6);
+
+                    Main.settings.customTurnMultiplier = RGUI.SliderFloat(Main.settings.customTurnMultiplier, 0f, 10f, 1f, "Body turn multiplier");
+                    Main.settings.customTurnSpeed = RGUI.SliderFloat(Main.settings.customTurnSpeed, 0f, 240f, 120f, "Body turn speed");
+                }
+                GUILayout.EndVertical();
+            }
+        }
+
         void ManualSection()
         {
             manual_fold.Fold(green);
@@ -1214,6 +1295,7 @@ namespace fro_mod
         FoldObj multi_all_fold = new FoldObj(true, "Multiplayer");
         FoldObj exp_fold = new FoldObj(true, "Experimental");
         FoldObj misc_fold = new FoldObj(true, "Misc");
+        FoldObj banklean_fold = new FoldObj(true, "Banklean");
         GUIStyle style = new GUIStyle();
         GUIStyle boxpadded = new GUIStyle("Box");
         public Vector2 scrollPosition = Vector2.zero;
@@ -1247,6 +1329,7 @@ namespace fro_mod
                 GrindsSection();
                 CopingSection();
                 //ManualSection();
+                BankLeanSection();
                 SkateSection();
                 ReallyExperimental();
                 GUILayout.EndVertical();
@@ -1278,9 +1361,7 @@ namespace fro_mod
                         Utils.Log(Main.controller.skater_parts[i].gameObject.name + " " + Main.controller.skater_parts[i].localRotation.eulerAngles);
                     }
                 }
-# endif
-
-
+#endif
                 GUILayout.BeginVertical(boxpadded);
                 {
                     GUILayout.Label("Use this button to reload custom gear textures while the game is open");
@@ -1288,6 +1369,15 @@ namespace fro_mod
                     {
                         SaveManagerFocusPatch.HandleCustomGearChanges();
                     }
+                }
+
+                GUILayout.Space(12);
+                GUILayout.Label("Custom resolutions");
+                if (GUILayout.Button("720p vertical")) Main.controller.setResolution(720, 1280);
+                if (GUILayout.Button("1080p vertical")) Main.controller.setResolution(1080, 1920);
+                if (Main.controller.originalResolution != Vector2Int.zero)
+                {
+                    if (GUILayout.Button("Reset resolution")) Main.controller.resetResolution();
                 }
                 GUILayout.EndVertical();
             }
@@ -1337,14 +1427,6 @@ namespace fro_mod
             {
                 GUILayout.BeginVertical(boxpadded);
                 {
-                    /*if(Main.settings.walk_after_bail)
-                    {
-                        if (RGUI.Button(Main.settings.haunting_arms, "Haunting arms"))
-                        {
-                            Main.settings.haunting_arms = !Main.settings.haunting_arms;
-                        }
-                    }*/
-
                     if (RGUI.Button(Main.settings.alternative_powerslide, "Alternative powerslides"))
                     {
                         Main.settings.alternative_powerslide = !Main.settings.alternative_powerslide;
