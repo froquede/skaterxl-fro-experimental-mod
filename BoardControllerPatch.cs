@@ -102,6 +102,30 @@ namespace fro_mod
         }
     }
 
+    [HarmonyPatch(typeof(BoardController), nameof(BoardController.AddTurnTorque), new Type[] { typeof(float) })]
+    class AddTurnTorquetPatch
+    {
+        static bool Prefix(float p_value, BoardController __instance)
+        {
+            if (Main.settings.enabled && Main.settings.customTurn)
+            {
+                p_value *= Main.settings.customSkateTurnMultiplier;
+                __instance.TurnTarget = p_value;
+                Traverse.Create(__instance).Field("removingTorque").SetValue(false);
+                float num = ((Mathf.Sign(p_value) < 0f) ? (-Main.settings.maxAngleClamp) : 0f);
+                float num2 = ((Mathf.Sign(p_value) > 0f) ? Main.settings.maxAngleClamp : 0f);
+                Vector3 vector = __instance.boardTransform.InverseTransformDirection(__instance.boardRigidbody.angularVelocity);
+                vector.y = Mathf.MoveTowards(vector.y, 3f * p_value, Time.deltaTime * Main.settings.customSkateTurnSpeed);
+                vector.y = Mathf.Clamp(vector.y, num, num2);
+                __instance.boardRigidbody.angularVelocity = __instance.boardTransform.TransformDirection(vector);
+                return false;
+            }
+            else return true;
+        }
+    }
+
+    
+
     [HarmonyPatch(typeof(BoardController), nameof(BoardController.SetCopingTargetLerp), new Type[] { typeof(Vector3) })]
     class SetCopingTargetLerpPatch
     {

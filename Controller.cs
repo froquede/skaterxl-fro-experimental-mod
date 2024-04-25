@@ -13,6 +13,8 @@ using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.SceneManagement;
 using UnityModManagerNet;
+using System.Linq;
+using TMPro;
 
 namespace fro_mod
 {
@@ -41,6 +43,7 @@ namespace fro_mod
 
         public void Start()
         {
+
             m_Logic = (FSMStateMachineLogic)Traverse.Create(PlayerController.Instance.playerSM).Field("m_Logic").GetValue();
             m_ChildSMs = (List<FSMStateMachineLogic>)Traverse.Create(m_Logic).Field("m_ChildSMs").GetValue();
 
@@ -50,16 +53,10 @@ namespace fro_mod
             DisableCameraCollider(Main.settings.camera_avoidance);
             MultiplayerManager.ROOMSIZE = 10;
             PlayerController.Instance.skaterController.skaterRigidbody.maxDepenetrationVelocity = .1f;
-            PlayerController.Instance.skaterController.leftFootCollider.attachedRigidbody.maxDepenetrationVelocity = .1f;
-            PlayerController.Instance.skaterController.rightFootCollider.attachedRigidbody.maxDepenetrationVelocity = .1f;
 
             PlayerController.Instance.boardController.boardRigidbody.solverIterations = 1;
             PlayerController.Instance.boardController.backTruckRigidbody.solverIterations = 1;
             PlayerController.Instance.boardController.frontTruckRigidbody.solverIterations = 1;
-            PlayerController.Instance.boardController.boardRigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            PlayerController.Instance.boardController.backTruckRigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            PlayerController.Instance.boardController.frontTruckRigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            PlayerController.Instance.boardController.backTruckRigidbody.interpolation = PlayerController.Instance.boardController.frontTruckRigidbody.interpolation = RigidbodyInterpolation.None;
 
             setSkateDepenetration(1.25f, 1.25f);
 
@@ -136,6 +133,10 @@ namespace fro_mod
         public float head_frame = 0, delay_head = 0;
         bool bumpOverride = false;
         string last_animation = "";
+        float dotMultiplier = 0;
+        bool anyWheelDown = false;
+        public bool alternativeBankLean = false;
+        Vector3 meanNormalLerped = Vector3.up;
         public void Update()
         {
             if (!Main.settings.enabled) return;
@@ -143,10 +144,43 @@ namespace fro_mod
             if (center_collider == null) getDeck();
             if (left_foot == null) getFeet();
 
+            if (GameStateMachine.Instance.CurrentState.GetType() == typeof(PlayState))
+            {
+                RaycastInFront();
+                if (meanNormalList.Count > 0)
+                {
+                    meanUpLerped = Quaternion.Slerp(meanUpLerped, Main.controller.meanUp(), Time.deltaTime * Main.settings.bankLeanSpeed);
+                    meanNormalLerped = Vector3.Slerp(meanNormalLerped, Main.controller.meanNormal(), Time.deltaTime * Main.settings.bankLeanSpeed);
+                    dotMultiplier = (1f + (Vector3.Dot(PlayerController.Instance.boardController.boardTransform.up, Vector3.up) * -1f)) / 2f;
+
+                    if (alternativeBankLean)
+                    {
+                        Traverse.Create(PlayerController.Instance.boardController.trajectory).Field("_predictedGroundNormal").SetValue(meanNormalLerped);
+                        PlayerController.Instance.SetRotationTarget(meanUpLerped);
+                    }
+                }
+            }
+
+            if (Main.settings.alternativeBankLean)
+            {
+                if (Utils.CanConfig() && !PlayerController.Instance.inputController.player.GetButtonDoublePressHold("LB") && PlayerController.Instance.inputController.player.GetButtonLongPressDown("LB"))
+                {
+                    alternativeBankLean = !alternativeBankLean;
+                    NotificationManager.Instance.ShowNotification($"Alternative bank lean { (alternativeBankLean ? "enabled" : "disabled") }", 1f, false, NotificationManager.NotificationType.Normal, TextAlignmentOptions.TopRight, 0.1f);
+                }
+            }
+            else alternativeBankLean = false;
+
+            bool[] _wheelsDown = (bool[])Traverse.Create(PlayerController.Instance.boardController).Field("_wheelsDown").GetValue();
+            anyWheelDown = _wheelsDown[0] || _wheelsDown[1] || _wheelsDown[2] || _wheelsDown[3];
+
             MultiplayerFilmer();
 
             //LookForward();
             LetsGoAnimHead();
+
+            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pushing) PushModes();
+            else pushAnim = 0f;
 
             //last_animation = (string)Traverse.Create(PlayerController.Instance.animationController).Field("_activeAnimation").GetValue();
 
@@ -328,7 +362,7 @@ namespace fro_mod
                     PlayerController.Instance.animationController.skaterAnim.CrossFadeInFixedTime("Pop", .15f);
                     PlayerController.Instance.animationController.GetCurrentAnim();
                     nudged = true;
-                }   
+                }
             }
             else
             {
@@ -469,6 +503,11 @@ namespace fro_mod
                 Physics.Raycast(PlayerController.Instance.boardController.boardTransform.position, -PlayerController.Instance.boardController.boardTransform.up, out rayCastOut, 0.8f, LayerUtility.GroundMask);
             }
 
+            if (anyWheelDown)
+            {
+                if (Main.settings.customGravityWhileRiding) PlayerController.Instance.boardController.boardRigidbody.AddForce(Physics.gravity * dotMultiplier * Time.fixedDeltaTime * (Main.settings.customGravityMultiplier * 1000f));
+            }
+
             //if (IsGrounded()) PlayerController.Instance.skaterController.skaterTargetTransform.position = Vector3.MoveTowards(PlayerController.Instance.skaterController.skaterTargetTransform.position, PlayerController.Instance.skaterController.animBoardTargetTransform.position, Time.fixedDeltaTime * 72f);
 
             DoDebug();
@@ -515,9 +554,6 @@ namespace fro_mod
 
             if (Main.settings.displacement_curve) PlayerController.Instance.ScaleDisplacementCurve(Vector3.ProjectOnPlane(PlayerController.Instance.skaterController.skaterTransform.position - PlayerController.Instance.boardController.boardTransform.position, PlayerController.Instance.skaterController.skaterTransform.forward).magnitude * 1.25f);
             if (Main.settings.alternative_arms) AlternativeArms();
-
-            if (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pushing) PushModes();
-            else pushAnim = 0f;
 
             if (!PlayerController.Instance.respawn.puppetMaster.isBlending)
             {
@@ -589,7 +625,7 @@ namespace fro_mod
             {
                 List<bool> feet_detached = getFootOff();
                 bool detached_ollie = false;
-                for(int i = 0; i < feet_detached.Count; i++)
+                for (int i = 0; i < feet_detached.Count; i++)
                 {
                     if (feet_detached[i]) detached_ollie = true;
                 }
@@ -602,8 +638,8 @@ namespace fro_mod
                 {
                     if (Main.settings.catch_acc_onflick)
                     {
-                        if (!left_caught) left_caught = SettingsManager.Instance.stance == Stance.Goofy ? CanFlickCatchWithRightStick() : CanFlickCatchWithLeftStick();
-                        if (!right_caught) right_caught = SettingsManager.Instance.stance == Stance.Goofy ? CanFlickCatchWithLeftStick() : CanFlickCatchWithRightStick();
+                        if (!left_caught) left_caught = CanFlickCatchWithLeftStick();
+                        if (!right_caught) right_caught = CanFlickCatchWithRightStick();
                     }
                     else
                     {
@@ -817,6 +853,7 @@ namespace fro_mod
         }
 
         float pushAnim = 0f;
+        float lastPush = 0f;
         void PushModes()
         {
             if (Main.settings.sonic_mode)
@@ -827,6 +864,56 @@ namespace fro_mod
             {
                 pushAnim = Mathf.SmoothStep(pushAnim, Mathf.Clamp01(PlayerController.Instance.skaterController.skaterRigidbody.velocity.magnitude / 90), Time.fixedDeltaTime * 48f);
                 PlayerController.Instance.animationController.ScaleAnimSpeed(1.1f - pushAnim);
+            }
+
+            if (Main.settings.push2push)
+            {
+                if (SettingsManager.Instance.stance == Stance.Goofy ? PlayerController.Instance.inputController.player.GetButtonUp("X") : PlayerController.Instance.inputController.player.GetButtonUp("A"))
+                {
+                    PlayerController.Instance.BoardFreezedAfterRespawn = false;
+                    if (lastPush > 1)
+                    {
+                        float diff = (PlayTime.time - lastPush);
+                        float p_value = Mathf.Clamp((.2f - diff), 0f, .2f) * 8f;
+                        Utils.Log(PlayerController.Instance.animationController.skaterAnim.GetCurrentAnimatorStateInfo(0).fullPathHash);
+                        int anim = PlayerController.Instance.IsSwitch ? -1331777291 : 786305979;
+
+                        PlayerController.Instance.animationController.skaterAnim.CrossFadeInFixedTime(anim, .1f, 0);
+                        PlayerController.Instance.animationController.ikAnim.CrossFadeInFixedTime(anim, .1f, 0);
+                        PlayerController.Instance.animationController.ScaleAnimSpeed(1f + (diff * 2f));
+
+
+                        if (PlayerController.Instance.boardController.boardRigidbody.velocity.magnitude < MonoBehaviourSingleton<PlayerController>.Instance.topSpeed)
+                        {
+                            if (PlayerController.Instance.boardController.boardRigidbody.velocity.magnitude < 0.1f)
+                            {
+                                if (Vector3.Angle(MonoBehaviourSingleton<PlayerController>.Instance.PlayerForward(), MonoBehaviourSingleton<PlayerController>.Instance.cameraController._actualCam.forward) < 90f)
+                                {
+                                    PlayerController.Instance.boardController.boardRigidbody.AddForce(MonoBehaviourSingleton<PlayerController>.Instance.PlayerForward() * p_value * 4f, ForceMode.Impulse);
+                                }
+                                else
+                                {
+                                    PlayerController.Instance.boardController.boardRigidbody.AddForce(-MonoBehaviourSingleton<PlayerController>.Instance.PlayerForward() * p_value * 4f, ForceMode.Impulse);
+                                }
+                            }
+                            else
+                            {
+                                PlayerController.Instance.boardController.boardRigidbody.AddForce(PlayerController.Instance.boardController.boardRigidbody.velocity.normalized * p_value, ForceMode.Impulse);
+                            }
+                        }
+
+                        Utils.Log("Push " + (PlayTime.time - lastPush));
+                    }
+                    lastPush = PlayTime.time;
+                }
+                else
+                {
+                    if (PlayTime.time - lastPush >= .3f)
+                    {
+                        lastPush = 0f;
+                    }
+                }
+                PlayerController.Instance.animationController.ScaleAnimSpeed(1f);
             }
         }
 
@@ -1375,7 +1462,7 @@ namespace fro_mod
 
         public void Wobble()
         {
-            if (GameStateMachine.Instance.CurrentState.GetType() != typeof(PlayState)) return;
+            if (GameStateMachine.Instance.CurrentState.GetType() != typeof(PlayState) || !anyWheelDown) return;
             Vector3 euler = PlayerController.Instance.boardController.boardRigidbody.transform.localRotation.eulerAngles;
             PlayerController.Instance.boardController.boardRigidbody.transform.localRotation = Quaternion.Euler(euler.x, euler.y, euler.z + WobbleValue());
 
@@ -1585,7 +1672,7 @@ namespace fro_mod
         public bool IsBumping = false;
         public void LateUpdate()
         {
-            if (!Main.settings.enabled) return;
+            if (!Main.settings.enabled || !Application.isFocused) return;
 
             LookForward();
 
@@ -2383,6 +2470,132 @@ namespace fro_mod
             }
 
             rootCollection.transform.localScale = new Vector3(Main.settings.map_scale.x, Main.settings.map_scale.y, Main.settings.map_scale.z);
+        }
+
+        public Vector2Int originalResolution = Vector2Int.zero;
+        public void setResolution(int width, int height) {
+            if (originalResolution == Vector2Int.zero) originalResolution = new Vector2Int(Screen.width, Screen.height);
+            Screen.SetResolution(width, height, Screen.fullScreen);
+        }
+
+        public void resetResolution() {
+            Utils.Log(originalResolution);
+            Screen.SetResolution(originalResolution.x, originalResolution.y, Screen.fullScreen);
+        }
+
+        public List<Quaternion> meanUpList = new List<Quaternion>();
+        public List<Vector3> meanNormalList = new List<Vector3>();
+
+        public Quaternion meanUpLerped = Quaternion.identity;
+        public Quaternion meanUp()
+        {
+            if (meanUpList.Count > 0) return new Quaternion(meanUpList.Average(x => x.x), meanUpList.Average(x => x.y), meanUpList.Average(x => x.z), meanUpList.Average(x => x.w));
+            else return (Quaternion)Traverse.Create(PlayerController.Instance.skaterController).Field("_newUp").GetValue();
+        }
+
+        public Vector3 meanNormal()
+        {
+            if (meanNormalList.Count > 0) return new Vector3(meanNormalList.Average(x => x.x), meanNormalList.Average(x => x.y), meanNormalList.Average(x => x.z));
+            else return Vector3.up;
+        }
+
+        Vector3 lastGroundPoint = Vector3.zero;
+        Vector3 lastUp = Vector3.up;
+        float raycastLerpStep = 0f, raycastLerpStepVelocity = 0f;
+        public void RaycastInFront()
+        {
+            RaycastHit hit;
+            Vector3 velocity = PlayerController.Instance.boardController.GetAverageBoardVelocity();
+            raycastLerpStep = Mathf.SmoothDamp(raycastLerpStep, anyWheelDown ? 0f : .75f, ref raycastLerpStepVelocity, .05f);
+            if (velocity.magnitude >= .25f)
+            {
+                Vector3[] origins = CalculateCirclePoints(PlayerController.Instance.boardController.transform.position, .1f);
+                float maxDistance = velocity.magnitude / 2f;
+                maxDistance = maxDistance < .25f ? .25f : maxDistance;
+
+                for (int i = 0; i < origins.Length; i++)
+                {
+                    if (Physics.Raycast(origins[i], Vector3.Lerp(-lastUp, velocity.normalized, raycastLerpStep), out hit, maxDistance, PlayerController.Instance.boardController.trajectory.layers))
+                    {
+                        if (LayerUtility.CanLandOn(hit.collider.gameObject.layer))
+                        {
+                            Quaternion tempUp = Quaternion.FromToRotation(PlayerController.Instance.skaterController.skaterTransform.up, hit.normal);
+
+                            tempUp *= PlayerController.Instance.skaterController.skaterRigidbody.rotation;
+                            meanUpList.Add(tempUp);
+                            meanNormalList.Add(hit.normal);
+
+                            /*GameObject debug = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                            debug.transform.localScale = new Vector3(.05f, .05f, .05f);
+                            debug.transform.position = hit.point;
+                            debug.transform.up = hit.normal;
+                            Destroy(debug.GetComponent<CapsuleCollider>());*/
+
+                            lastGroundPoint = hit.point;
+
+                            if (meanUpList.Count > Main.settings.frontRaycastAverage) meanUpList.RemoveAt(0);
+                            if (meanNormalList.Count > Main.settings.frontRaycastAverage) meanNormalList.RemoveAt(0);
+                        }
+                    }
+                }
+            }
+
+            Vector3 right = PlayerController.Instance.IsSwitch ? -PlayerController.Instance.skaterController.skaterTransform.right : PlayerController.Instance.skaterController.skaterTransform.right;
+            lastUp = Vector3.Cross(PlayerController.Instance.boardController.boardRigidbody.velocity.normalized, right);
+        }
+
+        public Vector3[] CalculateCirclePoints(Vector3 centerPoint, float radius)
+        {
+            Vector3[] points = new Vector3[6];
+
+            float angleIncrement = 360f / 6f;
+            float currentAngle = 0f;
+
+            for (int i = 0; i < 6; i++)
+            {
+                float x = centerPoint.x + radius * Mathf.Cos(currentAngle * Mathf.Deg2Rad);
+                float z = centerPoint.z + radius * Mathf.Sin(currentAngle * Mathf.Deg2Rad);
+                points[i] = new Vector3(x, centerPoint.y, z);
+                currentAngle += angleIncrement;
+            }
+
+            return points;
+        }
+
+        public void OnRespawn()
+        {
+            Utils.Log("Respawn");
+            meanUpList = new List<Quaternion>();
+            meanNormalList = new List<Vector3>();
+            lastUp = meanNormal();
+        }
+
+        public bool InAirRotationPatch(float p_slerp, SkaterController __instance)
+        {
+            if (Main.settings.enabled)
+            {
+                Quaternion startRotation = (Quaternion)Traverse.Create(__instance).Field("_startRotation").GetValue();
+                Quaternion newUp = (Quaternion)Traverse.Create(__instance).Field("_newUp").GetValue();
+                if (alternativeBankLean)
+                {
+                    newUp = Quaternion.Slerp(newUp, Main.controller.meanUpLerped, Main.settings.alternativeBankLeanStrength);
+                    //newUp = Main.controller.meanUpLerped;
+                }
+
+                Quaternion quaternion = Quaternion.Slerp(startRotation, newUp, p_slerp * Main.settings.bankLeanMultiplier);
+                __instance.upVectorTransform.rotation = quaternion;
+
+                Quaternion quaternion2 = Quaternion.FromToRotation(__instance.skaterTransform.up, __instance.upVectorTransform.up);
+
+                __instance.skaterRigidbody.rotation = quaternion2 * __instance.skaterRigidbody.rotation;
+                __instance.leanProxy.rotation = Quaternion.Slerp(__instance.leanProxy.rotation, __instance.skaterRigidbody.rotation, Time.deltaTime * Main.settings.bankLeanSpeed);
+                __instance.comboAccelLerp = Vector3.Lerp(__instance.comboAccelLerp, __instance.skaterTransform.up, Time.deltaTime * Main.settings.bankLeanSpeed);
+
+                MonoBehaviourSingleton<PlayerController>.Instance.boardController.boardRigidbody.rotation = quaternion2 * MonoBehaviourSingleton<PlayerController>.Instance.boardController.boardRigidbody.rotation;
+
+                return false;
+            }
+            else return true;
         }
     }
 }

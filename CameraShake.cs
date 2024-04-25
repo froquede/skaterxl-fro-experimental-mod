@@ -28,7 +28,7 @@ namespace fro_mod
 
         void FixedUpdate()
         {
-            if (GameStateMachine.Instance.CurrentState.GetType() != typeof(PlayState)) return;
+            if (GameStateMachine.Instance.CurrentState.GetType() != typeof(PlayState) || !Main.controller.enabled || !Main.settings.camera_shake || !Application.isFocused) return;
 
             if (PlayerController.Instance.skaterController.skaterRigidbody.velocity.magnitude <= 0.15f && !PlayerController.Instance.IsRespawning)
             {
@@ -48,7 +48,7 @@ namespace fro_mod
         float fov_vel = 0f;
         void LateUpdate()
         {
-            if (GameStateMachine.Instance.CurrentState.GetType() != typeof(PlayState)) return;
+            if (GameStateMachine.Instance.CurrentState.GetType() != typeof(PlayState) || !Application.isFocused || !Main.controller.enabled) return;
 
             if (!Main.settings.camera_shake || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Bailed) return;
 

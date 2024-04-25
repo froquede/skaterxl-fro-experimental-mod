@@ -31,6 +31,7 @@ namespace fro_mod
         public bool follow_mode_right = false;
         public bool follow_mode_head = false;
         public bool push_by_velocity = true;
+        public bool push2push = false;
 
         public float follow_target_offset = -.3f;
         public bool camera_feet = false;
@@ -260,6 +261,18 @@ namespace fro_mod
         public bool shuv_fix = false;
 
         public bool nudge_manual = false;
+        public bool alternativeBankLean = false;
+        public float bankLeanMultiplier = 1f, bankLeanSpeed = 10f;
+        public int frontRaycastAverage = 12;
+        public bool customGravityWhileRiding = false;
+        public float customGravityMultiplier = 1f;
+        public float alternativeBankLeanStrength = 1f;
+
+        public bool customTurn = false;
+        public float customTurnMultiplier = 1f, customTurnSpeed = 120f;
+        public float customSkateTurnMultiplier = 1f, customSkateTurnSpeed = 16f;
+        public float maxAngleClamp = 3f;
+
 
 #if DEBUG
         public bool debug = true;

@@ -113,5 +113,10 @@ namespace fro_mod
 
             return new Vector3(first, second, third);
         }
+
+        public static bool CanConfig()
+        {
+            return !Main.controller.IsGrabbing() && (PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Pushing || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Riding || PlayerController.Instance.currentStateEnum == PlayerController.CurrentState.Impact);
+        }
     }
 }
